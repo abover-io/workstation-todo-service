@@ -19,7 +19,7 @@ app.use(express.json());
 
 app.use(router);
 
-mongoose.connect(mongoURI, {
+mongoose.connect(process.env.MONGODB_URI || mongoURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });

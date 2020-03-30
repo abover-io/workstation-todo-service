@@ -1,0 +1,10 @@
+languange: node_js
+
+node_js:
+  - 'latest'
+
+install:
+  - npm i
+
+script:
+  - npm test

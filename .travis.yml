@@ -1,7 +1,7 @@
 languange: node_js
 
 node_js:
-  - 'latest'
+  - lts/*
 
 install:
   - npm i

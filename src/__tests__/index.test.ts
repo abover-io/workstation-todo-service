@@ -2,6 +2,7 @@ import supertest from 'supertest';
 import { connect, disconnect, connection } from 'mongoose';
 
 import app from '../app';
+import { testMongoURI } from '../config';
 
 const request = supertest(app);
 
@@ -11,7 +12,7 @@ let todoId: string;
 
 describe('User Model Tests', () => {
   beforeAll(async () => {
-    await connect('mongodb://mongo:27017/fancy-todo-server-test', {
+    await connect(testMongoURI, {
       useNewUrlParser: true,
       useUnifiedTopology: true
     });
@@ -79,7 +80,7 @@ describe('User Model Tests', () => {
 
 describe('Todo Model Test', () => {
   beforeAll(async () => {
-    await connect(`mongodb://mongo:27017/fancy-todo-api-test`, {
+    await connect(testMongoURI, {
       useNewUrlParser: true,
       useUnifiedTopology: true
     });

@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import { config } from 'dotenv';
 
 import router from './routes';
+import { mongoURI } from './config';
 
 if (process.env.NODE_ENV !== 'production') {
   config();
@@ -18,7 +19,7 @@ app.use(express.json());
 
 app.use(router);
 
-mongoose.connect('mongodb://mongo:27017/fancy-todo-server', {
+mongoose.connect(mongoURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });

@@ -4,7 +4,7 @@
   "description": "Sunday's Fancy Todo API",
   "main": "app.js",
   "scripts": {
-    "start": "tsc && node ./dist/app.js",
+    "start": "node ./dist/app.js",
     "test": "tsc && jest --coverage --forceExit",
     "build": "tsc",
     "watch": "tsc --watch",

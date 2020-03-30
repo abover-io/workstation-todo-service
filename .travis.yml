@@ -1,9 +1,13 @@
 languange: node_js
 
-services: mongodb
+services: 
+  - mongodb
 
 node_js:
   - lts/*
+
+env: 
+  - JWT_SECRET_KEY='I LOVE SECRETS!'
 
 install:
   - npm i

@@ -1,25 +1,26 @@
-import { compareSync } from 'bcryptjs';
-import { Types } from 'mongoose';
+import { compareSync } from "bcryptjs";
+import { Types } from "mongoose";
+import createError from "http-errors";
 
-import User from '../models/user';
-import generateToken from '../helpers/generateToken';
+import User from "../models/user";
+import generateToken from "../helpers/generateToken";
 
 const { ObjectId } = Types;
 
 class UserController {
   static async signUp(req: any, res: any, next: any) {
     try {
-      const { firstName, lastName = '', username, email, password } = req.body;
+      const { firstName, lastName = "", username, email, password } = req.body;
       const newUser = await User.create({
         firstName,
         lastName,
         username,
         email,
-        password
+        password,
       });
       res
         .status(201)
-        .json({ user: newUser, message: 'Successfully signed up!' });
+        .json({ user: newUser, message: "Successfully signed up!" });
     } catch (err) {
       next(err);
     }
@@ -31,31 +32,43 @@ class UserController {
       const signInUser: any = await User.findOne({
         $or: [
           {
-            username: userIdentifier
+            username: userIdentifier,
           },
           {
-            email: userIdentifier
-          }
-        ]
-      });
-      const { _id, firstName, lastName, username, email } = signInUser;
-      if (compareSync(password, signInUser.password)) {
-        res.status(200).json({
-          user: {
-            _id,
-            firstName,
-            lastName,
-            username,
-            email
+            email: userIdentifier,
           },
-          message: `Welcome, ${firstName}`,
-          token: generateToken({
-            firstName,
-            lastName,
-            username,
-            email
-          })
+        ],
+      });
+      if (signInUser === null) {
+        throw createError({
+          name: "UserNotFound",
+          message: "User not found, please sign up first!",
         });
+      } else {
+        const { _id, firstName, lastName, username, email } = signInUser;
+        if (compareSync(password, signInUser.password)) {
+          res.status(200).json({
+            user: {
+              _id,
+              firstName,
+              lastName,
+              username,
+              email,
+            },
+            message: `Welcome, ${firstName}`,
+            token: generateToken({
+              firstName,
+              lastName,
+              username,
+              email,
+            }),
+          });
+        } else {
+          throw createError({
+            name: "WrongUsernameOrPassword",
+            message: "Wrong username or password!",
+          });
+        }
       }
     } catch (err) {
       next(err);
@@ -65,14 +78,14 @@ class UserController {
   static async updatePut(req: any, res: any, next: any) {
     try {
       const { userId } = req.params;
-      const { firstName, lastName = '', username, email } = req.body;
+      const { firstName, lastName = "", username, email } = req.body;
       const updatedPutUser = await User.findOneAndUpdate(
         { _id: ObjectId(userId) },
         { firstName, lastName, username, email }
       );
       res
         .status(200)
-        .json({ user: updatedPutUser, message: 'Successfully updated user!' });
+        .json({ user: updatedPutUser, message: "Successfully updated user!" });
     } catch (err) {
       next(err);
     }
@@ -88,7 +101,7 @@ class UserController {
       );
       res.status(200).json({
         user: updatedPatchUser,
-        message: 'Successfully updated user password!'
+        message: "Successfully updated user password!",
       });
     } catch (err) {
       next(err);
@@ -99,11 +112,11 @@ class UserController {
     try {
       const { userId } = req.params;
       const deletedUser = await User.findOneAndDelete({
-        _id: ObjectId(userId)
+        _id: ObjectId(userId),
       });
       res.status(200).json({
         user: deletedUser,
-        message: 'Successfully deleted user account!'
+        message: "Successfully deleted user account!",
       });
     } catch (err) {
       next(err);

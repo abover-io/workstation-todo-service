@@ -44,6 +44,28 @@ describe('User Model Tests', () => {
     userId = response.body.user._id;
   });
 
+  test('Sign In - User Not Found', async () => {
+    const signInData = {
+      userIdentifier: 'doejohn',
+      password: 'doejohn'
+    };
+    const response = await request.post('/users/signin').send(signInData);
+    expect(response.status).toBe(404);
+    expect(response.body).toHaveProperty('message');
+    expect(response.body.message).toBe('User not found, please sign up first!');
+  });
+
+  test('Sign In - Wrong Username or Password', async () => {
+    const signInData = {
+      userIdentifier: 'johndoe',
+      password: 'doejohn'
+    };
+    const response = await request.post('/users/signin').send(signInData);
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('message');
+    expect(response.body.message).toBe('Wrong username or password!');
+  })
+
   test('Update Profile - Success', async () => {
     const updateProfileData = {
       firstName: 'Jackie',

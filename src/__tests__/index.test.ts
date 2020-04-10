@@ -2,7 +2,7 @@ import supertest from 'supertest';
 import { connect, disconnect, connection } from 'mongoose';
 
 import app from '../app';
-import { testMongoURI } from '../config';
+import { decideMongoURI } from '../config';
 
 const request = supertest(app);
 
@@ -12,7 +12,7 @@ let todoId: string;
 
 describe('User Model Tests', () => {
   beforeAll(async () => {
-    await connect(testMongoURI, {
+    await connect(decideMongoURI(), {
       useNewUrlParser: true,
       useUnifiedTopology: true
     });
@@ -102,7 +102,7 @@ describe('User Model Tests', () => {
 
 describe('Todo Model Test', () => {
   beforeAll(async () => {
-    await connect(testMongoURI, {
+    await connect(decideMongoURI(), {
       useNewUrlParser: true,
       useUnifiedTopology: true
     });

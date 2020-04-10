@@ -8,7 +8,7 @@
     "test": "tsc && jest --coverage --forceExit",
     "build": "tsc",
     "watch": "tsc --watch",
-    "dev": "tsc-watch --onSuccess \"node ./dist/app.js\""
+    "dev": "NODE_ENV=development tsc-watch --onSuccess \"node ./dist/app.js\""
   },
   "repository": {
     "type": "git",

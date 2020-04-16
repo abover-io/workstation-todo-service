@@ -105,7 +105,6 @@ describe('User Model Tests', () => {
       .patch(`/users/${userId}`)
       .send(updatePasswordData)
       .set('token', token);
-    expect(response.body).toHaveProperty('user');
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe('Successfully updated user password!');
   });

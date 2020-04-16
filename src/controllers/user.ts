@@ -15,7 +15,12 @@ class UserController {
     if (checkUserToken(token)) {
       res.status(200).json({ message: "User is verified!" });
     } else {
-      res.status(401).json({ message: "User is not verified!" });
+      next(
+        createError({
+          name: "AuthorizationError",
+          message: "User is not verified!"
+        })
+      );
     }
   }
 
@@ -27,7 +32,7 @@ class UserController {
         lastName,
         username,
         email,
-        password,
+        password
       });
       res
         .status(201)
@@ -43,17 +48,17 @@ class UserController {
       const signInUser: any = await User.findOne({
         $or: [
           {
-            username: userIdentifier,
+            username: userIdentifier
           },
           {
-            email: userIdentifier,
-          },
-        ],
+            email: userIdentifier
+          }
+        ]
       });
       if (signInUser === null) {
         throw createError({
           name: "UserNotFound",
-          message: "User not found, please sign up first!",
+          message: "User not found, please sign up first!"
         });
       } else {
         const { _id, firstName, lastName, username, email } = signInUser;
@@ -64,20 +69,20 @@ class UserController {
               firstName,
               lastName,
               username,
-              email,
+              email
             },
             message: `Welcome, ${firstName}`,
             token: generateToken({
               firstName,
               lastName,
               username,
-              email,
-            }),
+              email
+            })
           });
         } else {
           throw createError({
             name: "WrongUsernameOrPassword",
-            message: "Wrong username or password!",
+            message: "Wrong username or password!"
           });
         }
       }
@@ -90,13 +95,20 @@ class UserController {
     try {
       const { userId } = req.params;
       const { firstName, lastName = "", username, email } = req.body;
-      const updatedPutUser = await User.findOneAndUpdate(
+      await User.updateOne(
         { _id: ObjectId(userId) },
         { firstName, lastName, username, email }
       );
-      res
-        .status(200)
-        .json({ user: updatedPutUser, message: "Successfully updated user!" });
+      res.status(200).json({
+        user: {
+          _id: ObjectId(userId),
+          firstName,
+          lastName,
+          username,
+          email
+        },
+        message: "Successfully updated user!"
+      });
     } catch (err) {
       next(err);
     }
@@ -106,13 +118,12 @@ class UserController {
     try {
       const { userId } = req.params;
       const { password } = req.body;
-      const updatedPatchUser = await User.findOneAndUpdate(
+      await User.updateOne(
         { _id: ObjectId(userId) },
         { password }
       );
       res.status(200).json({
-        user: updatedPatchUser,
-        message: "Successfully updated user password!",
+        message: "Successfully updated user password!"
       });
     } catch (err) {
       next(err);
@@ -122,12 +133,11 @@ class UserController {
   static async delete(req: any, res: any, next: any) {
     try {
       const { userId } = req.params;
-      const deletedUser = await User.findOneAndDelete({
-        _id: ObjectId(userId),
+      await User.deleteOne({
+        _id: ObjectId(userId)
       });
       res.status(200).json({
-        user: deletedUser,
-        message: "Successfully deleted user account!",
+        message: "Successfully deleted user account!"
       });
     } catch (err) {
       next(err);

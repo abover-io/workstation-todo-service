@@ -4,10 +4,21 @@ import createError from "http-errors";
 
 import User from "../models/user";
 import generateToken from "../helpers/generateToken";
+import checkUserToken from "../helpers/checkUserToken";
 
 const { ObjectId } = Types;
 
 class UserController {
+  static async check(req: any, res: any, next: any) {
+    const { token } = req.headers;
+
+    if (checkUserToken(token)) {
+      res.status(200).json({ message: "User is verified!" });
+    } else {
+      res.status(401).json({ message: "User is not verified!" });
+    }
+  }
+
   static async signUp(req: any, res: any, next: any) {
     try {
       const { firstName, lastName = "", username, email, password } = req.body;

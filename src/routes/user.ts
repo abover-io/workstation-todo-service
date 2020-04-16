@@ -6,6 +6,7 @@ import authenticate from '../middlewares/authenticate';
 const userRouter = Router();
 const authorize = new Authorize();
 
+userRouter.get('/check');
 userRouter.post('/signup', UserController.signUp);
 userRouter.post('/signin', UserController.signIn);
 userRouter.use(authenticate);

@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node ./dist/app.js",
-    "test": "tsc && jest --coverage --forceExit",
+    "test": "tsc && jest --coverage --forceExit && coveralls < coverage/lcov.info",
     "build": "tsc",
     "watch": "tsc --watch",
     "dev": "NODE_ENV=development tsc-watch --onSuccess \"node ./dist/app.js\""
@@ -47,6 +47,7 @@
     "validator": "^13.0.0"
   },
   "devDependencies": {
+    "coveralls": "^3.0.11",
     "dotenv": "^8.2.0",
     "jest": "^25.2.1",
     "supertest": "^4.0.2",

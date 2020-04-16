@@ -64,7 +64,22 @@ describe('User Model Tests', () => {
     expect(response.status).toBe(400);
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe('Wrong username or password!');
-  })
+  });
+
+  test('Check User Token - Success', async () => {
+    const response = await request.get('/users/check').set('token', token);
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('message');
+    expect(response.body.message).toBe('User is verified!');
+  });
+
+  test('Check User Token - Failed', async () => {
+    const fakeToken = 'a'.repeat(token.length);
+    const response = await request.get('/users/check').set('token', fakeToken);
+    expect(response.status).toBe(401);
+    expect(response.body).toHaveProperty('message');
+    expect(response.body.message).toBe('User is not verified!');
+  });
 
   test('Update Profile - Success', async () => {
     const updateProfileData = {
@@ -124,6 +139,20 @@ describe('Todo Model Test', () => {
     expect(response.body.message).toBe('Successfully created todo!');
   });
 
+  test('Get All Todos - Success', async () => {
+    const response = await request.get(`/todos/${userId}`).set('token', token);
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('todos');
+    expect(Array.isArray(response.body.todos)).toBe(true);
+  });
+
+  test('Get a Specified Todo - Success', async () => {
+    const response = await request.get(`/todos/${userId}/${todoId}`).set('token', token);
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('todo');
+    expect(response.body.todo instanceof Object).toBe(true);
+  });
+
   test('Update Todo - Success', async () => {
     const updateTodoData = {
       name: 'Install MySQL',
@@ -137,6 +166,16 @@ describe('Todo Model Test', () => {
     expect(response.body).toHaveProperty('message');
     expect(response.body.todo.name).toBe(updateTodoData.name);
     expect(response.body.message).toBe('Successfully updated todo!');
+  });
+
+  test('Delete Todo - Success', async () => {
+    const response = await request.delete(`/todos/${userId}/${todoId}`).set('token', token);
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('todo');
+    expect(response.body).toHaveProperty('message');
+    expect(response.body.todo instanceof Object).toBe(true);
+    expect(typeof response.body.message).toBe('string');
+    expect(response.body.message).toBe('Successfully deleted todo!');
   });
 
   afterAll(async () => {

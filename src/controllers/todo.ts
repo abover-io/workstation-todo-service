@@ -9,7 +9,7 @@ class TodoController {
     try {
       const { userId } = req.params;
       const todos = await Todo.find({
-        _id: ObjectId(userId)
+        userId: ObjectId(userId)
       });
       res.status(200).json({ todos });
     } catch (err) {

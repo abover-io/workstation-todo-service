@@ -9,6 +9,10 @@
 
 Sunday Project - Fancy Todo API.
 
+You may want to checkout published docs using Postman.
+
+[Fancy Todo API Docs on Postman](https://documenter.getpostman.com/view/8807216/Szf52okU)
+
 ## Installation (Development Only)
 
 ```bash

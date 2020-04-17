@@ -27,16 +27,23 @@ class UserController {
   static async signUp(req: any, res: any, next: any) {
     try {
       const { firstName, lastName = "", username, email, password } = req.body;
-      const newUser = await User.create({
+      await User.create({
         firstName,
         lastName,
         username,
         email,
         password
       });
+      const signedUpUser = await User.findOne({ username });
       res
         .status(201)
-        .json({ user: newUser, message: "Successfully signed up!" });
+        .json({ user: {
+          _id: signedUpUser?._id,
+          firstName,
+          lastName,
+          username,
+          email
+        }, message: "Successfully signed up!" });
     } catch (err) {
       next(err);
     }

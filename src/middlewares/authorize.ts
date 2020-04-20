@@ -9,8 +9,9 @@ const { ObjectId } = Types;
 class Authorize {
   async authorizeUser(req: any, res: any, next: any) {
     try {
-      const { userId } = req.params;
-      const foundUser = await User.findOne({ _id: ObjectId(userId) });
+      const { username } = req.params;
+      const foundUser = await User.findOne({ username });
+      
       if (!foundUser) {
         throw createError({
           name: 'AuthorizationError',
@@ -26,11 +27,11 @@ class Authorize {
 
   async authorizeTodo(req: any, res: any, next: any) {
     try {
-      const { userId, todoId } = req.params;
+      const { username, todoId } = req.params;
       const foundTodo: any = await Todo.findOne({
         _id: ObjectId(todoId)
       });
-      if (foundTodo.userId.toString() !== userId) {
+      if (foundTodo.username !== username) {
         throw createError({name: 'AuthorizationError', message: 'You are not authorized to do this!'});
       } else {
         next();

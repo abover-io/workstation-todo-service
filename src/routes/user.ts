@@ -10,12 +10,12 @@ userRouter.get('/check', UserController.check);
 userRouter.post('/signup', UserController.signUp);
 userRouter.post('/signin', UserController.signIn);
 userRouter.use(authenticate);
-userRouter.put('/:userId', authorize.authorizeUser, UserController.updatePut);
+userRouter.put('/:username', authorize.authorizeUser, UserController.updatePut);
 userRouter.patch(
-  '/:userId',
+  '/:username',
   authorize.authorizeUser,
   UserController.updatePatch
 );
-userRouter.delete('/:userId', authorize.authorizeUser, UserController.delete);
+userRouter.delete('/:username', authorize.authorizeUser, UserController.delete);
 
 export default userRouter;

@@ -7,7 +7,7 @@ import { decideMongoURI } from '../config';
 const request = supertest(app);
 
 let token: string;
-let userId: string;
+let username: string;
 let todoId: string;
 
 describe('User Model Tests', () => {
@@ -41,7 +41,7 @@ describe('User Model Tests', () => {
     expect(response.body).toHaveProperty('message');
     expect(response.body).toHaveProperty('token');
     token = response.body.token;
-    userId = response.body.user._id;
+    username = response.body.user.username;
   });
 
   test('Sign In - User Not Found', async () => {
@@ -89,12 +89,13 @@ describe('User Model Tests', () => {
       email: 'jackiechen'
     };
     const response = await request
-      .put(`/users/${userId}`)
+      .put(`/users/${username}`)
       .send(updateProfileData)
       .set('token', token);
     expect(response.body).toHaveProperty('user');
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe('Successfully updated user!');
+    username = updateProfileData.username;
   });
 
   test('Update Password - Success', async () => {
@@ -102,7 +103,7 @@ describe('User Model Tests', () => {
       password: 'jackiechen'
     };
     const response = await request
-      .patch(`/users/${userId}`)
+      .patch(`/users/${username}`)
       .send(updatePasswordData)
       .set('token', token);
     expect(response.body).toHaveProperty('message');
@@ -128,7 +129,7 @@ describe('Todo Model Test', () => {
       dueDate: new Date()
     };
     const response = await request
-      .post(`/todos/${userId}`)
+      .post(`/todos/${username}`)
       .send(createTodoData)
       .set('token', token);
     todoId = response.body.todo._id;
@@ -139,14 +140,14 @@ describe('Todo Model Test', () => {
   });
 
   test('Get All Todos - Success', async () => {
-    const response = await request.get(`/todos/${userId}`).set('token', token);
+    const response = await request.get(`/todos/${username}`).set('token', token);
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('todos');
     expect(Array.isArray(response.body.todos)).toBe(true);
   });
 
   test('Get a Specified Todo - Success', async () => {
-    const response = await request.get(`/todos/${userId}/${todoId}`).set('token', token);
+    const response = await request.get(`/todos/${username}/${todoId}`).set('token', token);
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('todo');
     expect(response.body.todo instanceof Object).toBe(true);
@@ -158,7 +159,7 @@ describe('Todo Model Test', () => {
       dueDate: new Date()
     };
     const response = await request
-      .put(`/todos/${userId}/${todoId}`)
+      .put(`/todos/${username}/${todoId}`)
       .send(updateTodoData)
       .set('token', token);
     expect(response.body).toHaveProperty('todo');
@@ -168,7 +169,7 @@ describe('Todo Model Test', () => {
   });
 
   test('Delete Todo - Success', async () => {
-    const response = await request.delete(`/todos/${userId}/${todoId}`).set('token', token);
+    const response = await request.delete(`/todos/${username}/${todoId}`).set('token', token);
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('todo');
     expect(response.body).toHaveProperty('message');

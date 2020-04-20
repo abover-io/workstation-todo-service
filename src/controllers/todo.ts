@@ -7,9 +7,9 @@ const { ObjectId } = Types;
 class TodoController {
   static async findAll(req: any, res: any, next: any) {
     try {
-      const { userId } = req.params;
+      const { username } = req.params;
       const todos = await Todo.find({
-        userId: ObjectId(userId)
+        username
       });
       res.status(200).json({ todos });
     } catch (err) {
@@ -19,14 +19,14 @@ class TodoController {
 
   static async findOne(req: any, res: any, next: any) {
     try {
-      const { userId, todoId } = req.params;
+      const { username, todoId } = req.params;
       const todo = await Todo.findOne({
         $and: [
           {
             _id: ObjectId(todoId)
           },
           {
-            userId: ObjectId(userId)
+            username
           }
         ]
       });
@@ -38,14 +38,14 @@ class TodoController {
 
   static async create(req: any, res: any, next: any) {
     try {
-      const { userId } = req.params;
+      const { username } = req.params;
       const { name, dueDate } = req.body;
       const todo = await Todo.create({
-        userId,
+        username,
         name,
         dueDate
       });
-      todo.userId = userId;
+      todo.username = username;
       res.status(201).json({ todo, message: 'Successfully created todo!' });
     } catch (err) {
       next(err);
@@ -54,7 +54,7 @@ class TodoController {
 
   static async update(req: any, res: any, next: any) {
     try {
-      const { userId, todoId } = req.params;
+      const { username, todoId } = req.params;
       const { name, dueDate } = req.body;
       const todo = await Todo.findOneAndUpdate(
         {
@@ -63,7 +63,7 @@ class TodoController {
               _id: ObjectId(todoId)
             },
             {
-              userId: ObjectId(userId)
+              username
             }
           ]
         },
@@ -82,14 +82,14 @@ class TodoController {
 
   static async delete(req: any, res: any, next: any) {
     try {
-      const { userId, todoId } = req.params;
+      const { username, todoId } = req.params;
       const todo = await Todo.findOneAndDelete({
         $and: [
           {
             _id: ObjectId(todoId)
           },
           {
-            userId: ObjectId(userId)
+            username
           }
         ]
       });

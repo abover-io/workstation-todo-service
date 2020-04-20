@@ -1,10 +1,8 @@
-import { Schema, model, Types, Document, Model } from 'mongoose';
-
-const ObjectId = Types.ObjectId;
+import { Schema, model, Document, Model } from 'mongoose';
 
 interface ITodoModel extends Document {
-  todoId: any;
-  userId: any;
+  _id: any;
+  username: string;
   name: string;
   dueDate: Date;
   createdAt: Date;
@@ -12,9 +10,9 @@ interface ITodoModel extends Document {
 }
 
 const TodoSchema: Schema = new Schema({
-  userId: {
-    type: ObjectId,
-    required: [true, 'Todo has to have User ID!']
+  username: {
+    type: String,
+    required: [true, 'Todo has to have username!']
   },
   name: {
     type: String,

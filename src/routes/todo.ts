@@ -8,10 +8,10 @@ const todoRouter = Router();
 const authorize = new Authorize();
 
 todoRouter.use(authenticate);
-todoRouter.get('/:userId', TodoController.findAll);
-todoRouter.get('/:userId/:todoId', TodoController.findOne);
-todoRouter.post('/:userId', TodoController.create);
-todoRouter.put('/:userId/:todoId', authorize.authorizeTodo, TodoController.update);
-todoRouter.delete('/:userId/:todoId', authorize.authorizeTodo, TodoController.delete);
+todoRouter.get('/:username', TodoController.findAll);
+todoRouter.get('/:username/:todoId', TodoController.findOne);
+todoRouter.post('/:username', TodoController.create);
+todoRouter.put('/:username/:todoId', authorize.authorizeTodo, TodoController.update);
+todoRouter.delete('/:username/:todoId', authorize.authorizeTodo, TodoController.delete);
 
 export default todoRouter;

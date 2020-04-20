@@ -100,18 +100,18 @@ class UserController {
 
   static async updatePut(req: any, res: any, next: any) {
     try {
-      const { userId } = req.params;
-      const { firstName, lastName = "", username, email } = req.body;
+      const oldUsername = req.params.username;
+      const { firstName, lastName = "", email } = req.body;
+      const newUsername = req.body.username;
       await User.updateOne(
-        { _id: ObjectId(userId) },
-        { firstName, lastName, username, email }
+        { username: oldUsername },
+        { firstName, lastName, username: newUsername, email }
       );
       res.status(200).json({
         user: {
-          _id: ObjectId(userId),
           firstName,
           lastName,
-          username,
+          username:newUsername,
           email
         },
         message: "Successfully updated user!"
@@ -123,10 +123,10 @@ class UserController {
 
   static async updatePatch(req: any, res: any, next: any) {
     try {
-      const { userId } = req.params;
+      const { username } = req.params;
       const { password } = req.body;
       await User.updateOne(
-        { _id: ObjectId(userId) },
+        { username },
         { password }
       );
       res.status(200).json({
@@ -139,9 +139,9 @@ class UserController {
 
   static async delete(req: any, res: any, next: any) {
     try {
-      const { userId } = req.params;
+      const { username } = req.params;
       await User.deleteOne({
-        _id: ObjectId(userId)
+        username
       });
       res.status(200).json({
         message: "Successfully deleted user account!"

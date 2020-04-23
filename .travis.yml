@@ -6,9 +6,6 @@ services:
 node_js:
   - lts/*
 
-env: 
-  JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
-
 before_install:
   - docker-compose up -d --build
 

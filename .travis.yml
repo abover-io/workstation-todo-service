@@ -21,5 +21,9 @@ script:
 after_script:
   - docker-compose start api
   - docker-compose ps
+  - docker-compose start api
+  - docker-compose ps
+  - docker-compose start api
+  - docker-compose ps
   - docker-compose exec api npm test
   - docker-compose down

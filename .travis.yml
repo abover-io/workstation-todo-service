@@ -1,16 +1,16 @@
 languange: node_js
 
 services: 
-  - mongodb
+  - docker
 
 node_js:
   - lts/*
 
 env: 
-  - JWT_SECRET_KEY='I LOVE SECRETS!'
+  JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
 
-install:
-  - npm i
+before_install:
+  - docker-compose up -d --build
 
 script:
-  - npm test
+  - docker exec -it fancy-todo-api_api_1 npm test

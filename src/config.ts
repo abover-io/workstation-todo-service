@@ -1,5 +1,5 @@
 export const decideMongoURI = () => {
-  const defaultMongoURI = 'mongodb://localhost:27017/fancy-todo-api';
+  const defaultMongoURI = 'mongodb://mongodb:27017/fancy-todo-api';
   switch (process.env.NODE_ENV) {
     case 'development':
       return `${defaultMongoURI}-dev`;

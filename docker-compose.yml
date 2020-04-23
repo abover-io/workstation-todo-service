@@ -8,19 +8,20 @@ services:
       - 27017
     environment: 
       MONGO_INITDB_DATABASE: fancy-todo-api
+      MONGO_INITDB_DATABASE: fancy-todo-api-dev
+      MONGO_INITDB_DATABASE: fancy-todo-api-test
   api:
     build: 
       context: ./
       dockerfile: Dockerfile
-    volumes: 
-      - ./:/usr/local/app
     ports: 
       - 3000
     depends_on:
       - mongodb
     links:
       - mongodb
-    environment: 
+    environment:
+      NODE_ENV: $$NODE_ENV
       JWT_SECRET_KEY: $${{ secrets.JWT_SECRET_KEY }}
       TRAVIS_JOB_ID: $$TRAVIS_JOB_ID
       TRAVIS_BRANCH: $$TRAVIS_BRANCH

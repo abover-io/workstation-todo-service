@@ -22,4 +22,3 @@ services:
       - mongodb
     environment: 
       JWT_SECRET_KEY: $${{ secrets.JWT_SECRET_KEY }}
-    env_file: .env

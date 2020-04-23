@@ -6,13 +6,13 @@ services:
 node_js:
   - lts/*
 
-before_script:
+before_install:
   - docker-compose up -d --build
-  - export CONTAINER_ID=`docker ps | grep "fancy-todo-api_api_1" | awk '{ print $1 }'`
 
 script:
-  - docker start $CONTAINER_ID
-  - docker exec -it $CONTAINER_ID npm test
+  - docker ps
+  - docker ps | grep "fancy-todo-api_api_1" | awk '{ print $1 }'
+  - docker exec -it `docker ps | grep "fancy-todo-api_api_1" | awk '{ print $1 }'` npm test
 
 after_script:
   - docker-compose down

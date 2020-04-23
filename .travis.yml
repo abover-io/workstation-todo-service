@@ -10,7 +10,7 @@ before_install:
   - docker-compose up -d --build
 
 before_script:
-  - docker-compose ps
+  - export CONTAINER_ID=`docker ps | grep "fancy-todo-api_api_1" | awk '{ print $1 }'`
 
 script:
-  - docker exec -it `docker inspect --format="{{.Id}}" fancy-todo-api_api_1` npm test
+  - docker exec -it $CONTAINER_ID npm test

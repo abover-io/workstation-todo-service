@@ -11,7 +11,7 @@ before_install:
 
 before_script:
   - export CONTAINER_ID=`docker ps | grep "fancy-todo-api_api" | awk '{ print $1 }'`
-  - echo $CONTAINER_ID
+  - echo docker ps | grep "fancy-todo-api" | awk '{ print $1 }'
 
 script:
   - docker exec -it $CONTAINER_ID npm test

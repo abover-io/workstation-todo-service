@@ -13,4 +13,4 @@ before_script:
   - docker-compose ps
 
 script:
-  - docker exec -it fancy-todo-api_api_1 npm test
+  - docker exec -it `docker inspect --format="{{.Id}}" fancy-todo-api_api_1` npm test

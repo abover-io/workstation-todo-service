@@ -22,3 +22,5 @@ services:
       - mongodb
     environment: 
       JWT_SECRET_KEY: $${{ secrets.JWT_SECRET_KEY }}
+      TRAVIS_JOB_ID: $$TRAVIS_JOB_ID
+      TRAVIS_BRANCH: $$TRAVIS_BRANCH

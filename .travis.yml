@@ -14,9 +14,6 @@ before_install:
   
 script:
   - docker-compose up -d --build
-  - docker-compose ps
-  - docker-compose up -d --build api
-  - docker-compose ps
-  - docker-compose start api
+  - docker-compose up
   - docker-compose ps
   - docker-compose exec api npm test

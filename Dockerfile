@@ -2,8 +2,6 @@ FROM node:12.16.1-alpine
 
 WORKDIR /usr/local/app
 
-ENV PORT=3000
-
 RUN apk add --no-cache tini
 
 COPY package.json package-lock.json* yarn.lock* ./

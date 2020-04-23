@@ -21,7 +21,7 @@ services:
     links:
       - mongodb
     environment:
-      NODE_ENV: $$NODE_ENV
+      NODE_ENV: development
       JWT_SECRET_KEY: $${{ secrets.JWT_SECRET_KEY }}
       TRAVIS_JOB_ID: $$TRAVIS_JOB_ID
       TRAVIS_BRANCH: $$TRAVIS_BRANCH

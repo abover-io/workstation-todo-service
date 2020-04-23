@@ -5,7 +5,6 @@ services:
 
 env:
   DOCKER_COMPOSE_VERSION: 1.25.4
-  NODE_ENV: development
 
 before_install:
   - sudo rm /usr/local/bin/docker-compose
@@ -14,5 +13,7 @@ before_install:
   - sudo mv docker-compose /usr/local/bin
   
 script:
-  - docker-compose up --build
+  - docker-compose up -d --build
+
+after_success:
   - docker-compose exec api npm test

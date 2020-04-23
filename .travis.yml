@@ -8,9 +8,8 @@ node_js:
 
 before_script:
   - docker-compose up -d --build
-  - export CONTAINER_ID=`docker ps | grep "fancy-todo-api" | awk '{ print $1 }'`
-  - docker ps | grep "fancy-todo-api" | awk '{ print $1 }'
-  - docker ps
+  - export CONTAINER_ID=`docker ps | grep "fancy-todo-api_api_1" | awk '{ print $1 }'`
 
 script:
+  - docker start $CONTAINER_ID
   - docker exec -it $CONTAINER_ID npm test

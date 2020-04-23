@@ -1,11 +1,11 @@
 # Fancy Todo API
 
-[![Build Status](https://travis-ci.com/rafiandria23/fancy-todo-api.svg?branch=master)](https://travis-ci.com/rafiandria23/fancy-todo-api)
-[![Coverage Status](https://coveralls.io/repos/github/rafiandria23/fancy-todo-api/badge.svg?branch=master)](https://coveralls.io/github/rafiandria23/fancy-todo-api?branch=master)
-[![GitHub issues](https://img.shields.io/github/issues/rafiandria23/fancy-todo-api?style=flat)](https://github.com/rafiandria23/fancy-todo-api/issues)
-[![GitHub forks](https://img.shields.io/github/forks/rafiandria23/fancy-todo-api?style=flat)](https://github.com/rafiandria23/fancy-todo-api/network)
-[![GitHub stars](https://img.shields.io/github/stars/rafiandria23/fancy-todo-api?style=flat)](https://github.com/rafiandria23/fancy-todo-api/stargazers)
-[![GitHub license](https://img.shields.io/github/license/rafiandria23/fancy-todo-api?style=flat)](https://github.com/rafiandria23/fancy-todo-api/blob/master/LICENSE)
+[![Build Status](https://travis-ci.com/sunday-project/fancy-todo-api.svg?branch=master)](https://travis-ci.com/sunday-project/fancy-todo-api)
+[![Coverage Status](https://coveralls.io/repos/github/sunday-project/fancy-todo-api/badge.svg?branch=master)](https://coveralls.io/github/sunday-project/fancy-todo-api?branch=master)
+[![GitHub issues](https://img.shields.io/github/issues/sunday-project/fancy-todo-api?style=flat)](https://github.com/sunday-project/fancy-todo-api/issues)
+[![GitHub forks](https://img.shields.io/github/forks/sunday-project/fancy-todo-api?style=flat)](https://github.com/sunday-project/fancy-todo-api/network)
+[![GitHub stars](https://img.shields.io/github/stars/sunday-project/fancy-todo-api?style=flat)](https://github.com/sunday-project/fancy-todo-api/stargazers)
+[![GitHub license](https://img.shields.io/github/license/sunday-project/fancy-todo-api?style=flat)](https://github.com/sunday-project/fancy-todo-api/blob/master/LICENSE)
 
 Sunday Project - Fancy Todo API.
 

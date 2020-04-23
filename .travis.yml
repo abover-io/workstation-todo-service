@@ -12,4 +12,5 @@ before_script:
 
 script:
   - docker start $CONTAINER_ID
+  - docker exec -e TRAVIS_JOB_ID="$TRAVIS_JOB_ID" -e TRAVIS_BRANCH="$TRAVIS_BRANCH"
   - docker exec -it $CONTAINER_ID npm test

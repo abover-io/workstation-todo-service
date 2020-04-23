@@ -6,7 +6,7 @@ services:
 node_js:
   - lts/*
 
-before_install:
+before_script:
   - docker-compose up -d --build
   - export CONTAINER_ID=`docker ps | grep "fancy-todo-api" | awk '{ print $1 }'`
   - docker ps | grep "fancy-todo-api" | awk '{ print $1 }'

@@ -16,6 +16,7 @@ before_script:
   - docker-compose up -d --build
 
 script:
+  - docker-compose start api
   - docker-compose exec api npm test
 
 after_script:

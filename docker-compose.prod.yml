@@ -9,7 +9,7 @@ services:
     environment: 
       MONGO_INITDB_DATABASE: fancy-todo-api
   api:
-    image: api
+    image: 'fancy-todo-api_api'
     build: 
       context: ./
       dockerfile: Dockerfile

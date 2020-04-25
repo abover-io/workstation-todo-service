@@ -10,6 +10,7 @@ metadata:
   name: fancy-todo-api
 spec:
   type: LoadBalancer
+  loadBalancerIP: 34.87.87.112
   ports:
   - name: "80"
     port: 80

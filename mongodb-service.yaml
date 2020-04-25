@@ -6,14 +6,14 @@ metadata:
     kompose.version: 1.19.0 (f63a961c)
   creationTimestamp: null
   labels:
-    io.kompose.service: mongodb
-  name: mongodb
+    io.kompose.service: fancy-todo-mongodb
+  name: fancy-todo-mongodb
 spec:
   ports:
   - name: "27017"
     port: 27017
     targetPort: 27017
   selector:
-    io.kompose.service: mongodb
+    io.kompose.service: fancy-todo-mongodb
 status:
   loadBalancer: {}

@@ -6,13 +6,13 @@ metadata:
     kompose.version: 1.19.0 (f63a961c)
   creationTimestamp: null
   labels:
-    io.kompose.service: mongodb
-  name: mongodb
+    io.kompose.service: fancy-todo-mongodb
+  name: fancy-todo-mongodb
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: mongodb
+      name: fancy-todo-mongodb
   strategy: {}
   template:
     metadata:
@@ -21,15 +21,15 @@ spec:
         kompose.version: 1.19.0 (f63a961c)
       creationTimestamp: null
       labels:
-        io.kompose.service: mongodb
-        name: mongodb
+        io.kompose.service: fancy-todo-mongodb
+        name: fancy-todo-mongodb
     spec:
       containers:
       - env:
         - name: MONGO_INITDB_DATABASE
           value: fancy-todo-api
         image: mongo:latest
-        name: mongodb
+        name: fancy-todo-mongodb
         ports:
         - containerPort: 27017
         resources: {}

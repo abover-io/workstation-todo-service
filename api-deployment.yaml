@@ -6,13 +6,13 @@ metadata:
     kompose.version: 1.19.0 (f63a961c)
   creationTimestamp: null
   labels:
-    io.kompose.service: api
-  name: api
+    io.kompose.service: fancy-todo-api
+  name: fancy-todo-api
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: api
+      name: fancy-todo-api
   strategy: {}
   template:
     metadata:
@@ -21,8 +21,8 @@ spec:
         kompose.version: 1.19.0 (f63a961c)
       creationTimestamp: null
       labels:
-        io.kompose.service: api
-        name: api
+        io.kompose.service: fancy-todo-api
+        name: fancy-todo-api
     spec:
       containers:
       - env:
@@ -30,8 +30,8 @@ spec:
           value: ${{ secrets.JWT_SECRET_KEY }}
         - name: NODE_ENV
           value: production
-        image: rafiandria23/fancy-todo-api_api:latest
-        name: api
+        image: rafiandria23/fancy-todo-api:latest
+        name: fancy-todo-api
         ports:
         - containerPort: 3000
         resources: {}

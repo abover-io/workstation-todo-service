@@ -6,8 +6,8 @@ metadata:
     kompose.version: 1.19.0 (f63a961c)
   creationTimestamp: null
   labels:
-    io.kompose.service: api
-  name: api
+    io.kompose.service: fancy-todo-api
+  name: fancy-todo-api
 spec:
   type: LoadBalancer
   ports:
@@ -15,6 +15,6 @@ spec:
     port: 80
     targetPort: 3000
   selector:
-    io.kompose.service: api
+    io.kompose.service: fancy-todo-api
 status:
   loadBalancer: {}

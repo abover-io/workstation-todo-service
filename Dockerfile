@@ -8,10 +8,6 @@ COPY package.json package-lock.json* yarn.lock* ./
 
 RUN npm i -g typescript
 
-# RUN chown -R node:node .
-
-# USER node
-
 RUN npm i && npm cache clean --force
 
 COPY . .

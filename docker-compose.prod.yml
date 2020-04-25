@@ -5,20 +5,21 @@ services:
     image: mongo:latest
     restart: always
     ports: 
-      - 27017
+      - '27017'
     environment: 
-      MONGO_INITDB_DATABASE: fancy-todo-api
+      MONGO_INITDB_DATABASE: 'fancy-todo-api'
   api:
-    image: 'rafiandria23/fancy-todo-api_api:latest'
+    image: rafiandria23/fancy-todo-api_api:latest
+    restart: always
     build: 
       context: ./
       dockerfile: Dockerfile
     ports: 
-      - 8080:3000
+      - '80:3000'
     depends_on:
       - mongodb
     links:
       - mongodb
     environment:
-      NODE_ENV: production
+      NODE_ENV: 'production'
       JWT_SECRET_KEY: $${{ secrets.JWT_SECRET_KEY }}

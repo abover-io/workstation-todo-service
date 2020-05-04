@@ -1,29 +1,23 @@
-interface IError extends Error {
-  status: number;
-  name: string;
-  message: string;
-}
+import { Request, Response, NextFunction } from "express";
 
-export default (err: IError, req: object, res: any, next: any) => {
+export default (err: Error, req: Request, res: Response, next: NextFunction) => {
   switch (err.name) {
     case "AuthorizationError":
-      res.status(401).json({ message: err.message });
-      break;
+      return res.status(401).json({ message: err.message });
 
     case "UserNotFound":
-      res.status(404).json({ message: err.message });
-      break;
+      return res.status(404).json({ message: err.message });
 
-    case "WrongUsernameOrPassword":
-      res.status(400).json({ message: err.message });
-      break;
+    case "BadRequestError":
+      return res.status(400).json({ message: err.message });
 
     case "JsonWebTokenError":
-      res.status(400).json({ message: "Invalid token!" });
-      break;
+      return res.status(400).json({ message: "Invalid token!" });
+
+    case "NotFoundError":
+      return res.status(404).json({ message: err.message });
 
     default:
-      res.status(500).json({ message: err.message });
-      break;
+      return res.status(500).json({ message: err.message });
   }
 };

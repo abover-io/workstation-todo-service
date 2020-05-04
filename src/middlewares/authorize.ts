@@ -1,38 +1,58 @@
 import createError from 'http-errors';
 import { Types } from 'mongoose';
+import { Request, Response, NextFunction } from "express";
 
-import User from '../models/user';
-import Todo from '../models/todo';
+import User, { IUserModel } from '../models/user';
+import Todo, { ITodoModel } from '../models/todo';
 
 const { ObjectId } = Types;
 
-class Authorize {
-  async authorizeUser(req: any, res: any, next: any) {
+export default class Authorize {
+  static async authorizeUser(req: Request, res: Response, next: NextFunction) {
     try {
+      const user: IUserModel = (<any>req)['user'];
       const { username } = req.params;
-      const foundUser = await User.findOne({ username });
+      const foundUser: IUserModel | any = await User.findOne({ username });
       
       if (!foundUser) {
         throw createError({
           name: 'AuthorizationError',
-          message: 'You are unauthorized!'
+          message: 'Not authorized, no user found according to provided username.'
         });
       } else {
-        next();
+        if (username == user.username) {
+          next();
+        } else {
+          throw createError({
+            name: 'AuthorizationError',
+            message: 'Not authorized.'
+          });
+        }
       }
     } catch (err) {
       next(err);
     }
   }
 
-  async authorizeTodo(req: any, res: any, next: any) {
+  static async authorizeTodo(req: Request, res: Response, next: NextFunction) {
     try {
+      const user: IUserModel = (<any>req)['user'];
       const { username, todoId } = req.params;
-      const foundTodo: any = await Todo.findOne({
-        _id: ObjectId(todoId)
+      const foundTodo: ITodoModel | any = await Todo.findOne({
+        $and: [
+          {
+            _id: ObjectId(todoId)
+          },
+          {
+            username
+          }
+        ]
       });
-      if (foundTodo.username !== username) {
-        throw createError({name: 'AuthorizationError', message: 'You are not authorized to do this!'});
+
+      if (!foundTodo) {
+        throw createError({ name: "NotFoundError", message: "No todo found!" });
+      } else if (foundTodo.username != user.username) {
+        throw createError({name: 'AuthorizationError', message: `Not authorized! Username doesn't match.`});
       } else {
         next();
       }
@@ -41,5 +61,3 @@ class Authorize {
     }
   }
 }
-
-export default Authorize;

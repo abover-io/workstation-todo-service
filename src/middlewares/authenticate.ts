@@ -1,12 +1,50 @@
-import { verify } from 'jsonwebtoken';
+import { Request, Response, NextFunction } from "express";
+import { verify } from "jsonwebtoken";
+import createError from "http-errors";
 
-export default (req: any, res: any, next: any) => {
+import User, { IUserModel } from "../models/user";
+
+export default async (req: Request, res: Response, next: NextFunction) => {
+  const JWT_ACCESS_SECRET: string | any = process.env.JWT_ACCESS_SECRET;
   try {
-    const { token } = req.headers;
-    const JWT_SECRET_KEY: any = process.env.JWT_SECRET_KEY;
-    const user = verify(token, JWT_SECRET_KEY);
-    req.user = user;
-    next();
+    const accessToken: string | any =
+      req.headers["x-access-token"] ||
+      req.headers["X-ACCESS-TOKEN"] ||
+      req.headers.authorization?.split(" ")[1] ||
+      req.cookies.accessToken ||
+      req.body.accessToken;
+
+    if (!accessToken) {
+      throw createError({
+        name: "AuthorizationError",
+        message: "No access token provided."
+      });
+    }
+
+    const user: IUserModel | any = verify(accessToken, JWT_ACCESS_SECRET);
+
+    if (user) {
+      const foundUser: IUserModel | any = await User.findOne({
+        $or: [
+          {
+            username: user.username
+          },
+          {
+            email: user.email
+          }
+        ]
+      });
+
+      if (!foundUser) {
+        throw createError({
+          name: "AuthorizationError",
+          message: "Not Authorized."
+        });
+      } else {
+        (<any>req)["user"] = user;
+        next();
+      }
+    }
   } catch (err) {
     next(err);
   }

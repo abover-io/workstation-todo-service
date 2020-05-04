@@ -1,8 +1,8 @@
-import { Schema, model, Document, Model } from 'mongoose';
+import { Schema, model, Document, Model, HookNextFunction } from 'mongoose';
 import validator from 'validator';
 import { hashSync } from 'bcryptjs';
 
-interface IUserModel extends Document {
+export interface IUserModel extends Document {
   userId: any;
   firstName: string;
   lastName: string;
@@ -11,6 +11,7 @@ interface IUserModel extends Document {
   password: string;
   createdAt: Date;
   updatedAt: Date;
+  refreshTokens: Array<String>;
 }
 
 const UserSchema: Schema = new Schema({
@@ -36,19 +37,28 @@ const UserSchema: Schema = new Schema({
     type: String,
     required: [true, 'Password cannot be empty!'],
     minlength: [6, 'Minimum length is 6 characters!']
-  }
+  },
+  refreshTokens: [
+    {
+      type: String
+    }
+  ]
 });
 
-UserSchema.pre('save', function(this: IUserModel, next: any) {
+UserSchema.pre('save', function(this: IUserModel, next: HookNextFunction) {
   this.password = hashSync(this.password, 10);
   this.createdAt = new Date();
   next();
 });
 
-UserSchema.pre('update', function(this: IUserModel, next: any) {
+UserSchema.pre('update', function(this: IUserModel, next: HookNextFunction) {
   this.password = hashSync(this.password, 10);
   this.updatedAt = new Date();
   next();
+});
+
+UserSchema.post('insertOne', function(this: IUserModel) {
+  this.userId = this._id;
 });
 
 const User: Model<IUserModel> = model<IUserModel>('User', UserSchema);

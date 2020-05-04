@@ -4,18 +4,18 @@ import Authorize from '../middlewares/authorize';
 import authenticate from '../middlewares/authenticate';
 
 const userRouter = Router();
-const authorize = new Authorize();
 
-userRouter.get('/check', UserController.check);
+userRouter.post('/refresh', UserController.refreshToken);
 userRouter.post('/signup', UserController.signUp);
 userRouter.post('/signin', UserController.signIn);
 userRouter.use(authenticate);
-userRouter.put('/:username', authorize.authorizeUser, UserController.updatePut);
+userRouter.post('/signout', UserController.signOut);
+userRouter.put('/:username', Authorize.authorizeUser, UserController.updateProfile);
 userRouter.patch(
   '/:username',
-  authorize.authorizeUser,
-  UserController.updatePatch
+  Authorize.authorizeUser,
+  UserController.updatePassword
 );
-userRouter.delete('/:username', authorize.authorizeUser, UserController.delete);
+userRouter.delete('/:username', Authorize.authorizeUser, UserController.delete);
 
 export default userRouter;

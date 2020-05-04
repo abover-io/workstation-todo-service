@@ -1,6 +1,6 @@
 import { Schema, model, Document, Model } from 'mongoose';
 
-interface ITodoModel extends Document {
+export interface ITodoModel extends Document {
   _id: any;
   username: string;
   name: string;

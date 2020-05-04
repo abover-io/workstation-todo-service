@@ -1,26 +1,39 @@
 import { compareSync } from "bcryptjs";
-import { Types } from "mongoose";
 import createError from "http-errors";
+import { Request, Response, NextFunction } from "express";
 
-import User from "../models/user";
-import generateToken from "../helpers/generateToken";
-import checkUserToken from "../helpers/checkUserToken";
+import User, { IUserModel } from "../models/user";
+import generateUserTokens from "../helpers/generateUserTokens";
+import handleRefreshToken from "../helpers/handleRefreshToken";
+import decideCookieOptions from "../helpers/decideCookieOptions";
 
-const { ObjectId } = Types;
-
-class UserController {
-  static async check(req: any, res: any, next: any) {
-    const { token } = req.headers;
-
-    if (checkUserToken(token)) {
-      res.status(200).json({ message: "User is verified!" });
-    } else {
-      next(
-        createError({
-          name: "AuthorizationError",
-          message: "User is not verified!"
-        })
-      );
+export default class UserController {
+  static async refreshToken(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { refreshToken } = req.cookies;
+      const newTokens = await handleRefreshToken(refreshToken);
+      res.cookie("accessToken", newTokens.accessToken, {
+        httpOnly: decideCookieOptions("httpOnly"),
+        // secure: decideCookieOptions("secure"),
+        path: "/"
+      });
+      res.cookie("refreshToken", newTokens.refreshToken, {
+        httpOnly: decideCookieOptions("httpOnly"),
+        // secure: decideCookieOptions("secure"),
+        path: "/"
+      });
+      res.status(200).json(newTokens);
+    } catch (err) {
+      if (err.name == "RefreshTokenError") {
+        next(
+          createError({
+            name: "AuthorizationError",
+            message: err.message
+          })
+        );
+      } else {
+        next(err);
+      }
     }
   }
 
@@ -35,21 +48,22 @@ class UserController {
         password
       });
       const signedUpUser = await User.findOne({ username });
-      res
-        .status(201)
-        .json({ user: {
+      res.status(201).json({
+        user: {
           _id: signedUpUser?._id,
           firstName,
           lastName,
           username,
           email
-        }, message: "Successfully signed up!" });
+        },
+        message: "Successfully signed up!"
+      });
     } catch (err) {
       next(err);
     }
   }
 
-  static async signIn(req: any, res: any, next: any) {
+  static async signIn(req: Request, res: Response, next: NextFunction) {
     try {
       const { userIdentifier, password } = req.body;
       const signInUser: any = await User.findOne({
@@ -62,33 +76,43 @@ class UserController {
           }
         ]
       });
-      if (signInUser === null) {
+      if (!signInUser) {
         throw createError({
-          name: "UserNotFound",
+          name: "NotFoundError",
           message: "User not found, please sign up first!"
         });
       } else {
-        const { _id, firstName, lastName, username, email } = signInUser;
+        const { firstName, lastName, username, email } = signInUser;
+        const tokens = await generateUserTokens({
+          firstName,
+          lastName,
+          username,
+          email
+        });
         if (compareSync(password, signInUser.password)) {
+          res.cookie("accessToken", tokens.accessToken, {
+            httpOnly: decideCookieOptions("httpOnly"),
+            // secure: decideCookieOptions("secure"),
+            path: "/"
+          });
+          res.cookie("refreshToken", tokens.refreshToken, {
+            httpOnly: decideCookieOptions("httpOnly"),
+            // secure: decideCookieOptions("secure"),
+            path: "/"
+          })
           res.status(200).json({
             user: {
-              _id,
               firstName,
               lastName,
               username,
               email
             },
             message: `Welcome, ${firstName}`,
-            token: generateToken({
-              firstName,
-              lastName,
-              username,
-              email
-            })
+            tokens
           });
         } else {
           throw createError({
-            name: "WrongUsernameOrPassword",
+            name: "BadRequestError",
             message: "Wrong username or password!"
           });
         }
@@ -98,7 +122,7 @@ class UserController {
     }
   }
 
-  static async updatePut(req: any, res: any, next: any) {
+  static async updateProfile(req: any, res: any, next: any) {
     try {
       const oldUsername = req.params.username;
       const { firstName, lastName = "", email } = req.body;
@@ -111,7 +135,7 @@ class UserController {
         user: {
           firstName,
           lastName,
-          username:newUsername,
+          username: newUsername,
           email
         },
         message: "Successfully updated user!"
@@ -121,16 +145,13 @@ class UserController {
     }
   }
 
-  static async updatePatch(req: any, res: any, next: any) {
+  static async updatePassword(req: any, res: any, next: any) {
     try {
       const { username } = req.params;
       const { password } = req.body;
-      await User.updateOne(
-        { username },
-        { password }
-      );
+      await User.updateOne({ username }, { password });
       res.status(200).json({
-        message: "Successfully updated user password!"
+        message: "Successfully updated password!"
       });
     } catch (err) {
       next(err);
@@ -144,12 +165,46 @@ class UserController {
         username
       });
       res.status(200).json({
-        message: "Successfully deleted user account!"
+        message: "Successfully deleted account!"
       });
     } catch (err) {
       next(err);
     }
   }
-}
 
-export default UserController;
+  static async signOut(req: Request, res: Response, next: NextFunction) {
+    const user: IUserModel = (<any>req)["user"];
+    const receivedRefreshToken: string =
+      req.cookies.refreshToken ||
+      req.headers.refreshToken ||
+      req.headers["X-REFRESH-TOKEN"] ||
+      req.headers["x-refresh-token"] ||
+      req.body.refreshToken;
+
+    try {
+      const foundUser: IUserModel | any = await User.findOne({
+        username: user.username
+      });
+
+      if (!receivedRefreshToken) {
+        res.clearCookie("refreshToken", { path: "/" });
+        res.clearCookie("accessToken", { path: "/" });
+        return res.status(200).json({ message: "Successfully signed out!" });
+      }
+
+      const updatedRefreshTokens: Array<string> = foundUser.refreshTokens.filter(
+        (refreshToken: string) => {
+          return refreshToken != receivedRefreshToken;
+        }
+      );
+
+      await User.updateOne({ username: user.username }, { refreshTokens: updatedRefreshTokens });
+
+      res.clearCookie("refreshToken", { path: "/" });
+      res.clearCookie("accessToken", { path: "/" });
+      return res.status(200).json({ message: "Successfully signed out!" });
+    } catch (err) {
+      next(err);
+    }
+  }
+}

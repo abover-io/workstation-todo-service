@@ -1,14 +1,14 @@
 version: "3"
 
 services:
-  fancy-todo-mongodb:
+  fancy-todo-mongodb-dev:
     image: mongo:latest
     restart: always
     ports:
       - 27017
     environment:
       MONGO_INITDB_DATABASE: "fancy-todo-api-dev"
-  api:
+  fancy-todo-api-dev:
     build:
       context: ./
       dockerfile: Dockerfile

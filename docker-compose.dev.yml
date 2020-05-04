@@ -15,9 +15,9 @@ services:
     ports:
       - 3000:3000
     depends_on:
-      - fancy-todo-mongodb
+      - fancy-todo-mongodb-dev
     links:
-      - fancy-todo-mongodb
+      - fancy-todo-mongodb-dev
     environment:
       NODE_ENV: "development"
       JWT_ACCESS_SECRET: $${{ secrets.JWT_ACCESS_SECRET }}

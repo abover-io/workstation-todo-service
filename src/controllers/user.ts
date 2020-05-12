@@ -40,24 +40,46 @@ export default class UserController {
   static async signUp(req: any, res: any, next: any) {
     try {
       const { firstName, lastName = "", username, email, password } = req.body;
-      await User.create({
-        firstName,
-        lastName,
-        username,
-        email,
-        password
-      });
-      const signedUpUser = await User.findOne({ username });
-      res.status(201).json({
-        user: {
-          _id: signedUpUser?._id,
+      const existedUser: IUserModel | any = await User.findOne({ $or: [
+        {
+          username
+        },
+        {
+          email
+        }
+      ] });
+      if (existedUser) {
+        if (existedUser.username == username) {
+          throw createError({ 
+            name: "AlreadyExistsError",
+            message: `Username isn't available.`
+          });
+        } else if (existedUser.email == email) {
+          throw createError({
+            name: "AlreadyExistsError",
+            message: `Email isn't available.`
+          });
+        }
+      } else {
+        await User.create({
           firstName,
           lastName,
           username,
-          email
-        },
-        message: "Successfully signed up!"
-      });
+          email,
+          password
+        });
+        const signedUpUser: IUserModel | any = await User.findOne({ username });
+        res.status(201).json({
+          user: {
+            _id: signedUpUser._id,
+            firstName,
+            lastName,
+            username,
+            email
+          },
+          message: "Successfully signed up!"
+        });
+      }
     } catch (err) {
       next(err);
     }

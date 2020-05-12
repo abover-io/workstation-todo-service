@@ -17,6 +17,9 @@ export default (err: Error, req: Request, res: Response, next: NextFunction) => 
     case "NotFoundError":
       return res.status(404).json({ message: err.message });
 
+    case "AlreadyExistsError":
+      return res.status(400).json({ message: err.message });
+
     default:
       return res.status(500).json({ message: err.message });
   }

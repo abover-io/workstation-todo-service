@@ -26,8 +26,10 @@ spec:
     spec:
       containers:
       - env:
-        - name: JWT_SECRET_KEY
-          value: ${{ secrets.JWT_SECRET_KEY }}
+        - name: JWT_ACCESS_SECRET
+          value: ${{ secrets.JWT_ACCESS_SECRET }}
+        - name: JWT_REFRESH_SECRET
+          value: ${{ secrets.JWT_REFRESH_SECRET }}
         - name: NODE_ENV
           value: production
         image: rafiandria23/fancy-todo-api:latest

@@ -9,6 +9,7 @@ userRouter.post('/refresh', UserController.refreshToken);
 userRouter.post('/signup', UserController.signUp);
 userRouter.post('/signin', UserController.signIn);
 userRouter.use(authenticate);
+userRouter.get('/sync', UserController.sync);
 userRouter.post('/signout', UserController.signOut);
 userRouter.put('/:username', Authorize.authorizeUser, UserController.updateProfile);
 userRouter.patch(

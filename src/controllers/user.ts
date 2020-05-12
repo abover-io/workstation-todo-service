@@ -3,6 +3,7 @@ import createError from "http-errors";
 import { Request, Response, NextFunction } from "express";
 
 import User, { IUserModel } from "../models/user";
+import Todo, { ITodoModel } from "../models/todo";
 import generateUserTokens from "../helpers/generateUserTokens";
 import handleRefreshToken from "../helpers/handleRefreshToken";
 import decideCookieOptions from "../helpers/decideCookieOptions";
@@ -244,6 +245,33 @@ export default class UserController {
       res.clearCookie("refreshToken", { path: "/" });
       res.clearCookie("accessToken", { path: "/" });
       return res.status(200).json({ message: "Successfully signed out!" });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async sync(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email, username }: IUserModel = (<any>req)['user'];
+      const foundUser: IUserModel | any = await User.findOne({ $or: [
+        {
+          email
+        },
+        {
+          username
+        }
+      ] });
+      const todos = await Todo.find({ username }) || [];
+      res.status(200).json({
+        user: {
+          firstName: foundUser.firstName,
+          lastName: foundUser.lastName,
+          username,
+          email
+        },
+        todos,
+        message: "Successfully synced!"
+      });
     } catch (err) {
       next(err);
     }

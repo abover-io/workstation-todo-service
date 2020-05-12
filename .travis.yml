@@ -13,7 +13,7 @@ before_install:
   - sudo mv docker-compose /usr/local/bin
 
 script:
-  - docker-compose up -d --build
+  - docker-compose -f docker-compose.dev.yml up -d --build
 
 after_success:
-  - docker-compose exec api npm test
+  - docker-compose -f docker-compose.dev.yml exec npm test

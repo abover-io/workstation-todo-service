@@ -1,11 +1,11 @@
 # Fancy Todo API
 
-[![Build Status](https://travis-ci.com/sunday-project/fancy-todo-api.svg?branch=master)](https://travis-ci.com/sunday-project/fancy-todo-api)
-[![Coverage Status](https://coveralls.io/repos/github/sunday-project/fancy-todo-api/badge.svg?branch=master)](https://coveralls.io/github/sunday-project/fancy-todo-api?branch=master)
-[![GitHub issues](https://img.shields.io/github/issues/sunday-project/fancy-todo-api?style=flat)](https://github.com/sunday-project/fancy-todo-api/issues)
-[![GitHub forks](https://img.shields.io/github/forks/sunday-project/fancy-todo-api?style=flat)](https://github.com/sunday-project/fancy-todo-api/network)
-[![GitHub stars](https://img.shields.io/github/stars/sunday-project/fancy-todo-api?style=flat)](https://github.com/sunday-project/fancy-todo-api/stargazers)
-[![GitHub license](https://img.shields.io/github/license/sunday-project/fancy-todo-api?style=flat)](https://github.com/sunday-project/fancy-todo-api/blob/master/LICENSE)
+[![Build Status](https://travis-ci.com/sunday-projects/fancy-todo-api.svg?branch=master)](https://travis-ci.com/sunday-project/fancy-todo-api)
+[![Coverage Status](https://coveralls.io/repos/github/sunday-projects/fancy-todo-api/badge.svg?branch=devops)](https://coveralls.io/github/sunday-projects/fancy-todo-api?branch=master)
+[![GitHub issues](https://img.shields.io/github/issues/sunday-projects/fancy-todo-api?style=flat)](https://github.com/sunday-projects/fancy-todo-api/issues)
+[![GitHub forks](https://img.shields.io/github/forks/sunday-projects/fancy-todo-api?style=flat)](https://github.com/sunday-projects/fancy-todo-api/network)
+[![GitHub stars](https://img.shields.io/github/stars/sunday-projects/fancy-todo-api?style=flat)](https://github.com/sunday-projects/fancy-todo-api/stargazers)
+[![GitHub license](https://img.shields.io/github/license/sunday-projects/fancy-todo-api?style=flat)](https://github.com/sunday-projects/fancy-todo-api/blob/master/LICENSE)
 
 Sunday Project - Fancy Todo API.
 
@@ -59,7 +59,7 @@ Base URL: https://sunday-fancy-todo-api.herokuapp.com
 
   Example Request:
 
-  ```json
+  ```js
   {
     ...
     "headers": {
@@ -71,7 +71,7 @@ Base URL: https://sunday-fancy-todo-api.herokuapp.com
 
   Example Response (Success - 200):
 
-  ```json
+  ```js
   {
     ...
     "status": 200,
@@ -84,7 +84,7 @@ Base URL: https://sunday-fancy-todo-api.herokuapp.com
 
   Example Response (Unauthorized - 401):
 
-  ```json
+  ```js
   {
     ...
     "status": 401,
@@ -99,7 +99,7 @@ Base URL: https://sunday-fancy-todo-api.herokuapp.com
 
   Example Request:
 
-  ```json
+  ```js
   {
     ...
     "body": {
@@ -115,7 +115,7 @@ Base URL: https://sunday-fancy-todo-api.herokuapp.com
 
   Example Response (Success - 201):
 
-  ```json
+  ```js
   {
     ...
     "status": 201,
@@ -130,7 +130,7 @@ Base URL: https://sunday-fancy-todo-api.herokuapp.com
 
   Example Request:
 
-  ```json
+  ```js
   {
     ...
     "body": {
@@ -143,7 +143,7 @@ Base URL: https://sunday-fancy-todo-api.herokuapp.com
 
   Example Response (Success - 200):
 
-  ```json
+  ```js
   {
     ...
     "status": 200,
@@ -164,7 +164,7 @@ Base URL: https://sunday-fancy-todo-api.herokuapp.com
 
   Example Response (Bad Request - 400):
 
-  ```json
+  ```js
   {
     ...
     "status": 400,
@@ -177,7 +177,7 @@ Base URL: https://sunday-fancy-todo-api.herokuapp.com
 
   Example Response (Not Found - 404):
 
-  ```json
+  ```js
   {
     ...
     "status": 404,
@@ -192,7 +192,7 @@ Base URL: https://sunday-fancy-todo-api.herokuapp.com
 
   Example Request:
 
-  ```json
+  ```js
   {
     ...
     "headers": {
@@ -204,7 +204,7 @@ Base URL: https://sunday-fancy-todo-api.herokuapp.com
 
   Example Response (Success - 200):
 
-  ```json
+  ```js
   {
     ...
     "status": 200,
@@ -226,7 +226,7 @@ Base URL: https://sunday-fancy-todo-api.herokuapp.com
 
   Example Request:
 
-  ```json
+  ```js
   {
     ...
     "headers": {
@@ -241,7 +241,7 @@ Base URL: https://sunday-fancy-todo-api.herokuapp.com
 
   Example Response (Success - 200):
 
-  ```json
+  ```js
   {
     ...
     "status": 200,
@@ -256,7 +256,7 @@ Base URL: https://sunday-fancy-todo-api.herokuapp.com
 
   Example Request:
 
-  ```json
+  ```js
   {
     ...
     "headers": {
@@ -268,7 +268,7 @@ Base URL: https://sunday-fancy-todo-api.herokuapp.com
 
   Example Response (Success - 200):
 
-  ```json
+  ```js
   {
     ...
     "status": 200,

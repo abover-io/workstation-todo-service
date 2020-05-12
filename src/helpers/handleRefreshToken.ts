@@ -12,7 +12,7 @@ export default async (refreshToken: string | any): Promise<any> => {
     const foundUser = await User.findOne({ username: decodedRefreshToken.username });
 
     if (!foundUser) {
-      err.message = "Invalid refresh token due to no user found!";
+      err.message = "Invalid refresh token. No user found!";
       throw err;
     } else {
       const userRefreshTokens = foundUser.refreshTokens;

@@ -51,12 +51,6 @@ UserSchema.pre('save', function(this: IUserModel, next: HookNextFunction) {
   next();
 });
 
-UserSchema.pre('update', function(this: IUserModel, next: HookNextFunction) {
-  this.password = hashSync(this.password, 10);
-  this.updatedAt = new Date();
-  next();
-});
-
 UserSchema.post('insertOne', function(this: IUserModel) {
   this.userId = this._id;
 });

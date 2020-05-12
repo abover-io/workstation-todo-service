@@ -1,4 +1,4 @@
-import { compareSync } from "bcryptjs";
+import { compareSync, hashSync } from "bcryptjs";
 import createError from "http-errors";
 import { Request, Response, NextFunction } from "express";
 
@@ -22,7 +22,7 @@ export default class UserController {
         // secure: decideCookieOptions("secure"),
         path: "/"
       });
-      res.status(200).json(newTokens);
+      res.status(200).json({ tokens: newTokens, message: "Successfully refreshed token!" });
     } catch (err) {
       if (err.name == "RefreshTokenError") {
         next(
@@ -131,6 +131,22 @@ export default class UserController {
         { username: oldUsername },
         { firstName, lastName, username: newUsername, email }
       );
+      const tokens = await generateUserTokens({
+        firstName,
+        lastName,
+        username: newUsername,
+        email
+      });
+      res.cookie("accessToken", tokens.accessToken, {
+        httpOnly: decideCookieOptions("httpOnly"),
+        // secure: decideCookieOptions("secure"),
+        path: "/"
+      });
+      res.cookie("refreshToken", tokens.refreshToken, {
+        httpOnly: decideCookieOptions("httpOnly"),
+        // secure: decideCookieOptions("secure"),
+        path: "/"
+      });
       res.status(200).json({
         user: {
           firstName,
@@ -149,7 +165,8 @@ export default class UserController {
     try {
       const { username } = req.params;
       const { password } = req.body;
-      await User.updateOne({ username }, { password });
+      const hashedPassword = hashSync(password, 10);
+      await User.updateOne({ username }, { password: hashedPassword });
       res.status(200).json({
         message: "Successfully updated password!"
       });
@@ -164,6 +181,8 @@ export default class UserController {
       await User.deleteOne({
         username
       });
+      res.clearCookie("refreshToken", { path: "/" });
+      res.clearCookie("accessToken", { path: "/" });
       res.status(200).json({
         message: "Successfully deleted account!"
       });

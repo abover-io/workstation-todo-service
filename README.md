@@ -28,7 +28,7 @@ $ npm run dev
 
 ## Endpoint Summary
 
-Base URL: https://sunday-fancy-todo-api.herokuapp.com
+Base URL: http://api.todo.sundayexplore.tech
 
 ### User Endpoints
 

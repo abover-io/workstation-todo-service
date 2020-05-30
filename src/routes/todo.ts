@@ -1,8 +1,8 @@
 import { Router } from 'express';
 
-import Authorize from '../middlewares/authorize';
-import authenticate from '../middlewares/authenticate';
-import TodoController from '../controllers/todo';
+import Authorize from '@/middlewares/authorize';
+import authenticate from '@/middlewares/authenticate';
+import TodoController from '@/controllers/todo';
 
 const todoRouter = Router();
 

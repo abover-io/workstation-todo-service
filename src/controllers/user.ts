@@ -114,13 +114,13 @@ export default class UserController {
         });
         if (compareSync(password, signInUser.password)) {
           res.cookie("accessToken", tokens.accessToken, {
-            httpOnly: decideCookieOptions("httpOnly"),
-            // secure: decideCookieOptions("secure"),
+            httpOnly: true,
+            secure: decideCookieOptions("secure"),
             path: "/"
           });
           res.cookie("refreshToken", tokens.refreshToken, {
-            httpOnly: decideCookieOptions("httpOnly"),
-            // secure: decideCookieOptions("secure"),
+            httpOnly: true,
+            secure: decideCookieOptions("secure"),
             path: "/"
           })
           res.status(200).json({

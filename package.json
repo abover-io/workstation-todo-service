@@ -9,7 +9,7 @@
     "build": "tsc",
     "watch": "tsc --watch",
     "dev": "NODE_ENV=development tsc-watch --onSuccess \"node ./dist/app.js\"",
-    "bundle": "webpack"
+    "bundle:watch": "webpack --mode=development --watch"
   },
   "repository": {
     "type": "git",

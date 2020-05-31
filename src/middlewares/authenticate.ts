@@ -2,10 +2,10 @@ import { Request, Response, NextFunction } from "express";
 import { verify } from "jsonwebtoken";
 import createError from "http-errors";
 
-import User, { IUserModel } from "../models/user";
+import User, { IUserModel } from "@/models/user";
+import { JWT_ACCESS_SECRET } from '@/config';
 
 export default async (req: Request, res: Response, next: NextFunction) => {
-  const JWT_ACCESS_SECRET: string | any = process.env.JWT_ACCESS_SECRET;
   try {
     const accessToken: string | any =
       req.headers["x-access-token"] ||

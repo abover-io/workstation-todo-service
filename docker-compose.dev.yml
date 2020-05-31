@@ -1,4 +1,4 @@
-version: "3"
+version: "3.1"
 
 services:
   fancy-todo-mongodb:
@@ -9,9 +9,8 @@ services:
     environment:
       MONGO_INITDB_DATABASE: "fancy-todo-api-dev"
   fancy-todo-api:
-    build:
-      context: ./
-      dockerfile: Dockerfile.dev
+    image: rafiandria23/fancy-todo-api:dev
+    restart: always
     ports:
       - 3000:3000
     depends_on:
@@ -20,10 +19,17 @@ services:
       - fancy-todo-mongodb
     environment:
       NODE_ENV: "development"
-      JWT_ACCESS_SECRET: $${{ secrets.JWT_ACCESS_SECRET }}
-      JWT_REFRESH_SECRET: $${{ secrets.JWT_REFRESH_SECRET }}
-      TRAVIS_JOB_ID: $$TRAVIS_JOB_ID
-      TRAVIS_BRANCH: $$TRAVIS_BRANCH
+      JWT_ACCESS_SECRET: /run/secrets/JWT_ACCESS_SECRET
+      JWT_REFRESH_SECRET: /run/secrets/JWT_REFRESH_SECRET
+    secrets:
+      - JWT_ACCESS_SECRET
+      - JWT_REFRESH_SECRET
     volumes:
       - "./:/usr/local/app"
       - "/usr/local/app/node_modules"
+
+secrets:
+  JWT_ACCESS_SECRET:
+    external: true
+  JWT_REFRESH_SECRET:
+    external: true

@@ -1,13 +1,13 @@
 import { verify as verifyJWT, sign as signJWT } from 'jsonwebtoken';
-import User from '../models/user';
+
+import User from '@/models/user';
+import { JWT_ACCESS_SECRET, JWT_REFRESH_SECRET } from '@/config';
 
 export default async (refreshToken: string | any): Promise<any> => {
   const err = new Error();
   err.name = "RefreshTokenError";
 
   try {
-    const JWT_REFRESH_SECRET: string | any = process.env.JWT_REFRESH_SECRET;
-    const JWT_ACCESS_SECRET: string | any = process.env.JWT_ACCESS_SECRET;
     const decodedRefreshToken: any = await verifyJWT(refreshToken, JWT_REFRESH_SECRET);
     const foundUser = await User.findOne({ username: decodedRefreshToken.username });
 

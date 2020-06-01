@@ -4,9 +4,7 @@ import { Request, Response, NextFunction } from "express";
 
 import User, { IUserModel } from "../models/user";
 import Todo, { ITodoModel } from "../models/todo";
-import generateUserTokens from "../helpers/generateUserTokens";
-import handleRefreshToken from "../helpers/handleRefreshToken";
-import decideCookieOptions from "../helpers/decideCookieOptions";
+import { generateUserTokens, handleRefreshToken, decideCookieOptions } from '@/utils';
 
 export default class UserController {
   static async refreshToken(req: Request, res: Response, next: NextFunction) {

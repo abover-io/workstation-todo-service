@@ -5,7 +5,7 @@ import mongoose from 'mongoose';
 import { config } from 'dotenv';
 import { Server } from 'http';
 
-import router from './routes';
+import mainRouter from './routes';
 import { decideMongoURI } from './config';
 
 if (process.env.NODE_ENV !== 'production') {
@@ -29,7 +29,7 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.use(router);
+app.use(mainRouter);
 
 mongoose.connect(process.env.MONGODB_URI || decideMongoURI(), {
   useNewUrlParser: true,

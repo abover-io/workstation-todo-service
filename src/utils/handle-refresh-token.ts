@@ -1,6 +1,6 @@
 import { verify as verifyJWT, sign as signJWT } from 'jsonwebtoken';
 
-import User from '@/models/user';
+import { User } from '@/models';
 import { JWT_ACCESS_SECRET, JWT_REFRESH_SECRET } from '@/config';
 
 export default async (refreshToken: string | any): Promise<any> => {

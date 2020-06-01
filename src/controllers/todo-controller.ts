@@ -1,6 +1,6 @@
 import { Types } from 'mongoose';
 
-import Todo from '../models/todo';
+import { Todo } from '@/models';
 
 const { ObjectId } = Types;
 

@@ -1,33 +1,39 @@
-import { compareSync, hashSync } from "bcryptjs";
-import createError from "http-errors";
-import { Request, Response, NextFunction } from "express";
+import { compareSync, hashSync } from 'bcryptjs';
+import createError from 'http-errors';
+import { Request, Response, NextFunction } from 'express';
 
-import User, { IUserModel } from "../models/user";
-import Todo, { ITodoModel } from "../models/todo";
-import { generateUserTokens, handleRefreshToken, decideCookieOptions } from '@/utils';
+import { IUser } from '@/types';
+import { User, Todo } from '@/models';
+import {
+  generateUserTokens,
+  handleRefreshToken,
+  decideCookieOptions,
+} from '@/utils';
 
 export default class UserController {
   static async refreshToken(req: Request, res: Response, next: NextFunction) {
     try {
       const { refreshToken } = req.cookies;
       const newTokens = await handleRefreshToken(refreshToken);
-      res.cookie("accessToken", newTokens.accessToken, {
-        httpOnly: decideCookieOptions("httpOnly"),
+      res.cookie('accessToken', newTokens.accessToken, {
+        httpOnly: decideCookieOptions('httpOnly'),
         // secure: decideCookieOptions("secure"),
-        path: "/"
+        path: '/',
       });
-      res.cookie("refreshToken", newTokens.refreshToken, {
-        httpOnly: decideCookieOptions("httpOnly"),
+      res.cookie('refreshToken', newTokens.refreshToken, {
+        httpOnly: decideCookieOptions('httpOnly'),
         // secure: decideCookieOptions("secure"),
-        path: "/"
+        path: '/',
       });
-      res.status(200).json({ tokens: newTokens, message: "Successfully refreshed token!" });
+      res
+        .status(200)
+        .json({ tokens: newTokens, message: 'Successfully refreshed token!' });
     } catch (err) {
-      if (err.name == "RefreshTokenError") {
+      if (err.name == 'RefreshTokenError') {
         next(
           createError({
-            name: "AuthorizationError",
-            message: err.message
+            name: 'AuthorizationError',
+            message: err.message,
           })
         );
       } else {
@@ -38,25 +44,27 @@ export default class UserController {
 
   static async signUp(req: any, res: any, next: any) {
     try {
-      const { firstName, lastName = "", username, email, password } = req.body;
-      const existedUser: IUserModel | any = await User.findOne({ $or: [
-        {
-          username
-        },
-        {
-          email
-        }
-      ] });
+      const { firstName, lastName = '', username, email, password } = req.body;
+      const existedUser: IUser | any = await User.findOne({
+        $or: [
+          {
+            username,
+          },
+          {
+            email,
+          },
+        ],
+      });
       if (existedUser) {
         if (existedUser.username == username) {
-          throw createError({ 
-            name: "AlreadyExistsError",
-            message: `Username isn't available.`
+          throw createError({
+            name: 'AlreadyExistsError',
+            message: `Username isn't available.`,
           });
         } else if (existedUser.email == email) {
           throw createError({
-            name: "AlreadyExistsError",
-            message: `Email isn't available.`
+            name: 'AlreadyExistsError',
+            message: `Email isn't available.`,
           });
         }
       } else {
@@ -65,18 +73,18 @@ export default class UserController {
           lastName,
           username,
           email,
-          password
+          password,
         });
-        const signedUpUser: IUserModel | any = await User.findOne({ username });
+        const signedUpUser: IUser | any = await User.findOne({ username });
         res.status(201).json({
           user: {
             _id: signedUpUser._id,
             firstName,
             lastName,
             username,
-            email
+            email,
           },
-          message: "Successfully signed up!"
+          message: 'Successfully signed up!',
         });
       }
     } catch (err) {
@@ -90,17 +98,17 @@ export default class UserController {
       const signInUser: any = await User.findOne({
         $or: [
           {
-            username: userIdentifier
+            username: userIdentifier,
           },
           {
-            email: userIdentifier
-          }
-        ]
+            email: userIdentifier,
+          },
+        ],
       });
       if (!signInUser) {
         throw createError({
-          name: "NotFoundError",
-          message: "User not found, please sign up first!"
+          name: 'NotFoundError',
+          message: 'User not found, please sign up first!',
         });
       } else {
         const { firstName, lastName, username, email } = signInUser;
@@ -108,33 +116,33 @@ export default class UserController {
           firstName,
           lastName,
           username,
-          email
+          email,
         });
         if (compareSync(password, signInUser.password)) {
-          res.cookie("accessToken", tokens.accessToken, {
+          res.cookie('accessToken', tokens.accessToken, {
             httpOnly: true,
-            secure: decideCookieOptions("secure"),
-            path: "/"
+            secure: decideCookieOptions('secure'),
+            path: '/',
           });
-          res.cookie("refreshToken", tokens.refreshToken, {
+          res.cookie('refreshToken', tokens.refreshToken, {
             httpOnly: true,
-            secure: decideCookieOptions("secure"),
-            path: "/"
-          })
+            secure: decideCookieOptions('secure'),
+            path: '/',
+          });
           res.status(200).json({
             user: {
               firstName,
               lastName,
               username,
-              email
+              email,
             },
             message: `Welcome, ${firstName}`,
-            tokens
+            tokens,
           });
         } else {
           throw createError({
-            name: "BadRequestError",
-            message: "Wrong username or password!"
+            name: 'BadRequestError',
+            message: 'Wrong username or password!',
           });
         }
       }
@@ -146,7 +154,7 @@ export default class UserController {
   static async updateProfile(req: any, res: any, next: any) {
     try {
       const oldUsername = req.params.username;
-      const { firstName, lastName = "", email } = req.body;
+      const { firstName, lastName = '', email } = req.body;
       const newUsername = req.body.username;
       await User.updateOne(
         { username: oldUsername },
@@ -156,26 +164,26 @@ export default class UserController {
         firstName,
         lastName,
         username: newUsername,
-        email
+        email,
       });
-      res.cookie("accessToken", tokens.accessToken, {
-        httpOnly: decideCookieOptions("httpOnly"),
+      res.cookie('accessToken', tokens.accessToken, {
+        httpOnly: decideCookieOptions('httpOnly'),
         // secure: decideCookieOptions("secure"),
-        path: "/"
+        path: '/',
       });
-      res.cookie("refreshToken", tokens.refreshToken, {
-        httpOnly: decideCookieOptions("httpOnly"),
+      res.cookie('refreshToken', tokens.refreshToken, {
+        httpOnly: decideCookieOptions('httpOnly'),
         // secure: decideCookieOptions("secure"),
-        path: "/"
+        path: '/',
       });
       res.status(200).json({
         user: {
           firstName,
           lastName,
           username: newUsername,
-          email
+          email,
         },
-        message: "Successfully updated user!"
+        message: 'Successfully updated user!',
       });
     } catch (err) {
       next(err);
@@ -189,7 +197,7 @@ export default class UserController {
       const hashedPassword = hashSync(password, 10);
       await User.updateOne({ username }, { password: hashedPassword });
       res.status(200).json({
-        message: "Successfully updated password!"
+        message: 'Successfully updated password!',
       });
     } catch (err) {
       next(err);
@@ -200,12 +208,12 @@ export default class UserController {
     try {
       const { username } = req.params;
       await User.deleteOne({
-        username
+        username,
       });
-      res.clearCookie("refreshToken", { path: "/" });
-      res.clearCookie("accessToken", { path: "/" });
+      res.clearCookie('refreshToken', { path: '/' });
+      res.clearCookie('accessToken', { path: '/' });
       res.status(200).json({
-        message: "Successfully deleted account!"
+        message: 'Successfully deleted account!',
       });
     } catch (err) {
       next(err);
@@ -213,23 +221,23 @@ export default class UserController {
   }
 
   static async signOut(req: Request, res: Response, next: NextFunction) {
-    const user: IUserModel = (<any>req)["user"];
+    const user: IUser = (<any>req)['user'];
     const receivedRefreshToken: string =
       req.cookies.refreshToken ||
       req.headers.refreshToken ||
-      req.headers["X-REFRESH-TOKEN"] ||
-      req.headers["x-refresh-token"] ||
+      req.headers['X-REFRESH-TOKEN'] ||
+      req.headers['x-refresh-token'] ||
       req.body.refreshToken;
 
     try {
-      const foundUser: IUserModel | any = await User.findOne({
-        username: user.username
+      const foundUser: IUser | any = await User.findOne({
+        username: user.username,
       });
 
       if (!receivedRefreshToken) {
-        res.clearCookie("refreshToken", { path: "/" });
-        res.clearCookie("accessToken", { path: "/" });
-        return res.status(200).json({ message: "Successfully signed out!" });
+        res.clearCookie('refreshToken', { path: '/' });
+        res.clearCookie('accessToken', { path: '/' });
+        return res.status(200).json({ message: 'Successfully signed out!' });
       }
 
       const updatedRefreshTokens: Array<string> = foundUser.refreshTokens.filter(
@@ -238,11 +246,14 @@ export default class UserController {
         }
       );
 
-      await User.updateOne({ username: user.username }, { refreshTokens: updatedRefreshTokens });
+      await User.updateOne(
+        { username: user.username },
+        { refreshTokens: updatedRefreshTokens }
+      );
 
-      res.clearCookie("refreshToken", { path: "/" });
-      res.clearCookie("accessToken", { path: "/" });
-      return res.status(200).json({ message: "Successfully signed out!" });
+      res.clearCookie('refreshToken', { path: '/' });
+      res.clearCookie('accessToken', { path: '/' });
+      return res.status(200).json({ message: 'Successfully signed out!' });
     } catch (err) {
       next(err);
     }
@@ -250,25 +261,27 @@ export default class UserController {
 
   static async sync(req: Request, res: Response, next: NextFunction) {
     try {
-      const { email, username }: IUserModel = (<any>req)['user'];
-      const foundUser: IUserModel | any = await User.findOne({ $or: [
-        {
-          email
-        },
-        {
-          username
-        }
-      ] });
-      const todos = await Todo.find({ username }) || [];
+      const { email, username }: IUser = (<any>req)['user'];
+      const foundUser: IUser | any = await User.findOne({
+        $or: [
+          {
+            email,
+          },
+          {
+            username,
+          },
+        ],
+      });
+      const todos = (await Todo.find({ username })) || [];
       res.status(200).json({
         user: {
           firstName: foundUser.firstName,
           lastName: foundUser.lastName,
           username,
-          email
+          email,
         },
         todos,
-        message: "Successfully synced!"
+        message: 'Successfully synced!',
       });
     } catch (err) {
       next(err);

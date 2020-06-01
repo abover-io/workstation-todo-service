@@ -1,13 +1,4 @@
-import { Schema, model, Document, Model } from 'mongoose';
-
-export interface ITodoModel extends Document {
-  _id: any;
-  username: string;
-  name: string;
-  dueDate: Date;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { Schema, model, Model } from 'mongoose';
 
 const TodoSchema: Schema = new Schema({
   username: {

@@ -2,17 +2,17 @@ import createError from 'http-errors';
 import { Types } from 'mongoose';
 import { Request, Response, NextFunction } from "express";
 
-import User, { IUserModel } from '../models/user';
-import Todo, { ITodoModel } from '../models/todo';
+import { IUser, ITodo } from '@/types';
+import { User, Todo } from '@/models';
 
 const { ObjectId } = Types;
 
 export default class Authorize {
   static async authorizeUser(req: Request, res: Response, next: NextFunction) {
     try {
-      const user: IUserModel = (<any>req)['user'];
+      const user: IUser = (<any>req)['user'];
       const { username } = req.params;
-      const foundUser: IUserModel | any = await User.findOne({ username });
+      const foundUser: IUser | any = await User.findOne({ username });
       
       if (!foundUser) {
         throw createError({
@@ -36,9 +36,9 @@ export default class Authorize {
 
   static async authorizeTodo(req: Request, res: Response, next: NextFunction) {
     try {
-      const user: IUserModel = (<any>req)['user'];
+      const user: IUser = (<any>req)['user'];
       const { username, todoId } = req.params;
-      const foundTodo: ITodoModel | any = await Todo.findOne({
+      const foundTodo: ITodo | any = await Todo.findOne({
         $and: [
           {
             _id: ObjectId(todoId)

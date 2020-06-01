@@ -55,6 +55,7 @@ export default class UserController {
           },
         ],
       });
+      
       if (existedUser) {
         if (existedUser.username == username) {
           throw createError({

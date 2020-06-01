@@ -29,3 +29,8 @@ export const JWT_REFRESH_SECRET: string = fs.readFileSync(
   process.env.JWT_REFRESH_SECRET!,
   'utf-8'
 );
+
+export const JWT_API_KEY_SECRET: string = fs.readFileSync(
+  process.env.JWT_API_KEY_SECRET!,
+  'utf-8'
+);

@@ -21,6 +21,7 @@ services:
       NODE_ENV: "development"
       JWT_ACCESS_SECRET: /run/secrets/JWT_ACCESS_SECRET
       JWT_REFRESH_SECRET: /run/secrets/JWT_REFRESH_SECRET
+      JWT_API_KEY_SECRET: /run/secrets/JWT_API_KEY_SECRET
     secrets:
       - JWT_ACCESS_SECRET
       - JWT_REFRESH_SECRET
@@ -32,4 +33,6 @@ secrets:
   JWT_ACCESS_SECRET:
     external: true
   JWT_REFRESH_SECRET:
+    external: true
+  JWT_API_KEY_SECRET:
     external: true

@@ -9,7 +9,8 @@ export interface IUser extends Document {
   password: string;
   createdAt: Date;
   updatedAt: Date;
-  refreshTokens: Array<String>;
+  refreshTokens: String[];
+  apiKey: string;
 }
 
 export interface ITodo extends Document {

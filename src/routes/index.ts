@@ -1,18 +1,17 @@
 import { Router } from 'express';
 
-import userRouter from './user';
-import todoRouter from './todo';
-import errorHandler from '../middlewares/errorHandler';
+import { errorHandler } from '@/middlewares';
 
-const router = Router();
+import routerV1 from './v1';
 
-router.use('/users', userRouter);
-router.use('/todos', todoRouter);
+const mainRouter = Router();
 
-router.use(errorHandler);
+mainRouter.use('/v1', routerV1);
 
-router.use(function (req, res, next) {
-  res.send('Please refer to Fancy Todo API Docs!');
+mainRouter.use(errorHandler);
+
+mainRouter.use(function (req, res, next) {
+  res.redirect('https://todo.sundayexplore.tech/docs/v1');
 });
 
-export default router;
+export default mainRouter;

@@ -7,6 +7,7 @@ import { Server } from 'http';
 
 import mainRouter from './routes';
 import { decideMongoURI } from './config';
+import { getEnvVar } from './utils';
 
 if (process.env.NODE_ENV !== 'production') {
   config();
@@ -25,9 +26,10 @@ app.use(cors({
     "https://fancy-todos.web.app"
   ]
 }));
-app.use(cookieParser());
+app.use(cookieParser(getEnvVar('COOKIE_SECRET')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
 
 app.use(mainRouter);
 

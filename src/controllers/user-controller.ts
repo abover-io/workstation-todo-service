@@ -1,13 +1,15 @@
 import { compareSync, hashSync } from 'bcryptjs';
-import createError from 'http-errors';
+import createError, { HttpError } from 'http-errors';
 import { Request, Response, NextFunction } from 'express';
 
-import { IUser } from '@/types';
+import { IUser, ISignUpValidations, CustomHttpError, ISignInValidations } from '@/types';
 import { User, Todo } from '@/models';
 import {
   generateUserTokens,
   handleRefreshToken,
   decideCookieOptions,
+  CustomValidator,
+  createToken
 } from '@/utils';
 
 export default class UserController {
@@ -42,9 +44,43 @@ export default class UserController {
     }
   }
 
-  static async signUp(req: any, res: any, next: any) {
+  static async signUp(req: Request, res: Response, next: NextFunction) {
     try {
       const { firstName, lastName = '', username, email, password } = req.body;
+      const errorMessages: HttpError[] = [];
+      const validations: ISignUpValidations = {
+        firstName: CustomValidator.firstName(firstName),
+        username: CustomValidator.username(username),
+        email: CustomValidator.email(email),
+        password: CustomValidator.password(password)
+      };
+
+      for (const validationKey in validations) {
+        if (validations[validationKey]) {
+          const currentError: HttpError = {
+            expose: false,
+            message: validations[validationKey],
+            statusCode: 400,
+            status: 400,
+            name: validationKey
+          };
+          errorMessages.push(currentError);
+        }
+      }
+
+      if (errorMessages.length) {
+        const httpErrorWithMultipleMessages: CustomHttpError = {
+          expose: false,
+          message: 'Failed to sign up, please correct user information!',
+          messages: errorMessages,
+          statusCode: 400,
+          status: 400,
+          name: 'ValidationError'
+        };
+
+        throw httpErrorWithMultipleMessages;
+      }
+
       const existedUser: IUser | any = await User.findOne({
         $or: [
           {
@@ -55,47 +91,103 @@ export default class UserController {
           },
         ],
       });
-      
+
       if (existedUser) {
         if (existedUser.username == username) {
           throw createError({
             name: 'AlreadyExistsError',
             message: `Username isn't available.`,
+            expose: false
           });
         } else if (existedUser.email == email) {
           throw createError({
             name: 'AlreadyExistsError',
             message: `Email isn't available.`,
+            expose: false
           });
         }
       } else {
+        const newUserTokens = await generateUserTokens({ firstName, lastName, username, email }, 'signUp');
+        const newApiKey = createToken('apiKey', { username, email });
+
         await User.create({
           firstName,
           lastName,
           username,
           email,
           password,
+          refreshTokens: [newUserTokens.refreshToken],
+          apiKey: newApiKey
         });
-        const signedUpUser: IUser | any = await User.findOne({ username });
-        res.status(201).json({
+
+        res.cookie('act', newUserTokens.accessToken, {
+          httpOnly: true,
+          // secure: decideCookieOptions('secure'),
+          path: '/',
+          signed: true
+        });
+
+        res.cookie('rft', newUserTokens.refreshToken, {
+          httpOnly: true,
+          // secure: decideCookieOptions('secure'),
+          path: '/',
+          signed: true
+        });
+
+        res.cookie('XSRF-TOKEN', req.csrfToken())
+
+        return res.status(201).json({
           user: {
-            _id: signedUpUser._id,
             firstName,
             lastName,
             username,
             email,
+            apiKey: newApiKey
           },
+          tokens: newUserTokens,
           message: 'Successfully signed up!',
         });
       }
     } catch (err) {
-      next(err);
+      return next(err);
     }
   }
 
   static async signIn(req: Request, res: Response, next: NextFunction) {
     try {
       const { userIdentifier, password } = req.body;
+      const errorMessages: HttpError[] = [];
+      const validations: ISignInValidations = {
+        userIdentifier: CustomValidator.userIdentifier(userIdentifier),
+        password: CustomValidator.password(password)
+      };
+
+      for (const validationKey in validations) {
+        if (validations[validationKey]) {
+          const currentError: HttpError = {
+            expose: false,
+            message: validations[validationKey],
+            statusCode: 400,
+            status: 400,
+            name: validationKey
+          };
+          errorMessages.push(currentError);
+        }
+      }
+
+      if (errorMessages.length) {
+        const httpErrorWithMultipleMessages: CustomHttpError = {
+          expose: false,
+          message: 'Failed to sign in, please correct user information!',
+          messages: errorMessages,
+          statusCode: 400,
+          status: 400,
+          name: 'ValidationError'
+        };
+
+        throw httpErrorWithMultipleMessages;
+      }
+
       const signInUser: any = await User.findOne({
         $or: [
           {
@@ -106,13 +198,15 @@ export default class UserController {
           },
         ],
       });
+
       if (!signInUser) {
         throw createError({
           name: 'NotFoundError',
           message: 'User not found, please sign up first!',
+          expose: false
         });
       } else {
-        const { firstName, lastName, username, email } = signInUser;
+        const { firstName, lastName, username, email, apiKey } = signInUser;
         const tokens = await generateUserTokens({
           firstName,
           lastName,
@@ -120,30 +214,35 @@ export default class UserController {
           email,
         });
         if (compareSync(password, signInUser.password)) {
-          res.cookie('accessToken', tokens.accessToken, {
+          res.cookie('act', tokens.accessToken, {
             httpOnly: true,
-            secure: decideCookieOptions('secure'),
+            // secure: decideCookieOptions('secure'),
             path: '/',
           });
-          res.cookie('refreshToken', tokens.refreshToken, {
+          res.cookie('rft', tokens.refreshToken, {
             httpOnly: true,
-            secure: decideCookieOptions('secure'),
+            // secure: decideCookieOptions('secure'),
             path: '/',
           });
+
+          res.cookie('XSRF-TOKEN', req.csrfToken());
+
           res.status(200).json({
             user: {
               firstName,
               lastName,
               username,
               email,
+              apiKey
             },
-            message: `Welcome, ${firstName}`,
+            message: 'Successfully signed in!',
             tokens,
           });
         } else {
           throw createError({
             name: 'BadRequestError',
             message: 'Wrong username or password!',
+            expose: false
           });
         }
       }
@@ -205,7 +304,7 @@ export default class UserController {
     }
   }
 
-  static async delete(req: any, res: any, next: any) {
+  static async deleteUser(req: any, res: any, next: any) {
     try {
       const { username } = req.params;
       await User.deleteOne({

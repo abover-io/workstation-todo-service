@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import csurf from 'csurf';
 
 import Authorize from '@/middlewares/authorize';
 import authenticate from '@/middlewares/authenticate';
@@ -6,11 +7,26 @@ import { TodoController } from '@/controllers';
 
 const todoRouter = Router();
 
+todoRouter.use(csurf({ cookie: true }));
 todoRouter.use(authenticate);
-todoRouter.get('/:username', TodoController.findAll);
-todoRouter.get('/:username/:todoId', TodoController.findOne);
-todoRouter.post('/:username', TodoController.create);
-todoRouter.put('/:username/:todoId', Authorize.authorizeTodo, TodoController.update);
-todoRouter.delete('/:username/:todoId', Authorize.authorizeTodo, TodoController.delete);
+todoRouter.get('/', TodoController.getTodos);
+todoRouter.get('/:todoId', TodoController.getTodo);
+todoRouter.post('/', TodoController.addTodo);
+todoRouter.put('/:todoId', Authorize.authorizeTodo, TodoController.updateTodo);
+todoRouter.patch(
+  '/complete/:todoId',
+  Authorize.authorizeTodo,
+  TodoController.completeTodo
+);
+todoRouter.patch(
+  '/uncomplete/:todoId',
+  Authorize.authorizeTodo,
+  TodoController.uncompleteTodo
+);
+todoRouter.delete(
+  '/:todoId',
+  Authorize.authorizeTodo,
+  TodoController.deleteTodo
+);
 
 export default todoRouter;

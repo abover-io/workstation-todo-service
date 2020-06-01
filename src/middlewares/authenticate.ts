@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { verify } from 'jsonwebtoken';
+import { verify as jwtVerify } from 'jsonwebtoken';
 import createError from 'http-errors';
 
 import { IUser } from '@/types';
@@ -9,20 +9,20 @@ import { JWT_ACCESS_SECRET } from '@/config';
 export default async (req: Request, res: Response, next: NextFunction) => {
   try {
     const accessToken: string | any =
-      req.headers['x-access-token'] ||
-      req.headers['X-ACCESS-TOKEN'] ||
+      req.headers['x-act'] ||
+      req.headers['X-ACT'] ||
       req.headers.authorization?.split(' ')[1] ||
-      req.cookies.accessToken ||
-      req.body.accessToken;
+      req.cookies.act ||
+      req.body.act;
 
     if (!accessToken) {
       throw createError({
         name: 'AuthorizationError',
-        message: 'No access token provided.',
+        message: 'No access token provided.'
       });
     }
 
-    const user: IUser | any = verify(accessToken, JWT_ACCESS_SECRET);
+    const user: IUser | any = jwtVerify(accessToken, JWT_ACCESS_SECRET);
 
     if (user) {
       const foundUser: IUser | any = await User.findOne({
@@ -43,10 +43,10 @@ export default async (req: Request, res: Response, next: NextFunction) => {
         });
       } else {
         (<any>req)['user'] = user;
-        next();
+        return next();
       }
     }
   } catch (err) {
-    next(err);
+    return next(err);
   }
 };

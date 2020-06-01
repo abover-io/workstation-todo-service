@@ -1,14 +1,14 @@
 version: "3.1"
 
 services:
-  fancy-todo-mongodb:
+  mongodb:
     image: mongo:latest
     restart: always
     ports:
       - 27017
     environment:
       MONGO_INITDB_DATABASE: "fancy-todo-api-dev"
-  fancy-todo-api:
+  api:
     image: rafiandria23/fancy-todo-api:dev
     restart: always
     ports:
@@ -22,9 +22,12 @@ services:
       JWT_ACCESS_SECRET: /run/secrets/JWT_ACCESS_SECRET
       JWT_REFRESH_SECRET: /run/secrets/JWT_REFRESH_SECRET
       JWT_API_KEY_SECRET: /run/secrets/JWT_API_KEY_SECRET
+      COOKIE_SECRET: /run/secrets/COOKIE_SECRET
     secrets:
       - JWT_ACCESS_SECRET
       - JWT_REFRESH_SECRET
+      - JWT_API_KEY_SECRET
+      - COOKIE_SECRET
     volumes:
       - "./:/usr/local/app"
       - "/usr/local/app/node_modules"
@@ -35,4 +38,6 @@ secrets:
   JWT_REFRESH_SECRET:
     external: true
   JWT_API_KEY_SECRET:
+    external: true
+  COOKIE_SECRET:
     external: true

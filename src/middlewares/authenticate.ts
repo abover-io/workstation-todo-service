@@ -8,11 +8,11 @@ import { JWT_ACCESS_SECRET } from '@/config';
 
 export default async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const accessToken: string | any =
-      req.headers['x-act'] ||
-      req.headers['X-ACT'] ||
-      req.headers.authorization?.split(' ')[1] ||
+    const accessToken: string =
       req.cookies.act ||
+      req.headers.authorization?.split(' ')[1] ||
+      req.headers['X-ACT'] ||
+      req.headers['x-act'] ||
       req.body.act;
 
     if (!accessToken) {

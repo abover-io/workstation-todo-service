@@ -7,6 +7,8 @@ import {
   ISignUpValidations,
   CustomHttpError,
   ISignInValidations,
+  IUpdateUserValidations,
+  ITodo,
 } from '@/types';
 import { User, Todo } from '@/models';
 import {
@@ -261,49 +263,121 @@ export default class UserController {
 
   static async updateUser(req: Request, res: Response, next: NextFunction) {
     try {
-      const oldUsername = req.params.username;
+      const { username: usernameFromAuth } = (<any>req).user;
+      const { username: usernameFromParams } = req.params;
       const { firstName, lastName = '', email } = req.body;
-      const newUsername = req.body.username;
+      const validations: IUpdateUserValidations = {
+        firstName: CustomValidator.firstName(firstName),
+        email: CustomValidator.email(email),
+      };
+      const validationErrors: HttpError[] = [];
+
+      if (usernameFromAuth != usernameFromParams) {
+        const usernameAuthError: HttpError = {
+          expose: false,
+          name: 'AuthorizationError',
+          status: 401,
+          statusCode: 401,
+          message: 'Cannot update user, invalid credentials!',
+        };
+        throw usernameAuthError;
+      }
+
+      for (const validationKey in validations) {
+        if (validations[validationKey]) {
+          const currentValidationError: HttpError = {
+            expose: false,
+            status: 400,
+            statusCode: 400,
+            name: validationKey,
+            message: validations[validationKey],
+          };
+          validationErrors.push(currentValidationError);
+        }
+      }
+
+      if (validationErrors.length) {
+        const httpErrorWithMultipleMessages: CustomHttpError = {
+          expose: false,
+          message: 'Cannot update, please correct user information!',
+          messages: validationErrors,
+          statusCode: 400,
+          status: 400,
+          name: 'ValidationError',
+        };
+        throw httpErrorWithMultipleMessages;
+      }
+
       await User.updateOne(
-        { username: oldUsername },
-        { firstName, lastName, username: newUsername, email }
+        { username: usernameFromAuth },
+        { firstName, lastName, email }
       );
       const tokens = await generateUserTokens({
         firstName,
         lastName,
-        username: newUsername,
+        username: usernameFromAuth,
         email,
       });
-      res.cookie('accessToken', tokens.accessToken, {
+      res.cookie('act', tokens.accessToken, {
         httpOnly: decideCookieOptions('httpOnly'),
-        // secure: decideCookieOptions("secure"),
+        // secure: decideCookieOptions('secure'),
         path: '/',
       });
-      res.cookie('refreshToken', tokens.refreshToken, {
+      res.cookie('rft', tokens.refreshToken, {
         httpOnly: decideCookieOptions('httpOnly'),
-        // secure: decideCookieOptions("secure"),
+        // secure: decideCookieOptions('secure'),
         path: '/',
       });
-      res.status(200).json({
+      return res.status(200).json({
         user: {
           firstName,
           lastName,
-          username: newUsername,
+          username: usernameFromAuth,
           email,
         },
         message: 'Successfully updated user!',
       });
     } catch (err) {
-      next(err);
+      return next(err);
     }
   }
 
   static async updatePassword(req: Request, res: Response, next: NextFunction) {
     try {
-      const { username } = req.params;
+      const { username: usernameFromAuth } = (<any>req).user;
+      const { username: usernameFromParams } = req.params;
       const { password } = req.body;
+      const passwordValidation = CustomValidator.password(password);
+
+      if (usernameFromAuth != usernameFromParams) {
+        const usernameAuthError: HttpError = {
+          expose: false,
+          name: 'AuthorizationError',
+          status: 401,
+          statusCode: 401,
+          message: 'Cannot update user, invalid credentials!',
+        };
+        throw usernameAuthError;
+      }
+
+      if (passwordValidation?.length) {
+        const passwordValidationError: HttpError = {
+          expose: false,
+          status: 400,
+          statusCode: 400,
+          name: 'ValidationError',
+          message: passwordValidation,
+        };
+        throw passwordValidationError;
+      }
+
       const hashedPassword = hashSync(password, 10);
-      await User.updateOne({ username }, { password: hashedPassword });
+
+      await User.updateOne(
+        { username: usernameFromAuth },
+        { password: hashedPassword }
+      );
+
       res.status(200).json({
         message: 'Successfully updated password!',
       });
@@ -314,53 +388,65 @@ export default class UserController {
 
   static async deleteUser(req: Request, res: Response, next: NextFunction) {
     try {
-      const { username } = req.params;
+      const { username: usernameFromAuth } = (<any>req).user;
+      const { username: usernameFromParams } = req.params;
+
+      if (usernameFromAuth != usernameFromParams) {
+        const usernameAuthError: HttpError = {
+          expose: false,
+          name: 'AuthorizationError',
+          status: 401,
+          statusCode: 401,
+          message: 'Cannot update user, invalid credentials!',
+        };
+        throw usernameAuthError;
+      }
+
       await User.deleteOne({
-        username,
+        username: usernameFromAuth,
       });
-      res.clearCookie('refreshToken', { path: '/' });
-      res.clearCookie('accessToken', { path: '/' });
-      res.status(200).json({
+
+      res.clearCookie('rft', { path: '/' });
+      res.clearCookie('act', { path: '/' });
+
+      return res.status(200).json({
         message: 'Successfully deleted account!',
       });
     } catch (err) {
-      next(err);
+      return next(err);
     }
   }
 
   static async signOut(req: Request, res: Response, next: NextFunction) {
-    const user: IUser = (<any>req)['user'];
+    const { username } = (<any>req).user;
     const receivedRefreshToken: string =
-      req.cookies.refreshToken ||
-      req.headers.refreshToken ||
-      req.headers['X-REFRESH-TOKEN'] ||
-      req.headers['x-refresh-token'] ||
-      req.body.refreshToken;
+      req.cookies.rft ||
+      req.headers['X-RFT'] ||
+      req.headers['x-rft'] ||
+      req.body.rft;
 
     try {
       const foundUser: IUser | any = await User.findOne({
-        username: user.username,
+        username,
       });
 
       if (!receivedRefreshToken) {
-        res.clearCookie('refreshToken', { path: '/' });
-        res.clearCookie('accessToken', { path: '/' });
+        res.clearCookie('rft', { path: '/' });
+        res.clearCookie('act', { path: '/' });
         return res.status(200).json({ message: 'Successfully signed out!' });
       }
 
-      const updatedRefreshTokens: Array<string> = foundUser.refreshTokens.filter(
-        (refreshToken: string) => {
-          return refreshToken != receivedRefreshToken;
-        }
+      const updatedRefreshTokens: string[] = foundUser.refreshTokens.filter(
+        (refreshToken: string) => refreshToken != receivedRefreshToken
       );
 
       await User.updateOne(
-        { username: user.username },
+        { username },
         { refreshTokens: updatedRefreshTokens }
       );
 
-      res.clearCookie('refreshToken', { path: '/' });
-      res.clearCookie('accessToken', { path: '/' });
+      res.clearCookie('act', { path: '/' });
+      res.clearCookie('rft', { path: '/' });
       return res.status(200).json({ message: 'Successfully signed out!' });
     } catch (err) {
       next(err);
@@ -369,22 +455,15 @@ export default class UserController {
 
   static async sync(req: Request, res: Response, next: NextFunction) {
     try {
-      const { email, username }: IUser = (<any>req)['user'];
-      const foundUser: IUser | any = await User.findOne({
-        $or: [
-          {
-            email,
-          },
-          {
-            username,
-          },
-        ],
+      const { username }: IUser = (<any>req).user;
+      const { firstName, lastName, email }: IUser | any = await User.findOne({
+        username,
       });
-      const todos = (await Todo.find({ username })) || [];
+      const todos: ITodo[] = await Todo.find({ username });
       res.status(200).json({
         user: {
-          firstName: foundUser.firstName,
-          lastName: foundUser.lastName,
+          firstName,
+          lastName,
           username,
           email,
         },

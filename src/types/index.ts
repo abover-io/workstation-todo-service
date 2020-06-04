@@ -61,3 +61,9 @@ export interface IHandleRefreshTokenOutput {
   accessToken: string;
   refreshToken: string;
 }
+
+export interface IUpdateUserValidations {
+  [key: string]: string | any;
+  firstName: string | any;
+  email: string | any;
+}

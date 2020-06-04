@@ -8,7 +8,7 @@ import { formatTodos } from '@/utils';
 
 const { ObjectId } = Types;
 
-class TodoController {
+export default class TodoController {
   static async getTodos(req: Request, res: Response, next: NextFunction) {
     try {
       const { username } = (<any>req).user;
@@ -230,5 +230,3 @@ class TodoController {
     }
   }
 }
-
-export default TodoController;

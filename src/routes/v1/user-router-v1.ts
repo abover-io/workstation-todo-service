@@ -30,7 +30,7 @@ userRouter.post('/signout', UserController.signOut);
 userRouter.put(
   '/:username',
   Authorize.authorizeUser,
-  UserController.updateProfile
+  UserController.updateUser
 );
 userRouter.patch(
   '/:username',

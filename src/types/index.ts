@@ -1,5 +1,6 @@
 import { Document } from 'mongoose';
 import { HttpError } from 'http-errors';
+import { Request, Response, NextFunction } from 'express';
 
 export interface IUser extends Document {
   _id: any;
@@ -54,4 +55,9 @@ export interface IUserTokens {
 export interface IStartApiOptions {
   port?: number;
   env?: 'development' | 'test' | 'production' | string;
+}
+
+export interface IHandleRefreshTokenOutput {
+  accessToken: string;
+  refreshToken: string;
 }

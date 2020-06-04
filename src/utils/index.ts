@@ -5,3 +5,5 @@ export { default as getEnvVar } from './get-env-var';
 export { default as CustomValidator } from './custom-validator';
 export { default as createToken } from './create-token';
 export { default as formatTodos } from './format-todos';
+export { default as decideMongoURI } from './decide-mongo-uri';
+export { default as startAPI } from './start-api';

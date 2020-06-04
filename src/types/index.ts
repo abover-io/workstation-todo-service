@@ -50,3 +50,8 @@ export interface IUserTokens {
   accessToken: string;
   refreshToken: string;
 }
+
+export interface IStartApiOptions {
+  port?: number;
+  env?: 'development' | 'test' | 'production' | string;
+}

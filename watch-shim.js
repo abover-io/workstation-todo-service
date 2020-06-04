@@ -3,6 +3,6 @@
 const fs = require('fs');
 
 if (!fs.existsSync('./dist')) {
-  fs.mkdir('./dist');
+  fs.mkdirSync('./dist');
   fs.writeFileSync('./dist/main.js', '');
 }

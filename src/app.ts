@@ -1,20 +1,18 @@
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import mongoose from 'mongoose';
 import { config } from 'dotenv';
 import { Server } from 'http';
 
 import mainRouter from './routes';
-import { decideMongoURI } from './config';
-import { getEnvVar } from './utils';
+import { getEnvVar, startAPI } from './utils';
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV != 'production') {
   config();
 }
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port: number = +process.env.PORT! || 3000;
 
 app.use(cors({
   credentials: true,
@@ -33,13 +31,8 @@ app.use(express.json());
 
 app.use(mainRouter);
 
-mongoose.connect(process.env.MONGODB_URI || decideMongoURI(), {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-});
-
-app.listen(port, () => {
-  console.log(`Sunday's Fancy Todo API is running on port ${port}! Environment: ${process.env.NODE_ENV?.toUpperCase()}`);
-});
+process.env.NODE_ENV != 'test' ? startAPI(app, {
+  port
+}) : '';
 
 export default new Server(app);

@@ -6,22 +6,30 @@ import { IStartApiOptions } from '@/types';
 import { decideMongoURI } from '@/utils';
 
 export default async function startAPI(
-  app: Express | Server,
-  options?: IStartApiOptions
+  api: Server,
+  options: IStartApiOptions = {
+    port: 3000,
+    env: process.env.NODE_ENV || 'development',
+  }
 ): Promise<void> {
-  const { port = 3000, env = process.env.NODE_ENV || 'development' } = options!;
+  const { port, env } = options;
 
   try {
     await connectToMongoDB(process.env.MONGODB_URI || decideMongoURI(env), {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    app.listen(port, () => {
+
+    api.listen(port, () => {
       console.log(
-        `Sunday's Fancy Todo API is running.\nPORT\t=>\t${port}\nENV\t=>\t${process.env.NODE_ENV}`
+        `Sunday's Fancy Todo API is running.\nPORT\t=>\t${port}\nENV\t=>\t${env}`
       );
     });
+
+    api.on('error', () => {
+      api.close();
+    });
   } catch (err) {
-    console.log(err.message);
+    console.error(err);
   }
 }

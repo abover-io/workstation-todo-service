@@ -31,8 +31,11 @@ app.use(express.json());
 
 app.use(mainRouter);
 
-process.env.NODE_ENV != 'test' ? startAPI(app, {
-  port
+const server: Server = new Server(app);
+
+process.env.NODE_ENV != 'test' ? startAPI(server, {
+  port,
+  env: process.env.NODE_ENV || 'development'
 }) : '';
 
-export default new Server(app);
+export default server;

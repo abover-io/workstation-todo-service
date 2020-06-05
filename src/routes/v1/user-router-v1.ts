@@ -22,11 +22,14 @@ userRouter.post(
   UserController.signIn
 );
 
-userRouter.use(csurf({ cookie: true }));
 
 userRouter.use(authenticate);
-userRouter.get('/sync', UserController.sync);
+
 userRouter.post('/signout', UserController.signOut);
+
+userRouter.use(csurf({ cookie: true }));
+
+userRouter.get('/sync', UserController.sync);
 userRouter.put(
   '/:username',
   Authorize.authorizeUser,

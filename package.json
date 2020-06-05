@@ -4,7 +4,7 @@
   "description": "Sunday's Fancy Todo API",
   "main": "app.js",
   "scripts": {
-    "test": "jest --coverage --forceExit && coveralls < coverage/lcov.info",
+    "test": "jest --coverage --detectOpenHandles --forceExit && coveralls < coverage/lcov.info",
     "dev": "npm run watch",
     "watch": "node watch-shim.js && npm-run-all --parallel bundle:watch server:watch",
     "bundle:watch": "webpack --mode=development --watch --progress --colors",

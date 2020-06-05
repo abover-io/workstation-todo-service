@@ -37,8 +37,8 @@ export default class Authorize {
 
   static async authorizeTodo(req: Request, res: Response, next: NextFunction) {
     try {
-      const user: IUser = (<any>req)['user'];
-      const { username, todoId } = req.params;
+      const { username }: IUser = (<any>req).user;
+      const { todoId } = req.params;
       const foundTodo: ITodo | any = await Todo.findOne({
         $and: [
           {
@@ -52,7 +52,7 @@ export default class Authorize {
 
       if (!foundTodo) {
         throw createError({ name: 'NotFoundError', message: 'No todo found!' });
-      } else if (foundTodo.username != user.username) {
+      } else if (foundTodo.username != username) {
         throw createError({
           name: 'AuthorizationError',
           message: `Not authorized! Username doesn't match.`,

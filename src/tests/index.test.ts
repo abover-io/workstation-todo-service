@@ -1,2 +1,2 @@
-import './user';
-import './todo';
+import './user-tests';
+import './todo-tests';

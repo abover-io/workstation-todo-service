@@ -154,7 +154,10 @@ export default class UserController {
             email,
             apiKey: newApiKey,
           },
-          tokens: newUserTokens,
+          tokens: {
+            ...newUserTokens,
+            csrfToken: req.csrfToken()
+          },
           message: 'Successfully signed up!',
         });
       }
@@ -246,7 +249,10 @@ export default class UserController {
               apiKey,
             },
             message: 'Successfully signed in!',
-            tokens,
+            tokens: {
+              ...tokens,
+              csrfToken: req.csrfToken()
+            },
           });
         } else {
           throw createError({

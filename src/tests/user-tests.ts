@@ -1,21 +1,19 @@
 import supertest from 'supertest';
-import { connect, disconnect, connection } from 'mongoose';
 
-import app from '../app';
-import { decideMongoURI, defaultTestPort } from '../config';
+import app from '@/app';
+import { startAPI, stopAPI } from '@/utils';
+import { defaultTestPort, apiVersion } from '@/config';
 
 const request = supertest.agent(app);
 
 let username: string;
+let csrfToken: string;
 
 describe('User Model Tests', () => {
   beforeAll(async () => {
-    app.listen(defaultTestPort, () => {
-      console.log(`Fancy Todo API Tests\nPORT: ${defaultTestPort}\nUnit: User Model`);
-    });
-    await connect(decideMongoURI('test'), {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
+    await startAPI(app, {
+      port: defaultTestPort,
+      env: 'test',
     });
   });
 
@@ -25,33 +23,42 @@ describe('User Model Tests', () => {
       lastName: 'Doe',
       username: 'johndoe',
       email: 'john@doe.com',
-      password: 'johndoe'
+      password: '`Johndoe123',
     };
-    const response = await request.post('/users/signup').send(signUpData);
+    const response = await request
+      .post(`/${apiVersion}/users/signup`)
+      .send(signUpData);
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe('Successfully signed up!');
     expect(response.status).toBe(201);
+    csrfToken = response.body.tokens.csrfToken;
   });
 
   test('Sign In - Success', async () => {
     const signInData = {
       userIdentifier: 'johndoe',
-      password: 'johndoe'
+      password: '`Johndoe123',
     };
-    const response = await request.post('/users/signin').send(signInData);
+    const response = await request
+      .post(`/${apiVersion}/users/signin`)
+      .send(signInData);
+
     expect(response.body).toHaveProperty('user');
     expect(response.body).toHaveProperty('message');
     expect(response.body).toHaveProperty('tokens');
     expect(response.status).toBe(200);
     username = response.body.user.username;
+    csrfToken = response.body.tokens.csrfToken;
   });
 
   test('Sign In - User Not Found', async () => {
     const signInData = {
       userIdentifier: 'doejohn',
-      password: 'doejohn'
+      password: '`Doejohn456',
     };
-    const response = await request.post('/users/signin').send(signInData);
+    const response = await request
+      .post(`/${apiVersion}/users/signin`)
+      .send(signInData);
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe('User not found, please sign up first!');
     expect(response.status).toBe(404);
@@ -60,16 +67,18 @@ describe('User Model Tests', () => {
   test('Sign In - Wrong Username or Password', async () => {
     const signInData = {
       userIdentifier: 'johndoe',
-      password: 'doejohn'
+      password: '`Doejohn5468468',
     };
-    const response = await request.post('/users/signin').send(signInData);
+    const response = await request
+      .post(`/${apiVersion}/users/signin`)
+      .send(signInData);
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe('Wrong username or password!');
     expect(response.status).toBe(400);
   });
 
   test('Refresh User Token - Success', async () => {
-    const response = await request.post('/users/refresh');
+    const response = await request.post(`/${apiVersion}/users/refresh`);
     expect(response.body).toHaveProperty('tokens');
     expect(response.body).toHaveProperty('message');
     expect(response.body.tokens).toHaveProperty('accessToken');
@@ -82,25 +91,26 @@ describe('User Model Tests', () => {
     const updateProfileData = {
       firstName: 'Jackie',
       lastName: 'Chen',
-      username: 'jackiechen',
-      email: 'jackiechen@jack.com'
+      email: 'jackiechen@jack.com',
+      _csrf: csrfToken
     };
     const response = await request
-      .put(`/users/${username}`)
+      .put(`/${apiVersion}/users/${username}`)
       .send(updateProfileData);
+
     expect(response.body).toHaveProperty('user');
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe('Successfully updated user!');
     expect(response.status).toBe(200);
-    username = updateProfileData.username;
   });
 
   test('Update Password - Success', async () => {
     const updatePasswordData = {
-      password: 'jackiechen2'
+      password: '`Jackiechen2',
+      _csrf: csrfToken
     };
     const response = await request
-      .patch(`/users/${username}`)
+      .patch(`/${apiVersion}/users/${username}`)
       .send(updatePasswordData);
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe('Successfully updated password!');
@@ -108,14 +118,16 @@ describe('User Model Tests', () => {
   });
 
   test('Sign Out - Success', async () => {
-    const response = await request.post('/users/signout');
+    const response = await request.post(`/${apiVersion}/users/signout`);
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe('Successfully signed out!');
     expect(response.status).toBe(200);
   });
 
   afterAll(async () => {
-    app.close();
-    await disconnect();
+    await stopAPI(app, {
+      env: 'test',
+      db: 'hold',
+    });
   });
 });

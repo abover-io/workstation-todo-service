@@ -1,7 +1,9 @@
 import { getEnvVar } from './utils';
 
+export const apiVersion = 'v1';
+
 export const defaultTestPort: number | any =
-  4000 || getEnvVar('DEFAULT_TEST_PORT');
+  getEnvVar('DEFAULT_TEST_PORT') || 4000;
 
 export const JWT_ACCESS_SECRET: string = getEnvVar('JWT_ACCESS_SECRET');
 

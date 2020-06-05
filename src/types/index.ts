@@ -53,8 +53,8 @@ export interface IUserTokens {
 }
 
 export interface IStartApiOptions {
-  port?: number;
-  env?: 'development' | 'test' | 'production' | string;
+  port: number;
+  env: 'development' | 'test' | 'production' | string;
 }
 
 export interface IHandleRefreshTokenOutput {
@@ -66,4 +66,9 @@ export interface IUpdateUserValidations {
   [key: string]: string | any;
   firstName: string | any;
   email: string | any;
+}
+
+export interface IStopApiOptions {
+  env: 'development' | 'test' | 'production';
+  db: 'drop' | 'hold';
 }

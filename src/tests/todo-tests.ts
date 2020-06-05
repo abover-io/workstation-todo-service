@@ -1,63 +1,73 @@
 import supertest from 'supertest';
-import { connect, disconnect, connection } from 'mongoose';
 
-import app from '../app';
-import { defaultTestPort, decideMongoURI } from '../config';
+import app from '@/app';
+import { defaultTestPort, apiVersion } from '@/config';
+import { startAPI, stopAPI } from '@/utils';
 
 const request = supertest.agent(app);
 
 let username: string;
 let todoId: string;
-
+let csrfToken: string;
 
 describe('Todo Model Tests', () => {
   beforeAll(async () => {
-    app.listen(defaultTestPort, () => {
-      console.log(`Fancy Todo API Tests\nPORT: ${defaultTestPort}\nUnit: User Model`);
-    });
-    await connect(decideMongoURI('test'), {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
+    await startAPI(app, {
+      port: defaultTestPort,
+      env: 'test',
     });
   });
 
   test('Sign In - Success', async () => {
     const signInData = {
-      userIdentifier: 'jackiechen',
-      password: 'jackiechen2'
+      userIdentifier: 'johndoe',
+      password: '`Jackiechen2',
     };
-    const response = await request.post('/users/signin').send(signInData);
+    const response = await request
+      .post(`/${apiVersion}/users/signin`)
+      .send(signInData);
     expect(response.body).toHaveProperty('user');
     expect(response.body).toHaveProperty('message');
     expect(response.body).toHaveProperty('tokens');
     expect(response.status).toBe(200);
     username = response.body.user.username;
+    csrfToken = response.body.tokens.csrfToken;
   });
 
-  test('Create Todo - Success', async () => {
-    const createTodoData = {
-      name: 'Create Client using Vue.js',
-      dueDate: new Date()
+  test('Add Todo - Success', async () => {
+    const addTodoData = {
+      name: 'Create Client using Next.js',
+      due: new Date(),
+      priority: 0,
+      _csrf: csrfToken,
     };
     const response = await request
-      .post(`/todos/${username}`)
-      .send(createTodoData)
-    todoId = response.body.todo._id;
+      .post(`/${apiVersion}/todos`)
+      .send(addTodoData);
     expect(response.body).toHaveProperty('todo');
     expect(response.body).toHaveProperty('message');
-    expect(response.body.todo.name).toBe(createTodoData.name);
+    expect(response.body.todo.name).toBe(addTodoData.name);
     expect(response.body.message).toBe('Successfully created todo!');
+    todoId = response.body.todo._id;
   });
 
   test('Get All Todos - Success', async () => {
-    const response = await request.get(`/todos/${username}`);
+    const response = await request
+      .get(`/${apiVersion}/todos`)
+      .send({
+        _csrf: csrfToken,
+      });
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('todos');
     expect(Array.isArray(response.body.todos)).toBe(true);
   });
 
   test('Get a Specified Todo - Success', async () => {
-    const response = await request.get(`/todos/${username}/${todoId}`);
+    const response = await request
+      .get(`/${apiVersion}/todos/${todoId}`)
+      .send({
+        _csrf: csrfToken,
+      });
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('todo');
     expect(response.body.todo instanceof Object).toBe(true);
@@ -66,10 +76,12 @@ describe('Todo Model Tests', () => {
   test('Update Todo - Success', async () => {
     const updateTodoData = {
       name: 'Install MySQL',
-      dueDate: new Date()
+      due: new Date(),
+      priority: 0,
+      _csrf: csrfToken,
     };
     const response = await request
-      .put(`/todos/${username}/${todoId}`)
+      .put(`/${apiVersion}/todos/${todoId}`)
       .send(updateTodoData);
     expect(response.body).toHaveProperty('todo');
     expect(response.body).toHaveProperty('message');
@@ -78,7 +90,11 @@ describe('Todo Model Tests', () => {
   });
 
   test('Delete Todo - Success', async () => {
-    const response = await request.delete(`/todos/${username}/${todoId}`);
+    const response = await request
+      .delete(`/${apiVersion}/todos/${todoId}`)
+      .send({
+        _csrf: csrfToken,
+      });
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('todo');
     expect(response.body).toHaveProperty('message');
@@ -88,9 +104,9 @@ describe('Todo Model Tests', () => {
   });
 
   afterAll(async () => {
-    app.close();
-    await connection.collection('users').drop();
-    await connection.collection('todos').drop();
-    await disconnect();
+    await stopAPI(app, {
+      env: 'test',
+      db: 'drop',
+    });
   });
 });

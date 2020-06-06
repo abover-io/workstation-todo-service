@@ -28,8 +28,6 @@ services:
       - JWT_REFRESH_SECRET
       - JWT_API_KEY_SECRET
       - COOKIE_SECRET
-    command:
-      - cd /usr/local/app && yarn test
 
 secrets:
   JWT_ACCESS_SECRET:

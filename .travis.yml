@@ -5,7 +5,8 @@ node_js:
 sudo: required
 services:
   - docker
-before_script:
+
+install:
   - docker swarm init
   - printf $JWT_ACCESS_SECRET | docker secret create JWT_ACCESS_SECRET -
   - printf $JWT_REFRESH_SECRET | docker secret create JWT_REFRESH_SECRET -

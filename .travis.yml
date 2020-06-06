@@ -7,7 +7,6 @@ before_script:
   - printf $JWT_REFRESH_SECRET | docker secret create JWT_REFRESH_SECRET -
   - printf $JWT_API_KEY_SECRET | docker secret create JWT_API_KEY_SECRET -
   - printf $COOKIE_SECRET | docker secret create COOKIE_SECRET -
-script:
   - docker stack deploy --compose-file=docker-compose.dev.yml fancy-todo-api
 after_success:
   - docker ps -q -f name=fancy-todo-api_api

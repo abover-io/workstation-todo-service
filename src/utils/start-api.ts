@@ -20,12 +20,6 @@ export default async function startAPI(
       useUnifiedTopology: true,
     });
 
-    api.on('listening', () => {
-      api.close((err) => {
-        if (err) throw err;
-      });
-    });
-
     api.listen(port, () => {
       console.log(
         `Sunday's Fancy Todo API is running.\nPORT\t=>\t${port}\nENV\t=>\t${env}`
@@ -33,9 +27,7 @@ export default async function startAPI(
     });
 
     api.on('error', () => {
-      api.close((err) => {
-        if (err) throw err;
-      });
+      api.close();
     });
   } catch (err) {
     console.error(err);

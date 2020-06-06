@@ -14,7 +14,7 @@ install:
   - printf $COOKIE_SECRET | docker secret create COOKIE_SECRET -
 
 script:
-  - docker stack deploy --compose-file=docker-compose.test.yml fancy-todo-api
+  - docker stack deploy --compose-file=docker-compose.dev.yml fancy-todo-api
   - sleep 30
   - docker stack --orchestrator swarm services fancy-todo-api
   - docker exec -it $(docker ps -q -f name=fancy-todo-api_api) yarn test

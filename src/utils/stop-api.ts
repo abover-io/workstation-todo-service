@@ -28,7 +28,13 @@ export default async function stopAPI(
     await disconnectFromMongoDB();
 
     api.on('listening', () => {
-      api.close(err => {
+      api.close((err) => {
+        if (err) throw err;
+      });
+    });
+
+    api.on('error', () => {
+      api.close((err) => {
         if (err) throw err;
       });
     });

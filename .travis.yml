@@ -2,7 +2,7 @@ sudo: required
 services:
 - docker
 before_script:
-- echo $COOKIE_SECRET
+- echo $COOKIE_SECRET2
 - docker swarm init
 script:
 - docker stack deploy --compose-file=docker-compose.dev.yml fancy-todo-api

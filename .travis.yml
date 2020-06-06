@@ -1,4 +1,7 @@
-dist: bionic
+languange: node_js
+node_js:
+  - lts/*
+
 sudo: required
 services:
   - docker

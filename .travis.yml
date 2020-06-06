@@ -15,9 +15,8 @@ install:
 
 script:
   - docker stack deploy --compose-file=docker-compose.test.yml fancy-todo-api
-  - sleep 15
-
-after_success:
+  - sleep 30
+  - docker ps
   - docker exec -it $(docker ps -q -f name=fancy-todo-api_api) yarn test
 
 env:

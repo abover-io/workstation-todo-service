@@ -12,16 +12,9 @@ install:
   - printf $JWT_REFRESH_SECRET | docker secret create JWT_REFRESH_SECRET -
   - printf $JWT_API_KEY_SECRET | docker secret create JWT_API_KEY_SECRET -
   - printf $COOKIE_SECRET | docker secret create COOKIE_SECRET -
-  - docker stack deploy --compose-file=docker-compose.dev.yml fancy-todo-api
 
 script:
-  - docker exec $(docker ps -q -f name=fancy-todo-api_api) yarn test
-  - docker ps -q -f name=fancy-todo-api_api
-  - docker ps
-
-after_success:
-  - docker ps -q -f name=fancy-todo-api_api
-  - docker ps
+  - docker stack deploy --compose-file=docker-compose.test.yml fancy-todo-api
 
 env:
   global:

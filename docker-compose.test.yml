@@ -14,8 +14,7 @@ services:
     ports:
       - 3000:3000
     depends_on:
-      - mongodb:
-        condition: service_started
+      - mongodb
     links:
       - mongodb
     environment:

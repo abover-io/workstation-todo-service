@@ -11,14 +11,17 @@ before_script:
   - printf $JWT_REFRESH_SECRET | docker secret create JWT_REFRESH_SECRET -
   - printf $JWT_API_KEY_SECRET | docker secret create JWT_API_KEY_SECRET -
   - printf $COOKIE_SECRET | docker secret create COOKIE_SECRET -
+  - docker stack deploy --compose-file=docker-compose.dev.yml fancy-todo-api
 
 script:
-  - docker stack deploy --compose-file=docker-compose.dev.yml fancy-todo-api
+  - docker exec $(docker ps -q -f name=fancy-todo-api_api) yarn test
+  - docker ps -q -f name=fancy-todo-api_api
+  - docker ps
 
 after_success:
   - docker ps -q -f name=fancy-todo-api_api
   - docker ps
-  - docker exec $(docker ps -q -f name=fancy-todo-api_api) yarn test
+
 env:
   global:
     - secure: K+jguvPriL/eFX3Y+uqHndsnVg92Tv+vJygF3p5LvAK2LPRCQkLsIS511YR73swAuHMrhzuv4k8w0Gv+ybah711P+dwxbrfRcqR0jGQ2Wii8QL3pH/PILT9ZJ35cxe4MpYMVrkj7toWUXGbmQFQudhb2tuMRyB+3Y2hAEpYELaW27VB6PU5xMKQTakPlK+Q96hqiM90aOe2Jdz2UGTpSqF3aXMZq/cH0PtVyqLp4+6dl9+JBEJTi38wHoTujAoAFy1wQVEmJ56c1DW1eiO5X/uYSKOBOfPa6NdD4arR8IeieZekoESWkTaN0yR6lRVcT9dqn2Am7aaWqSEUqZKS9xmaRBji1sohis8p2ZvSeLdwCD5Qqxf4yDPkHOov8U1R6VcMxOqoMqSJgKKxLYBuuq5Klwse6CI5wW4f+ESJucLrVcTACRHlauTCyygFjDXLQkge9SZRYuXaZOugNOFdMxUWcB9T+vXVFcAqQMEoQzcCE5CmjnRV+AMT+Ds6G5ybA09inrZVSU5+TMyXtbCrmherp2kKNDXFwr59yquuSHs/PPMZe3IBJXv63srGeFSSh4D+0APh4+ALanLZ1CupmzEklCTg4EWwBSOVifxF5tCVrmqYTLBhZnGAX2mKC8HnNKUuVuIyKsWARzkXVMeVUMqicWNMS2hTc4Awwkw4/fLU=

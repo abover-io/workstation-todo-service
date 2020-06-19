@@ -15,7 +15,6 @@ script:
 - sleep 30
 - docker stack --orchestrator swarm services fancy-todo-api
 - docker exec -it $(docker ps -q -f name=fancy-todo-api_api) yarn test
-- docker exec -it $(docker ps -q -f name=fancy-todo-api_api) cat .coveralls.yml
 env:
   global:
   - secure: ID0zBSUsvlNai5Ug+Mdosxe3cQaNxDsQynFcRhht2DXzzwd5r/UE/Ak66kgJurWokzQqi5haXwfLZ4uBnmtqmPnPsVagjGLOGmCuzpR1I2wp3+sZmSXCkIPqJAqwoajxUcGIi0qC+HtFdcQtEZ4LdUIwn8gsmW6k6uWMsZ2q1vu/NH74E3FH2j7NIvUSejNxQV/4o4HiWrO6CNuaQ8Sli7eWoPYeOKHyPrHulVtvi2bqzGdYPnlpHmB8UGDA1LKM6u3dMyKgf1Q5YlUBsg34IwH+wMHeBF6L2KKHjZTAIjutmN99sNvwwJUZjbcjXjF/eVZIYlnkPpGEYJgQ6TsbSVNzD25/vMIMtrcZ7BN9uaaULa9bmLE9t2oaJHJOl0fssTB5rssHgEetL4QVjFv+Q75mCZXP10kIWkb8huc9SlR/coh0OwZzt8BDWcvHbHQIrPTHxDe4sdBuKB0Iw9RmfyA8UM2yH+qThtlE6KbmIXDFzLU7BJ8GxojdWwk4bc21busTyaFQyi0CAEI44MS55QUbUB3xsSEHNXSs8qrhnn4Swt3IoyRhTKAdnV5aAC903LX1xb9PYvIUJ7QUo/k8CEyOO5pM6GJwmNMdZvu7763aS2/VBjd0W9x4JVUDESSkcHDJXw1o0yxcB86Bms1fYUomYaaTgOtb3Y8sFj+MoqY=

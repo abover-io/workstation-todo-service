@@ -2,8 +2,6 @@ FROM node:current-alpine
 
 WORKDIR /usr/local/app
 
-ENV NODE_ENV=production
-
 RUN apk add --no-cache tini
 
 RUN npm i -g webpack webpack-cli
@@ -17,5 +15,7 @@ COPY . .
 RUN yarn build
 
 ENTRYPOINT [ "/sbin/tini", "--" ]
+
+ENV NODE_ENV=production
 
 CMD [ "yarn", "start" ]

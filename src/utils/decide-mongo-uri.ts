@@ -1,9 +1,10 @@
 export default function decideMongoURI(
   env?: 'development' | 'test' | 'production' | string
 ) {
-  const defaultMongoURI = 'mongodb://fancy-todo-api_mongodb:27017/fancy-todo-api';
-  const arg = env || process.env.NODE_ENV;
-  switch (arg) {
+  const nodeEnv = env || process.env.NODE_ENV;
+  const mongoContainer = process.env.MONGO_CONTAINER;
+  const defaultMongoURI = `mongodb://${mongoContainer}:27017/fancy-todo-api`;
+  switch (nodeEnv) {
     case 'development':
       return `${defaultMongoURI}-dev`;
 

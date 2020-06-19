@@ -2,7 +2,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: fancy-todo-api-mongodb
+  labels:
+    app: fancy-todo-api-mongodb
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: fancy-todo-api-mongodb
@@ -22,5 +25,5 @@ spec:
         - containerPort: 27017
         env:
           - name: MONGO_INITDB_DATABASE
-            value: fancy-todo-api
+            value: "fancy-todo-api"
       restartPolicy: Always

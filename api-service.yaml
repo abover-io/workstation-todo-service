@@ -8,6 +8,7 @@ spec:
   selector:
     app: fancy-todo-api-api
   ports:
-  - port: 80
-    targetPort: 3000
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
 

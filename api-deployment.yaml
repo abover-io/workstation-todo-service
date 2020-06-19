@@ -2,7 +2,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: fancy-todo-api-api
+  labels:
+    app: fancy-todo-api-api
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: fancy-todo-api-api
@@ -22,6 +25,8 @@ spec:
         ports:
         - containerPort: 3000
         env:
+          - name: MONGO_CONTAINER
+            value: fancy-todo-api-mongodb
           - name: JWT_ACCESS_SECRET
             valueFrom:
               secretKeyRef:

@@ -18,7 +18,8 @@ services:
     links:
       - mongodb
     environment:
-      NODE_ENV: "development"
+      NODE_ENV: development
+      MONGO_CONTAINER: fancy-todo-api_mongodb
       JWT_ACCESS_SECRET: /run/secrets/JWT_ACCESS_SECRET
       JWT_REFRESH_SECRET: /run/secrets/JWT_REFRESH_SECRET
       JWT_API_KEY_SECRET: /run/secrets/JWT_API_KEY_SECRET

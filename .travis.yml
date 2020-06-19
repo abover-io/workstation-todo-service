@@ -11,7 +11,7 @@ install:
 - printf $JWT_API_KEY_SECRET | docker secret create JWT_API_KEY_SECRET -
 - printf $COOKIE_SECRET | docker secret create COOKIE_SECRET -
 script:
-- docker stack deploy --compose-file=docker-compose.prod.yml fancy-todo-api
+- docker stack deploy --compose-file=docker-compose.dev.yml fancy-todo-api
 - sleep 30
 - docker stack --orchestrator swarm services fancy-todo-api
 - docker exec -it $(docker ps -q -f name=fancy-todo-api_api) yarn test

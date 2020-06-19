@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: fancy-todo-api_mongodb
+  name: fancy-todo-api-mongodb
 spec:
   selector:
     matchLabels:

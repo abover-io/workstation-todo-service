@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: fancy-todo-api_api
+  name: fancy-todo-api-api
 spec:
   selector:
     matchLabels:
-      app: fancy-todo-api_api
+      app: fancy-todo-api-api
   template:
     metadata:
       labels:
-        app: fancy-todo-api_api
+        app: fancy-todo-api-api
     spec:
       containers:
-      - name: fancy-todo-api_api
+      - name: fancy-todo-api-api
         image: docker.io/rafiandria23/fancy-todo-api:latest
         imagePullPolicy: "Always"
         resources:

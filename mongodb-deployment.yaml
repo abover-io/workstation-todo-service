@@ -5,14 +5,14 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: fancy-todo-api_mongodb
+      app: fancy-todo-api-mongodb
   template:
     metadata:
       labels:
-        app: fancy-todo-api_mongodb
+        app: fancy-todo-api-mongodb
     spec:
       containers:
-      - name: fancy-todo-api_mongodb
+      - name: fancy-todo-api-mongodb
         image: mongo:latest
         resources:
           limits:

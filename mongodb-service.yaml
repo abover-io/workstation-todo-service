@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: fancy-todo-api_mongodb
+  name: fancy-todo-api-mongodb
 spec:
   selector:
-    app: fancy-todo-api_mongodb
+    app: fancy-todo-api-mongodb
   ports:
   - port: 27017
     targetPort: 27017

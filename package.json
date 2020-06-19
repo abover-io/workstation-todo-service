@@ -10,7 +10,7 @@
     "bundle:watch": "webpack --mode=development --watch --progress --colors",
     "server:watch": "nodemon \"./dist/main.js\" --watch \"./dist/*\"",
     "build": "webpack --mode=production",
-    "start": "yarn build && node ./dist/main.js"
+    "start": "node ./dist/main.js"
   },
   "repository": {
     "type": "git",

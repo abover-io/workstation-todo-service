@@ -18,9 +18,6 @@ spec:
       - name: fancy-todo-api-mongodb
         image: mongo:latest
         resources:
-          limits:
-            memory: "128Mi"
-            cpu: "500m"
         ports:
         - containerPort: 27017
         env:

@@ -19,9 +19,6 @@ spec:
         image: rafiandria23/fancy-todo-api:latest
         imagePullPolicy: "Always"
         resources:
-          limits:
-            memory: "128Mi"
-            cpu: "500m"
         ports:
         - containerPort: 3000
         env:

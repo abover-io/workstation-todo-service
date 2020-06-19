@@ -18,7 +18,6 @@ services:
     links:
       - mongodb
     environment:
-      NODE_ENV: "production"
       JWT_ACCESS_SECRET: /run/secrets/JWT_ACCESS_SECRET
       JWT_REFRESH_SECRET: /run/secrets/JWT_REFRESH_SECRET
       JWT_API_KEY_SECRET: /run/secrets/JWT_API_KEY_SECRET

@@ -21,26 +21,26 @@ spec:
             cpu: "500m"
         ports:
         - containerPort: 3000
-      env:
-        - name: JWT_ACCESS_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: fancy-todo-api-secrets
-              key: JWT_ACCESS_SECRET
-        - name: JWT_REFRESH_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: fancy-todo-api-secrets
-              key: JWT_REFRESH_SECRET
-        - name: JWT_API_KEY_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: fancy-todo-api-secrets
-              key: JWT_API_KEY_SECRET
-        - name: COOKIE_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: fancy-todo-api-secrets
-              key: COOKIE_SECRET
+        env:
+          - name: JWT_ACCESS_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: fancy-todo-api-secrets
+                key: JWT_ACCESS_SECRET
+          - name: JWT_REFRESH_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: fancy-todo-api-secrets
+                key: JWT_REFRESH_SECRET
+          - name: JWT_API_KEY_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: fancy-todo-api-secrets
+                key: JWT_API_KEY_SECRET
+          - name: COOKIE_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: fancy-todo-api-secrets
+                key: COOKIE_SECRET
       restartPolicy: Always
 

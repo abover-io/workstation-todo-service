@@ -23,13 +23,11 @@ services:
       JWT_REFRESH_SECRET: /run/secrets/JWT_REFRESH_SECRET
       JWT_API_KEY_SECRET: /run/secrets/JWT_API_KEY_SECRET
       COOKIE_SECRET: /run/secrets/COOKIE_SECRET
-      COVERALLS_REPO_TOKEN: /run/secrets/COVERALLS_REPO_TOKEN
     secrets:
       - JWT_ACCESS_SECRET
       - JWT_REFRESH_SECRET
       - JWT_API_KEY_SECRET
       - COOKIE_SECRET
-      - COVERALLS_REPO_TOKEN
 
 secrets:
   JWT_ACCESS_SECRET:
@@ -39,6 +37,4 @@ secrets:
   JWT_API_KEY_SECRET:
     external: true
   COOKIE_SECRET:
-    external: true
-  COVERALLS_REPO_TOKEN:
     external: true

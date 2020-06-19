@@ -1,14 +1,14 @@
 version: "3.1"
 
 services:
-  fancy-todo-api_mongodb:
+  mongodb:
     image: mongo:latest
     restart: always
     ports:
       - 27017
     environment:
       MONGO_INITDB_DATABASE: "fancy-todo-api"
-  fancy-todo-api_api:
+  api:
     image: rafiandria23/fancy-todo-api:latest
     restart: always
     ports:

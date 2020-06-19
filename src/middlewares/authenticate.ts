@@ -8,6 +8,7 @@ import { JWT_ACCESS_SECRET } from '@/config';
 
 export default async (req: Request, res: Response, next: NextFunction) => {
   try {
+    console.log(req.cookies);
     const accessToken: string =
       req.cookies.act ||
       req.headers.authorization?.split(' ')[1] ||

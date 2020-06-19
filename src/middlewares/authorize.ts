@@ -1,17 +1,25 @@
 import createError from 'http-errors';
 import { Types } from 'mongoose';
 import { Request, Response, NextFunction } from 'express';
+import { verify as verifyJWT } from 'jsonwebtoken';
 
 import { IUser, ITodo } from '@/types';
 import { User, Todo } from '@/models';
+import { JWT_ACCESS_SECRET } from '@/config';
 
 const { ObjectId } = Types;
 
 export default class Authorize {
   static async authorizeUser(req: Request, res: Response, next: NextFunction) {
     try {
+      const accessToken: string =
+      req.cookies.act ||
+      req.headers.authorization?.split(' ')[1] ||
+      req.headers['X-ACT'] ||
+      req.headers['x-act'] ||
+      req.body.act;
       const user: IUser = (<any>req)['user'];
-      const { username } = req.params;
+      const { username }: any = verifyJWT(accessToken, JWT_ACCESS_SECRET);
       const foundUser: IUser | any = await User.findOne({ username });
 
       if (!foundUser) {

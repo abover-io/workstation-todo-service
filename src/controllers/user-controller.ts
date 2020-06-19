@@ -156,7 +156,7 @@ export default class UserController {
           },
           tokens: {
             ...newUserTokens,
-            csrfToken: req.csrfToken()
+            csrfToken: req.csrfToken(),
           },
           message: 'Successfully signed up!',
         });
@@ -251,7 +251,7 @@ export default class UserController {
             message: 'Successfully signed in!',
             tokens: {
               ...tokens,
-              csrfToken: req.csrfToken()
+              csrfToken: req.csrfToken(),
             },
           });
         } else {
@@ -413,7 +413,7 @@ export default class UserController {
           name: 'AuthorizationError',
           status: 401,
           statusCode: 401,
-          message: 'Cannot update user, invalid credentials!',
+          message: 'Cannot delete user, invalid credentials!',
         };
         throw usernameAuthError;
       }
@@ -425,11 +425,11 @@ export default class UserController {
       res.clearCookie('rft', { path: '/' });
       res.clearCookie('act', { path: '/' });
 
-      return res.status(200).json({
+      res.status(200).json({
         message: 'Successfully deleted account!',
       });
     } catch (err) {
-      return next(err);
+      next(err);
     }
   }
 
@@ -449,21 +449,21 @@ export default class UserController {
       if (!receivedRefreshToken) {
         res.clearCookie('rft', { path: '/' });
         res.clearCookie('act', { path: '/' });
-        return res.status(200).json({ message: 'Successfully signed out!' });
+        res.status(200).json({ message: 'Successfully signed out!' });
+      } else {
+        const updatedRefreshTokens: string[] = foundUser.refreshTokens.filter(
+          (refreshToken: string) => refreshToken != receivedRefreshToken
+        );
+
+        await User.updateOne(
+          { username },
+          { refreshTokens: updatedRefreshTokens }
+        );
+
+        res.clearCookie('act', { path: '/' });
+        res.clearCookie('rft', { path: '/' });
+        res.status(200).json({ message: 'Successfully signed out!' });
       }
-
-      const updatedRefreshTokens: string[] = foundUser.refreshTokens.filter(
-        (refreshToken: string) => refreshToken != receivedRefreshToken
-      );
-
-      await User.updateOne(
-        { username },
-        { refreshTokens: updatedRefreshTokens }
-      );
-
-      res.clearCookie('act', { path: '/' });
-      res.clearCookie('rft', { path: '/' });
-      return res.status(200).json({ message: 'Successfully signed out!' });
     } catch (err) {
       next(err);
     }

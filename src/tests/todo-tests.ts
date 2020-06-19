@@ -52,22 +52,18 @@ describe('Todo Model Tests', () => {
   });
 
   test('Get All Todos - Success', async () => {
-    const response = await request
-      .get(`/${apiVersion}/todos`)
-      .send({
-        _csrf: csrfToken,
-      });
+    const response = await request.get(`/${apiVersion}/todos`).send({
+      _csrf: csrfToken,
+    });
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('todos');
     expect(Array.isArray(response.body.todos)).toBe(true);
   });
 
   test('Get a Specified Todo - Success', async () => {
-    const response = await request
-      .get(`/${apiVersion}/todos/${todoId}`)
-      .send({
-        _csrf: csrfToken,
-      });
+    const response = await request.get(`/${apiVersion}/todos/${todoId}`).send({
+      _csrf: csrfToken,
+    });
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('todo');
     expect(response.body.todo instanceof Object).toBe(true);
@@ -101,6 +97,17 @@ describe('Todo Model Tests', () => {
     expect(response.body.todo instanceof Object).toBe(true);
     expect(typeof response.body.message).toBe('string');
     expect(response.body.message).toBe('Successfully deleted todo!');
+  });
+
+  test('Delete User - Success', async () => {
+    const response = await request
+      .delete(`/${apiVersion}/users/${username}`)
+      .send({
+        _csrf: csrfToken,
+      });
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('message');
+    expect(response.body.message).toBe('Successfully deleted account!');
   });
 
   afterAll(async () => {

@@ -7,8 +7,9 @@ import { JWT_ACCESS_SECRET, JWT_REFRESH_SECRET } from '@/config';
 export default async function (
   refreshToken: string | any
 ): Promise<IHandleRefreshTokenOutput> {
-  const err = new Error();
-  err.name = 'RefreshTokenError';
+  const defaultError = new Error();
+  defaultError.name = 'RefreshTokenError';
+  defaultError.message = `Invalid refresh token! You aren't signed in!`;
 
   try {
     const decodedRefreshToken: any = verifyJWT(
@@ -20,8 +21,8 @@ export default async function (
     });
 
     if (!foundUser) {
-      err.message = 'Invalid refresh token. No user found!';
-      throw err;
+      defaultError.message = 'Invalid refresh token. No user found!';
+      throw defaultError;
     } else {
       const userRefreshTokens = foundUser.refreshTokens;
       if (userRefreshTokens.includes(refreshToken)) {
@@ -51,11 +52,10 @@ export default async function (
           refreshToken: newRefreshToken,
         });
       } else {
-        err.message = `Invalid refresh token! You aren't signed in!`;
-        throw err;
+        throw defaultError;
       }
     }
   } catch (err) {
-    return Promise.reject(err);
+    return Promise.reject(defaultError);
   }
 }

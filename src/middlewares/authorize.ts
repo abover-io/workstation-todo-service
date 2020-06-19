@@ -13,11 +13,11 @@ export default class Authorize {
   static async authorizeUser(req: Request, res: Response, next: NextFunction) {
     try {
       const accessToken: string =
-      req.cookies.act ||
-      req.headers.authorization?.split(' ')[1] ||
-      req.headers['X-ACT'] ||
-      req.headers['x-act'] ||
-      req.body.act;
+        req.cookies.act ||
+        req.headers.authorization?.split(' ')[1] ||
+        req.headers['X-ACT'] ||
+        req.headers['x-act'] ||
+        req.body.act;
       const user: IUser = (<any>req)['user'];
       const { username }: any = verifyJWT(accessToken, JWT_ACCESS_SECRET);
       const foundUser: IUser | any = await User.findOne({ username });
@@ -44,9 +44,10 @@ export default class Authorize {
   }
 
   static async authorizeTodo(req: Request, res: Response, next: NextFunction) {
+    const { username }: IUser = (<any>req).user;
+    const { todoId } = req.params;
+
     try {
-      const { username }: IUser = (<any>req).user;
-      const { todoId } = req.params;
       const foundTodo: ITodo | any = await Todo.findOne({
         $and: [
           {
@@ -69,7 +70,14 @@ export default class Authorize {
         next();
       }
     } catch (err) {
-      next(err);
+      if (
+        err.message ==
+        'Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      ) {
+        next();
+      } else {
+        next(err);
+      }
     }
   }
 }

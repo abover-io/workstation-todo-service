@@ -1,9 +1,9 @@
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { HttpError } from 'http-errors';
 import { Request, Response, NextFunction } from 'express';
 
 export interface IUser extends Document {
-  _id: any;
+  _id: Types.ObjectId;
   firstName: string;
   lastName: string;
   username: string;
@@ -16,17 +16,17 @@ export interface IUser extends Document {
 }
 
 export interface ITodo extends Document {
-  _id: any;
+  _id: Types.ObjectId;
   username: string;
   name: string;
   due: Date;
   dueDate?: string;
   dueTime?: string;
-  completed: boolean;
+  completed?: boolean;
   priority: number;
-  position: number | any;
-  createdAt: Date;
-  updatedAt: Date;
+  position?: number | null;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface ISignUpValidations {

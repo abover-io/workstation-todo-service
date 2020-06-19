@@ -6,6 +6,8 @@ import { startAPI, stopAPI } from '@/utils';
 
 const request = supertest.agent(app);
 
+const wrongTodoID = 'thisiswrongtodoobjectid';
+
 let username: string;
 let todoId: string;
 let csrfToken: string;
@@ -83,6 +85,74 @@ describe('Todo Model Tests', () => {
     expect(response.body).toHaveProperty('message');
     expect(response.body.todo.name).toBe(updateTodoData.name);
     expect(response.body.message).toBe('Successfully updated todo!');
+    expect(response.status).toBe(200);
+  });
+
+  test('Update Todo - Not Found Error', async () => {
+    const updateTodoData = {
+      name: 'Install MySQL',
+      due: new Date(),
+      priority: 0,
+      _csrf: csrfToken,
+    };
+    const response = await request
+      .put(`/${apiVersion}/todos/${wrongTodoID}`)
+      .send(updateTodoData);
+    expect(response.body).toHaveProperty('message');
+    expect(response.body.message).toBe(
+      `Cannot update, no todo whose ID is ${wrongTodoID} found!`
+    );
+    expect(response.status).toBe(404);
+  });
+
+  test('Complete Todo - Success', async () => {
+    const response = await request
+      .patch(`/${apiVersion}/todos/complete/${todoId}`)
+      .send({
+        _csrf: csrfToken,
+      });
+    expect(response.body).toHaveProperty('todo');
+    expect(response.body).toHaveProperty('message');
+    expect(response.body.message).toBe('Successfully completed todo!');
+    expect(response.status).toBe(200);
+  });
+
+  test('Complete Todo - Not Found Error', async () => {
+    const response = await request
+      .patch(`/${apiVersion}/todos/complete/${wrongTodoID}`)
+      .send({
+        _csrf: csrfToken,
+      });
+    expect(response.body).toHaveProperty('message');
+    expect(response.body.message).toBe(
+      `Cannot complete, no todo whose ID is ${wrongTodoID} found!`
+    );
+    expect(response.status).toBe(404);
+  });
+
+  test('Uncomplete Todo - Success', async () => {
+    const response = await request
+      .patch(`/${apiVersion}/todos/uncomplete/${todoId}`)
+      .send({
+        _csrf: csrfToken,
+      });
+    expect(response.body).toHaveProperty('todo');
+    expect(response.body).toHaveProperty('message');
+    expect(response.body.message).toBe('Successfully uncompleted todo!');
+    expect(response.status).toBe(200);
+  });
+
+  test('Uncomplete Todo - Not Found Error', async () => {
+    const response = await request
+      .patch(`/${apiVersion}/todos/uncomplete/${wrongTodoID}`)
+      .send({
+        _csrf: csrfToken,
+      });
+    expect(response.body).toHaveProperty('message');
+    expect(response.body.message).toBe(
+      `Cannot uncomplete, no todo whose ID is ${wrongTodoID} found!`
+    );
+    expect(response.status).toBe(404);
   });
 
   test('Delete Todo - Success', async () => {

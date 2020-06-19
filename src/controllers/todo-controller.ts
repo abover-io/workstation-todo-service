@@ -81,10 +81,15 @@ export default class TodoController {
   }
 
   static async updateTodo(req: Request, res: Response, next: NextFunction) {
+    const { username } = (<any>req).user;
+    const { todoId } = req.params;
+    const { name, due, priority = 0, position = null }: ITodo = req.body;
+    const defaultError = createError({
+      name: 'NotFoundError',
+      message: `Cannot update, no todo whose ID is ${todoId} found!`,
+    });
+
     try {
-      const { username } = (<any>req).user;
-      const { todoId } = req.params;
-      const { name, due, priority = 0, position = null }: ITodo = req.body;
       let todo: ITodo | any = await Todo.findOneAndUpdate(
         {
           $and: [
@@ -106,24 +111,26 @@ export default class TodoController {
       );
 
       if (!todo) {
-        throw createError({
-          name: 'NotFoundError',
-          message: `Cannot update, no todo whose ID is ${todoId} found!`,
-        });
+        throw defaultError;
       }
 
       todo = formatTodos<ITodo>(todo);
 
       res.status(200).json({ todo, message: 'Successfully updated todo!' });
     } catch (err) {
-      return next(err);
+      next(defaultError);
     }
   }
 
   static async completeTodo(req: Request, res: Response, next: NextFunction) {
+    const { username } = (<any>req).user;
+    const { todoId } = req.params;
+    const defaultError = createError({
+      name: 'NotFoundError',
+      message: `Cannot complete, no todo whose ID is ${todoId} found!`,
+    });
+
     try {
-      const { username } = (<any>req).user;
-      const { todoId } = req.params;
       let todo: ITodo | any = await Todo.findOneAndUpdate(
         {
           $and: [
@@ -144,30 +151,26 @@ export default class TodoController {
       );
 
       if (!todo) {
-        throw createError({
-          name: 'NotFoundError',
-          message: `Cannot complete, no todo whose ID is ${todoId} found!`,
-        });
+        throw defaultError;
       }
 
       todo = formatTodos<ITodo>(todo);
 
-      return res
-        .status(200)
-        .json({ todo, message: 'Successfully completed todo!' });
+      res.status(200).json({ todo, message: 'Successfully completed todo!' });
     } catch (err) {
-      return next(err);
+      next(defaultError);
     }
   }
 
-  static async uncompleteTodo(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) {
+  static async uncompleteTodo(req: Request, res: Response, next: NextFunction) {
+    const { username } = (<any>req).user;
+    const { todoId } = req.params;
+    const defaultError = createError({
+      name: 'NotFoundError',
+      message: `Cannot uncomplete, no todo whose ID is ${todoId} found!`,
+    });
+
     try {
-      const { username } = (<any>req).user;
-      const { todoId } = req.params;
       let todo: ITodo | any = await Todo.findOneAndUpdate(
         {
           $and: [
@@ -186,15 +189,17 @@ export default class TodoController {
       if (!todo) {
         throw createError({
           name: 'NotFoundError',
-          message: `Cannot uncomplete, no todo whose ID is ${todoId} found!`
+          message: `Cannot uncomplete, no todo whose ID is ${todoId} found!`,
         });
       }
 
       todo = formatTodos<ITodo>(todo);
 
-      return res.status(200).json({ todo, message: 'Successfully uncompleted todo!' });
+      res
+        .status(200)
+        .json({ todo, message: 'Successfully uncompleted todo!' });
     } catch (err) {
-      return next(err);
+      next(defaultError);
     }
   }
 

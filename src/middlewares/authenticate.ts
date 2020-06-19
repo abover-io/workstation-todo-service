@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { verify as jwtVerify } from 'jsonwebtoken';
+import { verify as verifyJWT } from 'jsonwebtoken';
 import createError from 'http-errors';
 
 import { IUser } from '@/types';
@@ -8,7 +8,6 @@ import { JWT_ACCESS_SECRET } from '@/config';
 
 export default async (req: Request, res: Response, next: NextFunction) => {
   try {
-    console.log(req.cookies);
     const accessToken: string =
       req.cookies.act ||
       req.headers.authorization?.split(' ')[1] ||
@@ -23,7 +22,7 @@ export default async (req: Request, res: Response, next: NextFunction) => {
       });
     }
 
-    const user: IUser | any = jwtVerify(accessToken, JWT_ACCESS_SECRET);
+    const user: IUser | any = verifyJWT(accessToken, JWT_ACCESS_SECRET);
 
     if (user) {
       const foundUser: IUser | any = await User.findOne({

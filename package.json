@@ -9,7 +9,7 @@
     "watch": "node watch-shim.js && npm-run-all --parallel bundle:watch server:watch",
     "bundle:watch": "webpack --mode=development --watch --progress --colors",
     "server:watch": "nodemon \"./dist/main.js\" --watch \"./dist/*\"",
-    "build": "webpack --mode=production",
+    "build": "webpack --mode=production --progress --colors",
     "start": "node ./dist/main.js"
   },
   "repository": {

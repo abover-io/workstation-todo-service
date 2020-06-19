@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: fancy-todo-api-api
-        image: docker.io/rafiandria23/fancy-todo-api:latest
+        image: rafiandria23/fancy-todo-api:latest
         imagePullPolicy: "Always"
         resources:
           limits:

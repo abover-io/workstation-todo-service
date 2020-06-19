@@ -1,19 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    kompose.cmd: kompose -f docker-compose.prod.yml convert
-    kompose.version: 1.19.0 (f63a961c)
-  creationTimestamp: null
-  labels:
-    io.kompose.service: fancy-todo-mongodb
-  name: fancy-todo-mongodb
+  name: fancy-todo-api_mongodb
 spec:
-  ports:
-  - name: "27017"
-    port: 27017
-    targetPort: 27017
   selector:
-    io.kompose.service: fancy-todo-mongodb
-status:
-  loadBalancer: {}
+    app: fancy-todo-api_mongodb
+  ports:
+  - port: 27017
+    targetPort: 27017

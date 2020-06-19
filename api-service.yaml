@@ -1,21 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    kompose.cmd: kompose -f docker-compose.prod.yml convert
-    kompose.version: 1.19.0 (f63a961c)
-  creationTimestamp: null
-  labels:
-    io.kompose.service: fancy-todo-api
-  name: fancy-todo-api
+  name: fancy-todo-api_api
 spec:
   type: LoadBalancer
   loadBalancerIP: 34.87.87.112
-  ports:
-  - name: "80"
-    port: 80
-    targetPort: 3000
   selector:
-    io.kompose.service: fancy-todo-api
-status:
-  loadBalancer: {}
+    app: fancy-todo-api_api
+  ports:
+  - port: 80
+    targetPort: 3000
+

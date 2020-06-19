@@ -1,41 +1,46 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: kompose -f docker-compose.prod.yml convert
-    kompose.version: 1.19.0 (f63a961c)
-  creationTimestamp: null
-  labels:
-    io.kompose.service: fancy-todo-api
-  name: fancy-todo-api
+  name: fancy-todo-api_api
 spec:
-  replicas: 1
   selector:
     matchLabels:
-      name: fancy-todo-api
-  strategy: {}
+      app: fancy-todo-api_api
   template:
     metadata:
-      annotations:
-        kompose.cmd: kompose -f docker-compose.prod.yml convert
-        kompose.version: 1.19.0 (f63a961c)
-      creationTimestamp: null
       labels:
-        io.kompose.service: fancy-todo-api
-        name: fancy-todo-api
+        app: fancy-todo-api_api
     spec:
       containers:
-      - env:
-        - name: JWT_ACCESS_SECRET
-          value: ${{ secrets.JWT_ACCESS_SECRET }}
-        - name: JWT_REFRESH_SECRET
-          value: ${{ secrets.JWT_REFRESH_SECRET }}
-        - name: NODE_ENV
-          value: production
-        image: rafiandria23/fancy-todo-api:latest
-        name: fancy-todo-api
+      - name: fancy-todo-api_api
+        image: docker.io/rafiandria23/fancy-todo-api:latest
+        imagePullPolicy: "Always"
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
         ports:
         - containerPort: 3000
-        resources: {}
+      env:
+        - name: JWT_ACCESS_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: fancy-todo-api-secrets
+              key: JWT_ACCESS_SECRET
+        - name: JWT_REFRESH_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: fancy-todo-api-secrets
+              key: JWT_REFRESH_SECRET
+        - name: JWT_API_KEY_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: fancy-todo-api-secrets
+              key: JWT_API_KEY_SECRET
+        - name: COOKIE_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: fancy-todo-api-secrets
+              key: COOKIE_SECRET
       restartPolicy: Always
-status: {}
+

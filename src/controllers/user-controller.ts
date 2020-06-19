@@ -146,7 +146,7 @@ export default class UserController {
 
         res.cookie('XSRF-TOKEN', req.csrfToken());
 
-        return res.status(201).json({
+        res.status(201).json({
           user: {
             firstName,
             lastName,
@@ -162,7 +162,7 @@ export default class UserController {
         });
       }
     } catch (err) {
-      return next(err);
+      next(err);
     }
   }
 
@@ -314,37 +314,47 @@ export default class UserController {
         throw httpErrorWithMultipleMessages;
       }
 
-      await User.updateOne(
-        { username: usernameFromAuth },
-        { firstName, lastName, email }
-      );
-      const tokens = await generateUserTokens({
-        firstName,
-        lastName,
-        username: usernameFromAuth,
-        email,
-      });
-      res.cookie('act', tokens.accessToken, {
-        httpOnly: decideCookieOptions('httpOnly'),
-        // secure: decideCookieOptions('secure'),
-        path: '/',
-      });
-      res.cookie('rft', tokens.refreshToken, {
-        httpOnly: decideCookieOptions('httpOnly'),
-        // secure: decideCookieOptions('secure'),
-        path: '/',
-      });
-      return res.status(200).json({
-        user: {
+      const existedUser: IUser | any = await User.findOne({ email });
+
+      if (existedUser) {
+        throw createError({
+          name: 'AlreadyExistsError',
+          message: `Email isn't available.`,
+          expose: false,
+        });
+      } else {
+        await User.updateOne(
+          { username: usernameFromAuth },
+          { firstName, lastName, email }
+        );
+        const tokens = await generateUserTokens({
           firstName,
           lastName,
           username: usernameFromAuth,
           email,
-        },
-        message: 'Successfully updated user!',
-      });
+        });
+        res.cookie('act', tokens.accessToken, {
+          httpOnly: decideCookieOptions('httpOnly'),
+          // secure: decideCookieOptions('secure'),
+          path: '/',
+        });
+        res.cookie('rft', tokens.refreshToken, {
+          httpOnly: decideCookieOptions('httpOnly'),
+          // secure: decideCookieOptions('secure'),
+          path: '/',
+        });
+        res.status(200).json({
+          user: {
+            firstName,
+            lastName,
+            username: usernameFromAuth,
+            email,
+          },
+          message: 'Successfully updated user!',
+        });
+      }
     } catch (err) {
-      return next(err);
+      next(err);
     }
   }
 

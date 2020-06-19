@@ -22,7 +22,7 @@ export default function (
     case 'NotFoundError':
       return res
         .status(404)
-        .json({ name: 'NotFoundError', status: 404, statusCode: 404, ...err });
+        .json({ ...err, name: 'NotFoundError', status: 404, statusCode: 404 });
 
     case 'AlreadyExistsError':
       return res.status(400).json({ ...err });

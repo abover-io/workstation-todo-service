@@ -34,6 +34,54 @@ describe('User Model Tests', () => {
     csrfToken = response.body.tokens.csrfToken;
   });
 
+  test('Sign Up - Validation Error', async () => {
+    const signUpData = {
+      firstName: 'John',
+      lastName: 'Doe',
+      username: 'johndoe',
+      email: 'john',
+      password: 'johndoe',
+    };
+    const response = await request
+      .post(`/${apiVersion}/users/signup`)
+      .send(signUpData);
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('message');
+    expect(response.body.message).toBe('Failed to sign up, please correct user information!');
+  });
+
+  test('Sign Up - Unavailable Username', async () => {
+    const signUpData = {
+      firstName: 'John',
+      lastName: 'Doe',
+      username: 'johndoe',
+      email: 'john@doe.com',
+      password: '`Johndoe123',
+    };
+    const response = await request
+      .post(`/${apiVersion}/users/signup`)
+      .send(signUpData);
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('message');
+    expect(response.body.message).toBe(`Username isn't available.`);
+  });
+
+  test('Sign Up - Unavailable Email', async () => {
+    const signUpData = {
+      firstName: 'John',
+      lastName: 'Doe',
+      username: 'johndoe2',
+      email: 'john@doe.com',
+      password: '`Johndoe123',
+    };
+    const response = await request
+      .post(`/${apiVersion}/users/signup`)
+      .send(signUpData);
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('message');
+    expect(response.body.message).toBe(`Email isn't available.`);
+  });
+
   test('Sign In - Success', async () => {
     const signInData = {
       userIdentifier: 'johndoe',
@@ -77,6 +125,19 @@ describe('User Model Tests', () => {
     expect(response.status).toBe(400);
   });
 
+  test('Sign In - Validation Error', async () => {
+    const signInData = {
+      userIdentifier: 'johndoe',
+      password: 'john',
+    };
+    const response = await request
+      .post(`/${apiVersion}/users/signin`)
+      .send(signInData);
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('message');
+    expect(response.body.message).toBe('Failed to sign in, please correct user information!');
+  })
+
   test('Refresh User Token - Success', async () => {
     const response = await request.post(`/${apiVersion}/users/refresh`);
     expect(response.body).toHaveProperty('tokens');
@@ -87,8 +148,15 @@ describe('User Model Tests', () => {
     expect(response.status).toBe(200);
   });
 
-  test('Update Profile - Success', async () => {
-    const updateProfileData = {
+  test('Refresh User Token - Refresh Token Error', async () => {
+    await request.post(`/${apiVersion}/users/signout`);
+    const response = await request.post(`/${apiVersion}/users/refresh`);
+    expect(response.status).toBe(401);
+    expect(response.body).toHaveProperty('message');
+  });
+
+  test('Update User - Success', async () => {
+    const updateUserData = {
       firstName: 'Jackie',
       lastName: 'Chen',
       email: 'jackiechen@jack.com',
@@ -96,12 +164,60 @@ describe('User Model Tests', () => {
     };
     const response = await request
       .put(`/${apiVersion}/users/${username}`)
-      .send(updateProfileData);
+      .send(updateUserData);
 
     expect(response.body).toHaveProperty('user');
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe('Successfully updated user!');
     expect(response.status).toBe(200);
+  });
+
+  test('Update User - Authorization Error', async () => {
+    const updateUserData = {
+      firstName: 'Jackie',
+      lastName: 'Chen',
+      email: 'jackiechen@jack.com',
+      _csrf: csrfToken
+    };
+    const response = await request
+      .put(`/${apiVersion}/users/wrongusername`)
+      .send(updateUserData);
+
+    expect(response.status).toBe(401);
+    expect(response.body).toHaveProperty('message');
+    expect(response.body.message).toBe('Cannot update user, invalid credentials!');
+  });
+
+  test('Update User - Validation Error', async () => {
+    const updateUserData = {
+      firstName: 'Jackie',
+      lastName: 'Chen',
+      email: 'jackiechen',
+      _csrf: csrfToken
+    };
+    const response = await request
+      .put(`/${apiVersion}/users/${username}`)
+      .send(updateUserData);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('message');
+    expect(response.body.message).toBe('Cannot update, please correct user information!');
+  });
+
+  test('Update User - Unavailable Email', async () => {
+    const updateUserData = {
+      firstName: 'Jackie',
+      lastName: 'Chen',
+      email: 'jackiechen@jack.com',
+      _csrf: csrfToken
+    };
+    const response = await request
+      .put(`/${apiVersion}/users/${username}`)
+      .send(updateUserData);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('message');
+    expect(response.body.message).toBe(`Email isn't available.`);
   });
 
   test('Update Password - Success', async () => {

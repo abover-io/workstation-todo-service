@@ -1,41 +1,42 @@
-import express from 'express';
-import cors from 'cors';
-import cookieParser from 'cookie-parser';
-import { config } from 'dotenv';
-import { Server } from 'http';
+import express from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import { config as dotEnvConfig } from "dotenv";
+import { Server } from "http";
 
-import mainRouter from './routes';
-import { getEnvVar, startAPI } from './utils';
+import mainRouter from "./routes";
+import { getEnvVar, startAPI } from "./utils";
 
-if (process.env.NODE_ENV != 'production') {
-  config();
-}
+process.env.NODE_ENV !== "production" ? dotEnvConfig() : "";
 
 const app = express();
 const port: number = +process.env.PORT! || 3000;
 
-app.use(cors({
-  credentials: true,
-  origin: [
-    "*",
-    "http://localhost:8080",
-    "https://todo.sundayexplore.tech",
-    "https://fancy-todos.firebaseapp.com",
-    "https://fancy-todos.web.app"
-  ]
-}));
-app.use(cookieParser(getEnvVar('COOKIE_SECRET')));
+app.use(
+  cors({
+    credentials: true,
+    origin: [
+      "*",
+      "http://localhost:8080",
+      "https://todo.sundayexplore.tech",
+      "https://fancy-todos.firebaseapp.com",
+      "https://fancy-todos.web.app",
+    ],
+  })
+);
+app.use(cookieParser(getEnvVar("COOKIE_SECRET")));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
 
 app.use(mainRouter);
 
 const server: Server = new Server(app);
 
-process.env.NODE_ENV != 'test' ? startAPI(server, {
-  port,
-  env: process.env.NODE_ENV || 'development'
-}) : '';
+process.env.NODE_ENV != "test"
+  ? startAPI(server, {
+      port,
+      env: process.env.NODE_ENV || "development",
+    })
+  : "";
 
 export default server;

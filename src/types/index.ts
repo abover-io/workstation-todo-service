@@ -1,6 +1,7 @@
 import { Document, Types } from 'mongoose';
 import { HttpError } from 'http-errors';
 import { Request, Response, NextFunction } from 'express';
+import { Server } from 'socket.io';
 
 export interface IUser extends Document {
   _id: Types.ObjectId;
@@ -71,4 +72,8 @@ export interface IUpdateUserValidations {
 export interface IStopApiOptions {
   env: 'development' | 'test' | 'production';
   db: 'drop' | 'hold';
+}
+
+export interface IRequestIO extends Request {
+  io: Server;
 }

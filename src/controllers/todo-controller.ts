@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { Types } from 'mongoose';
 import createError from 'http-errors';
 
-import { ITodo } from '@/types';
+import { ITodo, IRequestIO } from '@/types';
 import { Todo } from '@/models';
 import { formatTodos } from '@/utils';
 
@@ -62,6 +62,7 @@ export default class TodoController {
   static async addTodo(req: Request, res: Response, next: NextFunction) {
     try {
       const { username } = (<any>req).user;
+      const { io } = req as IRequestIO;
       const { name, due, priority = 0 }: ITodo = req.body;
       let todo: ITodo | any = await Todo.create({
         username,
@@ -69,8 +70,12 @@ export default class TodoController {
         due,
         priority,
       });
+      let todos: ITodo[] | any = await Todo.find({ username });
 
       todo = formatTodos<ITodo>(todo);
+      todos = formatTodos<ITodo[]>(todos);
+
+      io.emit(`${username}-refresh-todos`, { todos });
 
       return res
         .status(201)
@@ -83,6 +88,7 @@ export default class TodoController {
   static async updateTodo(req: Request, res: Response, next: NextFunction) {
     const { username } = (<any>req).user;
     const { todoId } = req.params;
+    const { io } = req as IRequestIO;
     const { name, due, priority = 0, position = null }: ITodo = req.body;
     const defaultError = createError({
       name: 'NotFoundError',
@@ -107,14 +113,18 @@ export default class TodoController {
           priority,
           position,
         },
-        { new: true }
+        { new: true },
       );
+      let todos: ITodo[] | any = await Todo.find({ username });
 
       if (!todo) {
         throw defaultError;
       }
 
       todo = formatTodos<ITodo>(todo);
+      todos = formatTodos<ITodo[]>(todos);
+
+      io.emit(`${username}-refresh-todos`, { todos });
 
       res.status(200).json({ todo, message: 'Successfully updated todo!' });
     } catch (err) {
@@ -125,6 +135,7 @@ export default class TodoController {
   static async completeTodo(req: Request, res: Response, next: NextFunction) {
     const { username } = (<any>req).user;
     const { todoId } = req.params;
+    const { io } = req as IRequestIO;
     const defaultError = createError({
       name: 'NotFoundError',
       message: `Cannot complete, no todo whose ID is ${todoId} found!`,
@@ -147,14 +158,18 @@ export default class TodoController {
         },
         {
           new: true,
-        }
+        },
       );
+      let todos: ITodo[] | any = await Todo.find({ username });
 
       if (!todo) {
         throw defaultError;
       }
 
       todo = formatTodos<ITodo>(todo);
+      todos = formatTodos<ITodo[]>(todos);
+
+      io.emit(`${username}-refresh-todos`, { todos });
 
       res.status(200).json({ todo, message: 'Successfully completed todo!' });
     } catch (err) {
@@ -165,6 +180,7 @@ export default class TodoController {
   static async uncompleteTodo(req: Request, res: Response, next: NextFunction) {
     const { username } = (<any>req).user;
     const { todoId } = req.params;
+    const { io } = req as IRequestIO;
     const defaultError = createError({
       name: 'NotFoundError',
       message: `Cannot uncomplete, no todo whose ID is ${todoId} found!`,
@@ -183,8 +199,9 @@ export default class TodoController {
           ],
         },
         { completed: false },
-        { new: true }
+        { new: true },
       );
+      let todos: ITodo[] | any = await Todo.find({ username });
 
       if (!todo) {
         throw createError({
@@ -194,10 +211,11 @@ export default class TodoController {
       }
 
       todo = formatTodos<ITodo>(todo);
+      todos = formatTodos<ITodo[]>(todos);
 
-      res
-        .status(200)
-        .json({ todo, message: 'Successfully uncompleted todo!' });
+      io.emit(`${username}-refresh-todos`, { todos });
+
+      res.status(200).json({ todo, message: 'Successfully uncompleted todo!' });
     } catch (err) {
       next(defaultError);
     }
@@ -207,6 +225,7 @@ export default class TodoController {
     try {
       const { username } = (<any>req).user;
       const { todoId } = req.params;
+      const { io } = req as IRequestIO;
       let todo: ITodo | any = await Todo.findOneAndDelete({
         $and: [
           {
@@ -217,6 +236,7 @@ export default class TodoController {
           },
         ],
       });
+      let todos: ITodo[] | any = await Todo.find({ username });
 
       if (!todo) {
         throw createError({
@@ -226,6 +246,9 @@ export default class TodoController {
       }
 
       todo = formatTodos<ITodo>(todo);
+      todos = formatTodos<ITodo[]>(todos);
+
+      io.emit(`${username}-refresh-todos`, { todos });
 
       return res
         .status(200)

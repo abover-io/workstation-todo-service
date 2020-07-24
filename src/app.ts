@@ -1,15 +1,13 @@
-import express from 'express';
-import cors from 'cors';
-import cookieParser from 'cookie-parser';
-import { config } from 'dotenv';
-import { Server } from 'http';
+import express from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import { config as dotEnvConfig } from "dotenv";
+import { Server } from "http";
 
-import mainRouter from './routes';
-import { getEnvVar, startAPI } from './utils';
+import mainRouter from "./routes";
+import { getEnvVar, startAPI } from "./utils";
 
-if (process.env.NODE_ENV != 'production') {
-  config();
-}
+process.env.NODE_ENV !== "production" ? dotEnvConfig() : "";
 
 const app = express();
 const port: number = +process.env.PORT! || 3000;

@@ -12,7 +12,7 @@ services:
     image: rafiandria23/fancy-todo-api:dev
     restart: always
     ports:
-      - 3000:3000
+      - 3000
     depends_on:
       - mongodb
     links:

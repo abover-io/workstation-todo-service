@@ -14,28 +14,25 @@ if (process.env.NODE_ENV != 'production') {
 const app = express();
 const port: number = +process.env.PORT! || 3000;
 
-app.use(cors({
-  credentials: true,
-  origin: [
-    "*",
-    "http://localhost:8080",
-    "https://todo.sundayexplore.tech",
-    "https://fancy-todos.firebaseapp.com",
-    "https://fancy-todos.web.app"
-  ]
-}));
+app.use(
+  cors({
+    credentials: true,
+    origin: ['http://localhost:8080', 'https://todo.sundayexplore.tech'],
+  }),
+);
 app.use(cookieParser(getEnvVar('COOKIE_SECRET')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
 
 app.use(mainRouter);
 
 const server: Server = new Server(app);
 
-process.env.NODE_ENV != 'test' ? startAPI(server, {
-  port,
-  env: process.env.NODE_ENV || 'development'
-}) : '';
+process.env.NODE_ENV !== 'test'
+  ? startAPI(server, {
+      port,
+      env: process.env.NODE_ENV || 'development',
+    })
+  : '';
 
 export default server;

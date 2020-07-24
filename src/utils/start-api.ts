@@ -1,4 +1,3 @@
-import { Express } from 'express';
 import { Server } from 'http';
 import { connect as connectToMongoDB } from 'mongoose';
 
@@ -22,7 +21,7 @@ export default async function startAPI(
 
     api.listen(port, () => {
       console.log(
-        `Sunday's Fancy Todo API is running.\nPORT\t=>\t${port}\nENV\t=>\t${env}`
+        `Sunday's Fancy Todo API is running.\nPORT\t=>\t${port}\nENV\t=>\t${env.toUpperCase()}`
       );
     });
 

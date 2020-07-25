@@ -14,7 +14,7 @@ process.env.NODE_ENV !== 'production' ? dotEnvConfig() : '';
 const port: number = +process.env.PORT! || 3000;
 const app = express();
 const server: Server = new Server(app);
-const io = socketIo(server);
+const io = socketIo(server, { serveClient: false });
 
 app.use(
   cors({

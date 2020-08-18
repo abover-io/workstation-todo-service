@@ -1,4 +1,5 @@
 import express from 'express';
+import { connect as connectToMongoDB } from 'mongoose';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { config as dotEnvConfig } from 'dotenv';
@@ -6,7 +7,7 @@ import { Server } from 'http';
 import socketIo from 'socket.io';
 
 import mainRouter from './routes';
-import { getEnvVar, startAPI } from './utils';
+import { getEnvVar } from './utils';
 import { IRequestIO } from './types';
 
 process.env.NODE_ENV !== 'production' ? dotEnvConfig() : '';
@@ -33,11 +34,19 @@ app.use((req, res, next) => {
 
 app.use(mainRouter);
 
-process.env.NODE_ENV !== 'test'
-  ? startAPI(server, {
-      port,
-      env: process.env.NODE_ENV || 'development',
-    })
-  : '';
+if (require.main === module) {
+  (async function () {
+    await connectToMongoDB(process.env.MONGODB_URI!, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+
+    app.listen(port, () => {
+      console.log(
+        `Sunday's Fancy Todo API is running.\nPORT\t=>\t${port}\nENV\t=>\t${process.env.NODE_ENV!.toUpperCase()}`,
+      );
+    });
+  })();
+}
 
 export default server;

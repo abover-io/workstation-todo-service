@@ -16,7 +16,7 @@ export default class TodoController {
         username,
       });
 
-      todos = formatTodos<ITodo[]>(todos, 'completed');
+      todos = formatTodos<ITodo[]>(todos, 'uncompleted');
 
       return res.status(200).json({
         todos,
@@ -70,12 +70,10 @@ export default class TodoController {
         due,
         priority,
       });
-      let todos: ITodo[] | any = await Todo.find({ username });
 
       todo = formatTodos<ITodo>(todo);
-      todos = formatTodos<ITodo[]>(todos);
 
-      io.emit(`${username}-refresh-todos`, { todos });
+      io.emit(`${username}-add-todo`, { todo });
 
       return res
         .status(201)
@@ -115,16 +113,14 @@ export default class TodoController {
         },
         { new: true },
       );
-      let todos: ITodo[] | any = await Todo.find({ username });
 
       if (!todo) {
         throw defaultError;
       }
 
       todo = formatTodos<ITodo>(todo);
-      todos = formatTodos<ITodo[]>(todos);
 
-      io.emit(`${username}-refresh-todos`, { todos });
+      io.emit(`${username}-update-todo`, { todo });
 
       res.status(200).json({ todo, message: 'Successfully updated todo!' });
     } catch (err) {
@@ -160,16 +156,14 @@ export default class TodoController {
           new: true,
         },
       );
-      let todos: ITodo[] | any = await Todo.find({ username });
 
       if (!todo) {
         throw defaultError;
       }
 
       todo = formatTodos<ITodo>(todo);
-      todos = formatTodos<ITodo[]>(todos);
 
-      io.emit(`${username}-refresh-todos`, { todos });
+      io.emit(`${username}-update-todo`, { todo });
 
       res.status(200).json({ todo, message: 'Successfully completed todo!' });
     } catch (err) {
@@ -201,7 +195,6 @@ export default class TodoController {
         { completed: false },
         { new: true },
       );
-      let todos: ITodo[] | any = await Todo.find({ username });
 
       if (!todo) {
         throw createError({
@@ -211,9 +204,8 @@ export default class TodoController {
       }
 
       todo = formatTodos<ITodo>(todo);
-      todos = formatTodos<ITodo[]>(todos);
 
-      io.emit(`${username}-refresh-todos`, { todos });
+      io.emit(`${username}-update-todo`, { todo });
 
       res.status(200).json({ todo, message: 'Successfully uncompleted todo!' });
     } catch (err) {
@@ -236,7 +228,6 @@ export default class TodoController {
           },
         ],
       });
-      let todos: ITodo[] | any = await Todo.find({ username });
 
       if (!todo) {
         throw createError({
@@ -246,9 +237,8 @@ export default class TodoController {
       }
 
       todo = formatTodos<ITodo>(todo);
-      todos = formatTodos<ITodo[]>(todos);
 
-      io.emit(`${username}-refresh-todos`, { todos });
+      io.emit(`${username}-delete-todo`, { todo });
 
       return res
         .status(200)

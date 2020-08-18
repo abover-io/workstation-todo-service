@@ -1,4 +1,7 @@
 import fs from 'fs';
+import { config as dotEnvConfig } from 'dotenv';
+
+process.env.NODE_ENV !== 'production' ? dotEnvConfig() : '';
 
 export default function getEnvVar(
   name: string,

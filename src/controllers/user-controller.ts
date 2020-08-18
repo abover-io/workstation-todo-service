@@ -43,7 +43,7 @@ export default class UserController {
           createError({
             name: 'AuthorizationError',
             message: err.message,
-          })
+          }),
         );
       } else {
         next(err);
@@ -116,7 +116,7 @@ export default class UserController {
       } else {
         const newUserTokens = await generateUserTokens(
           { firstName, lastName, username, email },
-          'signUp'
+          'signUp',
         );
         const newApiKey = createToken('apiKey', { username, email });
 
@@ -325,7 +325,7 @@ export default class UserController {
       } else {
         await User.updateOne(
           { username: usernameFromAuth },
-          { firstName, lastName, email }
+          { firstName, lastName, email },
         );
         const tokens = await generateUserTokens({
           firstName,
@@ -391,7 +391,7 @@ export default class UserController {
 
       await User.updateOne(
         { username: usernameFromAuth },
-        { password: hashedPassword }
+        { password: hashedPassword },
       );
 
       res.status(200).json({
@@ -417,6 +417,10 @@ export default class UserController {
         };
         throw usernameAuthError;
       }
+
+      await Todo.deleteMany({
+        username: usernameFromAuth,
+      });
 
       await User.deleteOne({
         username: usernameFromAuth,
@@ -452,12 +456,12 @@ export default class UserController {
         res.status(200).json({ message: 'Successfully signed out!' });
       } else {
         const updatedRefreshTokens: string[] = foundUser.refreshTokens.filter(
-          (refreshToken: string) => refreshToken != receivedRefreshToken
+          (refreshToken: string) => refreshToken != receivedRefreshToken,
         );
 
         await User.updateOne(
           { username },
-          { refreshTokens: updatedRefreshTokens }
+          { refreshTokens: updatedRefreshTokens },
         );
 
         res.clearCookie('act', { path: '/' });

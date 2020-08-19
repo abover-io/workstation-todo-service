@@ -7,7 +7,7 @@ import { Todo } from '@/models';
 
 const { ObjectId } = Types;
 
-export default class TodoController {
+export default class TodoControllerV1 {
   static async getTodos(req: Request, res: Response, next: NextFunction) {
     try {
       const { username } = (<any>req).user;

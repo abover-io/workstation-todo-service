@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import csurf from 'csurf';
 
-import { UserController } from '@/controllers';
+import { UserControllerV1 } from '@/controllers/v1-controllers';
 import { authenticate, Authorize } from '@/middlewares';
 
 const userRouter = Router();
@@ -9,41 +9,41 @@ const userRouter = Router();
 userRouter.post(
   '/refresh',
   csurf({ cookie: true, ignoreMethods: ['POST'] }),
-  UserController.refreshToken
+  UserControllerV1.refreshToken
 );
 userRouter.post(
   '/signup',
   csurf({ cookie: true, ignoreMethods: ['POST'] }),
-  UserController.signUp
+  UserControllerV1.signUp
 );
 userRouter.post(
   '/signin',
   csurf({ cookie: true, ignoreMethods: ['POST'] }),
-  UserController.signIn
+  UserControllerV1.signIn
 );
 
 
 userRouter.use(authenticate);
 
-userRouter.post('/signout', UserController.signOut);
+userRouter.post('/signout', UserControllerV1.signOut);
 
 userRouter.use(csurf({ cookie: true }));
 
-userRouter.get('/sync', UserController.sync);
+userRouter.get('/sync', UserControllerV1.sync);
 userRouter.put(
   '/:username',
   Authorize.authorizeUser,
-  UserController.updateUser
+  UserControllerV1.updateUser
 );
 userRouter.patch(
   '/:username',
   Authorize.authorizeUser,
-  UserController.updatePassword
+  UserControllerV1.updatePassword
 );
 userRouter.delete(
   '/:username',
   Authorize.authorizeUser,
-  UserController.deleteUser
+  UserControllerV1.deleteUser
 );
 
 export default userRouter;

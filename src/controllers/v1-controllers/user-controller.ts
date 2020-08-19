@@ -19,7 +19,7 @@ import {
   createToken,
 } from '@/utils';
 
-export default class UserController {
+export default class UserControllerV1 {
   static async refreshToken(req: Request, res: Response, next: NextFunction) {
     try {
       const { rft } = req.cookies;

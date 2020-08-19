@@ -49,7 +49,7 @@ describe('Todo Model Tests', () => {
     expect(response.body).toHaveProperty('todo');
     expect(response.body).toHaveProperty('message');
     expect(response.body.todo.name).toBe(addTodoData.name);
-    expect(response.body.message).toBe('Successfully created todo!');
+    expect(response.body.message).toBe('Successfully added todo!');
     todoId = response.body.todo._id;
   });
 

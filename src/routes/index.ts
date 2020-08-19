@@ -2,7 +2,7 @@ import { Router } from 'express';
 
 import { errorHandler } from '@/middlewares';
 
-import routerV1 from './v1';
+import routerV1 from './v1-routes';
 
 const mainRouter = Router();
 

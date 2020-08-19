@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
-import userRouter from './user-router-v1';
-import todoRouter from './todo-router-v1';
+import userRouter from './user-router';
+import todoRouter from './todo-router';
 
 const routerV1 = Router();
 

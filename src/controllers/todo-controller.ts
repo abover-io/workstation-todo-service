@@ -4,7 +4,6 @@ import createError from 'http-errors';
 
 import { ITodo, IRequestIO } from '@/types';
 import { Todo } from '@/models';
-import { formatTodos } from '@/utils';
 
 const { ObjectId } = Types;
 
@@ -12,11 +11,10 @@ export default class TodoController {
   static async getTodos(req: Request, res: Response, next: NextFunction) {
     try {
       const { username } = (<any>req).user;
-      let todos: ITodo[] | any = await Todo.find({
+      const todos: ITodo[] | any = await Todo.find({
         username,
+        completed: false,
       });
-
-      todos = formatTodos<ITodo[]>(todos, 'uncompleted');
 
       return res.status(200).json({
         todos,
@@ -31,7 +29,7 @@ export default class TodoController {
     try {
       const { username } = (<any>req).user;
       const { todoId } = req.params;
-      let todo: ITodo | any = await Todo.findOne({
+      const todo: ITodo | any = await Todo.findOne({
         $and: [
           {
             _id: ObjectId(todoId),
@@ -49,11 +47,10 @@ export default class TodoController {
         });
       }
 
-      todo = formatTodos<ITodo>(todo);
-
-      return res
-        .status(200)
-        .json({ todo, message: 'Successfully fetched specified todo!' });
+      return res.status(200).json({
+        todo,
+        message: `Successfully fetched todo whose ID is ${todoId}!`,
+      });
     } catch (err) {
       return next(err);
     }
@@ -64,22 +61,20 @@ export default class TodoController {
       const { username } = (<any>req).user;
       const { io } = req as IRequestIO;
       const { name, due, priority = 0 }: ITodo = req.body;
-      let todo: ITodo | any = await Todo.create({
+      const todo: ITodo | any = await Todo.create({
         username,
         name,
         due,
         priority,
       });
 
-      todo = formatTodos<ITodo>(todo);
-
       io.emit(`${username}-add-todo`, { todo });
 
       return res
         .status(201)
-        .json({ todo, message: 'Successfully created todo!' });
+        .json({ todo, message: 'Successfully added todo!' });
     } catch (err) {
-      next(err);
+      return next(err);
     }
   }
 
@@ -94,7 +89,7 @@ export default class TodoController {
     });
 
     try {
-      let todo: ITodo | any = await Todo.findOneAndUpdate(
+      const todo: ITodo | any = await Todo.findOneAndUpdate(
         {
           $and: [
             {
@@ -118,13 +113,13 @@ export default class TodoController {
         throw defaultError;
       }
 
-      todo = formatTodos<ITodo>(todo);
-
       io.emit(`${username}-update-todo`, { todo });
 
-      res.status(200).json({ todo, message: 'Successfully updated todo!' });
+      return res
+        .status(200)
+        .json({ todo, message: 'Successfully updated todo!' });
     } catch (err) {
-      next(defaultError);
+      return next(defaultError);
     }
   }
 
@@ -138,7 +133,7 @@ export default class TodoController {
     });
 
     try {
-      let todo: ITodo | any = await Todo.findOneAndUpdate(
+      const todo: ITodo | any = await Todo.findOneAndUpdate(
         {
           $and: [
             {
@@ -161,13 +156,13 @@ export default class TodoController {
         throw defaultError;
       }
 
-      todo = formatTodos<ITodo>(todo);
-
       io.emit(`${username}-update-todo`, { todo });
 
-      res.status(200).json({ todo, message: 'Successfully completed todo!' });
+      return res
+        .status(200)
+        .json({ todo, message: 'Successfully completed todo!' });
     } catch (err) {
-      next(defaultError);
+      return next(defaultError);
     }
   }
 
@@ -181,7 +176,7 @@ export default class TodoController {
     });
 
     try {
-      let todo: ITodo | any = await Todo.findOneAndUpdate(
+      const todo: ITodo | any = await Todo.findOneAndUpdate(
         {
           $and: [
             {
@@ -203,13 +198,13 @@ export default class TodoController {
         });
       }
 
-      todo = formatTodos<ITodo>(todo);
-
       io.emit(`${username}-update-todo`, { todo });
 
-      res.status(200).json({ todo, message: 'Successfully uncompleted todo!' });
+      return res
+        .status(200)
+        .json({ todo, message: 'Successfully uncompleted todo!' });
     } catch (err) {
-      next(defaultError);
+      return next(defaultError);
     }
   }
 
@@ -218,7 +213,7 @@ export default class TodoController {
       const { username } = (<any>req).user;
       const { todoId } = req.params;
       const { io } = req as IRequestIO;
-      let todo: ITodo | any = await Todo.findOneAndDelete({
+      const todo: ITodo | any = await Todo.findOneAndDelete({
         $and: [
           {
             _id: ObjectId(todoId),
@@ -235,8 +230,6 @@ export default class TodoController {
           message: `Cannot delete, no todo whose ID is ${todoId} found!`,
         });
       }
-
-      todo = formatTodos<ITodo>(todo);
 
       io.emit(`${username}-delete-todo`, { todo });
 

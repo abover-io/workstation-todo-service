@@ -2,19 +2,19 @@ import { Server } from 'http';
 import { connect as connectToMongoDB } from 'mongoose';
 
 import { IStartApiOptions } from '@/types';
-import { decideMongoURI } from '@/utils';
+import { decideMongoURI, getEnvVar } from '@/utils';
 
 export default async function startAPI(
   api: Server,
   options: IStartApiOptions = {
     port: 3000,
-    env: process.env.NODE_ENV || 'development',
+    env: getEnvVar('NODE_ENV') || 'development',
   }
 ): Promise<void> {
   const { port, env } = options;
 
   try {
-    await connectToMongoDB(process.env.MONGODB_URI || decideMongoURI(env), {
+    await connectToMongoDB(getEnvVar('MONGODB_URI') || decideMongoURI(env), {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });

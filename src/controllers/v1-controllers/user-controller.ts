@@ -438,7 +438,7 @@ export default class UserControllerV1 {
   }
 
   static async signOut(req: Request, res: Response, next: NextFunction) {
-    const { username } = (<any>req).user;
+    const username = (<any>req).user.username || req.body.username;
     const receivedRefreshToken: string =
       req.cookies.rft ||
       req.headers['X-RFT'] ||

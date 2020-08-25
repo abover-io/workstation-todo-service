@@ -21,13 +21,11 @@ userRouter.post(
   csurf({ cookie: true, ignoreMethods: ['POST'] }),
   UserControllerV1.signIn
 );
-
-
-userRouter.use(authenticate);
-
 userRouter.post('/signout', UserControllerV1.signOut);
 
 userRouter.use(csurf({ cookie: true }));
+
+userRouter.use(authenticate);
 
 userRouter.get('/sync', UserControllerV1.sync);
 userRouter.put(

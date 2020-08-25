@@ -3,30 +3,30 @@ import csurf from 'csurf';
 
 import Authorize from '@/middlewares/authorize';
 import authenticate from '@/middlewares/authenticate';
-import { TodoController } from '@/controllers';
+import { TodoControllerV1 } from '@/controllers/v1-controllers';
 
 const todoRouter = Router();
 
 todoRouter.use(csurf({ cookie: true }));
 todoRouter.use(authenticate);
-todoRouter.get('/', TodoController.getTodos);
-todoRouter.get('/:todoId', TodoController.getTodo);
-todoRouter.post('/', TodoController.addTodo);
-todoRouter.put('/:todoId', Authorize.authorizeTodo, TodoController.updateTodo);
+todoRouter.get('/', TodoControllerV1.getTodos);
+todoRouter.get('/:todoId', TodoControllerV1.getTodo);
+todoRouter.post('/', TodoControllerV1.addTodo);
+todoRouter.put('/:todoId', Authorize.authorizeTodo, TodoControllerV1.updateTodo);
 todoRouter.patch(
   '/complete/:todoId',
   Authorize.authorizeTodo,
-  TodoController.completeTodo
+  TodoControllerV1.completeTodo
 );
 todoRouter.patch(
   '/uncomplete/:todoId',
   Authorize.authorizeTodo,
-  TodoController.uncompleteTodo
+  TodoControllerV1.uncompleteTodo
 );
 todoRouter.delete(
   '/:todoId',
   Authorize.authorizeTodo,
-  TodoController.deleteTodo
+  TodoControllerV1.deleteTodo
 );
 
 export default todoRouter;

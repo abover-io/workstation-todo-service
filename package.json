@@ -10,7 +10,10 @@
     "bundle:watch": "webpack --mode=development --watch --progress --colors",
     "server:watch": "nodemon \"./dist/main.js\" --watch \"./dist/*\"",
     "build": "webpack --mode=production --progress --colors",
-    "start": "node ./dist/main.js"
+    "start": "node ./dist/main.js",
+    "docker:dev": "git checkout dev && docker build -f Dockerfile.dev -t rafiandria23/fancy-todo-api:dev . && docker push rafiandria23/fancy-todo-api:dev && git push origin dev",
+    "docker:latest": "git checkout master && git merge dev && docker build -f Dockerfile -t rafiandria/fancy-todo-api:latest && docker push rafiandria23/fancy-todo-api:latest && git push origin master && git checkout dev",
+    "push": "npm-run-all docker:dev docker:latest"
   },
   "repository": {
     "type": "git",

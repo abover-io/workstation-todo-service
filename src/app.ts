@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import { config as dotEnvConfig } from 'dotenv';
 import { Server } from 'http';
 import socketIo from 'socket.io';
+import helmet from 'helmet';
 
 import mainRouter from './routes';
 import { getEnvVar } from './utils';
@@ -17,6 +18,7 @@ const app = express();
 const server: Server = new Server(app);
 const io = socketIo(server, { serveClient: false });
 
+app.use(helmet());
 app.use(
   cors({
     credentials: true,

@@ -37,7 +37,6 @@ app.use((req, res, next) => {
 app.use(mainRouter);
 
 if (require.main === module) {
-  console.error(process.argv);
   (async function () {
     await connectToMongoDB(process.env.MONGODB_URI!, {
       useNewUrlParser: true,

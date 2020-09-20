@@ -9,7 +9,7 @@ export default async function startAPI(
   options: IStartApiOptions = {
     port: 3000,
     env: getEnvVar('NODE_ENV') || 'development',
-  }
+  },
 ): Promise<void> {
   const { port, env } = options;
 
@@ -21,7 +21,7 @@ export default async function startAPI(
 
     api.listen(port, () => {
       console.log(
-        `Sunday's Fancy Todo API is running.\nPORT\t=>\t${port}\nENV\t=>\t${env.toUpperCase()}`
+        `Sunday's Fancy Todo API is running.\nPORT\t=>\t${port}\nENV\t=>\t${env.toUpperCase()}`,
       );
     });
 

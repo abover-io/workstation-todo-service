@@ -1,6 +1,7 @@
 import { compareSync, hashSync } from 'bcryptjs';
 import createError, { HttpError } from 'http-errors';
 import { Request, Response, NextFunction } from 'express';
+import { verify as verifyJWT } from 'jsonwebtoken';
 
 import {
   IUser,
@@ -18,12 +19,13 @@ import {
   CustomValidator,
   createToken,
 } from '@/utils';
+import { JWT_REFRESH_SECRET } from '@/config';
 
 export default class UserControllerV1 {
   static async refreshToken(req: Request, res: Response, next: NextFunction) {
     try {
-      const { rft } = req.cookies;
-      const newTokens = await handleRefreshToken(rft);
+      const refreshToken = req.cookies.rft || req.body.rft;
+      const newTokens = await handleRefreshToken(refreshToken);
       res.cookie('act', newTokens.accessToken, {
         httpOnly: true,
         secure: true,
@@ -452,7 +454,6 @@ export default class UserControllerV1 {
   }
 
   static async signOut(req: Request, res: Response, next: NextFunction) {
-    const username = (<any>req).user.username || req.body.username;
     const receivedRefreshToken: string =
       req.cookies.rft ||
       req.headers['X-RFT'] ||
@@ -460,15 +461,17 @@ export default class UserControllerV1 {
       req.body.rft;
 
     try {
-      const foundUser: IUser | any = await User.findOne({
-        username,
-      });
-
       if (!receivedRefreshToken) {
         res.clearCookie('rft', { path: '/' });
         res.clearCookie('act', { path: '/' });
         res.status(200).json({ message: 'Successfully signed out!' });
       } else {
+        const { username }: IUser | any = verifyJWT(receivedRefreshToken, JWT_REFRESH_SECRET);
+
+        const foundUser: IUser | any = await User.findOne({
+          username,
+        });
+
         const updatedRefreshTokens: string[] = foundUser.refreshTokens.filter(
           (refreshToken: string) => refreshToken != receivedRefreshToken,
         );

@@ -11,6 +11,8 @@ const wrongTodoID = 'thisiswrongtodoobjectid';
 let username: string;
 let todoId: string;
 let csrfToken: string;
+let accessToken: string;
+let refreshToken: string;
 
 describe('Todo Model Tests', () => {
   beforeAll(async () => {
@@ -34,6 +36,8 @@ describe('Todo Model Tests', () => {
     expect(response.status).toBe(200);
     username = response.body.user.username;
     csrfToken = response.body.tokens.csrfToken;
+    accessToken = response.body.tokens.accessToken;
+    refreshToken = response.body.tokens.refreshToken;
   });
 
   test('Add Todo - Success', async () => {
@@ -42,6 +46,7 @@ describe('Todo Model Tests', () => {
       due: new Date(),
       priority: 0,
       _csrf: csrfToken,
+      act: accessToken,
     };
     const response = await request
       .post(`/${apiVersion}/todos`)
@@ -56,6 +61,7 @@ describe('Todo Model Tests', () => {
   test('Get All Todos - Success', async () => {
     const response = await request.get(`/${apiVersion}/todos`).send({
       _csrf: csrfToken,
+      act: accessToken,
     });
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('todos');
@@ -65,6 +71,7 @@ describe('Todo Model Tests', () => {
   test('Get a Specified Todo - Success', async () => {
     const response = await request.get(`/${apiVersion}/todos/${todoId}`).send({
       _csrf: csrfToken,
+      act: accessToken,
     });
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('todo');
@@ -77,6 +84,7 @@ describe('Todo Model Tests', () => {
       due: new Date(),
       priority: 0,
       _csrf: csrfToken,
+      act: accessToken,
     };
     const response = await request
       .put(`/${apiVersion}/todos/${todoId}`)
@@ -94,13 +102,14 @@ describe('Todo Model Tests', () => {
       due: new Date(),
       priority: 0,
       _csrf: csrfToken,
+      act: accessToken,
     };
     const response = await request
       .put(`/${apiVersion}/todos/${wrongTodoID}`)
       .send(updateTodoData);
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe(
-      `Cannot update, no todo whose ID is ${wrongTodoID} found!`
+      `Cannot update, no todo whose ID is ${wrongTodoID} found!`,
     );
     expect(response.status).toBe(404);
   });
@@ -110,6 +119,7 @@ describe('Todo Model Tests', () => {
       .patch(`/${apiVersion}/todos/complete/${todoId}`)
       .send({
         _csrf: csrfToken,
+        act: accessToken,
       });
     expect(response.body).toHaveProperty('todo');
     expect(response.body).toHaveProperty('message');
@@ -122,10 +132,11 @@ describe('Todo Model Tests', () => {
       .patch(`/${apiVersion}/todos/complete/${wrongTodoID}`)
       .send({
         _csrf: csrfToken,
+        act: accessToken,
       });
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe(
-      `Cannot complete, no todo whose ID is ${wrongTodoID} found!`
+      `Cannot complete, no todo whose ID is ${wrongTodoID} found!`,
     );
     expect(response.status).toBe(404);
   });
@@ -135,6 +146,7 @@ describe('Todo Model Tests', () => {
       .patch(`/${apiVersion}/todos/uncomplete/${todoId}`)
       .send({
         _csrf: csrfToken,
+        act: accessToken,
       });
     expect(response.body).toHaveProperty('todo');
     expect(response.body).toHaveProperty('message');
@@ -147,10 +159,11 @@ describe('Todo Model Tests', () => {
       .patch(`/${apiVersion}/todos/uncomplete/${wrongTodoID}`)
       .send({
         _csrf: csrfToken,
+        act: accessToken,
       });
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe(
-      `Cannot uncomplete, no todo whose ID is ${wrongTodoID} found!`
+      `Cannot uncomplete, no todo whose ID is ${wrongTodoID} found!`,
     );
     expect(response.status).toBe(404);
   });
@@ -160,6 +173,7 @@ describe('Todo Model Tests', () => {
       .delete(`/${apiVersion}/todos/${todoId}`)
       .send({
         _csrf: csrfToken,
+        act: accessToken,
       });
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('todo');
@@ -174,6 +188,7 @@ describe('Todo Model Tests', () => {
       .delete(`/${apiVersion}/users/${username}`)
       .send({
         _csrf: csrfToken,
+        act: accessToken,
       });
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('message');

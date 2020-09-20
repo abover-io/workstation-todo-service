@@ -1,18 +1,19 @@
 import supertest from 'supertest';
 
-import app from '@/app';
+import server from '@/app';
 import { startAPI, stopAPI } from '@/utils';
 import { defaultTestPort, apiVersion } from '@/config';
 
-const request = supertest.agent(app);
+const request = supertest.agent(server);
 
 let username: string;
 let csrfToken: string;
 let accessToken: string;
+let refreshToken: string;
 
 describe('User Model Tests', () => {
   beforeAll(async () => {
-    await startAPI(app, {
+    await startAPI(server, {
       port: defaultTestPort,
       env: 'test',
     });
@@ -32,7 +33,10 @@ describe('User Model Tests', () => {
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe('Successfully signed up!');
     expect(response.status).toBe(201);
+    username = response.body.user.username;
     csrfToken = response.body.tokens.csrfToken;
+    accessToken = response.body.tokens.accessToken;
+    refreshToken = response.body.tokens.refreshToken;
   });
 
   test('Sign Up - Validation Error', async () => {
@@ -49,7 +53,7 @@ describe('User Model Tests', () => {
     expect(response.status).toBe(400);
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe(
-      'Failed to sign up, please correct user information!'
+      'Failed to sign up, please correct user information!',
     );
   });
 
@@ -101,6 +105,7 @@ describe('User Model Tests', () => {
     username = response.body.user.username;
     csrfToken = response.body.tokens.csrfToken;
     accessToken = response.body.tokens.accessToken;
+    refreshToken = response.body.tokens.refreshToken;
   });
 
   test('Sign In - User Not Found', async () => {
@@ -140,12 +145,15 @@ describe('User Model Tests', () => {
     expect(response.status).toBe(400);
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe(
-      'Failed to sign in, please correct user information!'
+      'Failed to sign in, please correct user information!',
     );
   });
 
   test('Refresh User Token - Success', async () => {
-    const response = await request.post(`/${apiVersion}/users/refresh`);
+    const response = await request.post(`/${apiVersion}/users/refresh`).send({
+      act: accessToken,
+      rft: refreshToken,
+    });
     expect(response.body).toHaveProperty('tokens');
     expect(response.body).toHaveProperty('message');
     expect(response.body.tokens).toHaveProperty('accessToken');
@@ -155,7 +163,7 @@ describe('User Model Tests', () => {
   });
 
   test('Refresh User Token - Refresh Token Error', async () => {
-    await request.post(`/${apiVersion}/users/signout`);
+    await request.post(`/${apiVersion}/users/refresh`);
     const response = await request.post(`/${apiVersion}/users/refresh`);
     expect(response.status).toBe(401);
     expect(response.body).toHaveProperty('message');
@@ -179,7 +187,9 @@ describe('User Model Tests', () => {
   });
 
   test('Sync - Success', async () => {
-    const response = await request.get(`/${apiVersion}/users/sync`);
+    const response = await request.get(`/${apiVersion}/users/sync`).send({
+      act: accessToken,
+    });
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe('Successfully synced!');
     expect(response.body).toHaveProperty('user');
@@ -193,6 +203,7 @@ describe('User Model Tests', () => {
       lastName: 'Chen',
       email: 'jackiechen@jack.com',
       _csrf: csrfToken,
+      act: accessToken,
     };
     const response = await request
       .put(`/${apiVersion}/users/${username}`)
@@ -210,6 +221,7 @@ describe('User Model Tests', () => {
       lastName: 'Chen',
       email: 'jackiechen@jack.com',
       _csrf: csrfToken,
+      act: accessToken,
     };
     const response = await request
       .put(`/${apiVersion}/users/wrongusername`)
@@ -218,7 +230,7 @@ describe('User Model Tests', () => {
     expect(response.status).toBe(401);
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe(
-      'Cannot update user, invalid credentials!'
+      'Cannot update user, invalid credentials!',
     );
   });
 
@@ -228,6 +240,7 @@ describe('User Model Tests', () => {
       lastName: 'Chen',
       email: 'jackiechen',
       _csrf: csrfToken,
+      act: accessToken,
     };
     const response = await request
       .put(`/${apiVersion}/users/${username}`)
@@ -236,7 +249,7 @@ describe('User Model Tests', () => {
     expect(response.status).toBe(400);
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe(
-      'Cannot update, please correct user information!'
+      'Cannot update, please correct user information!',
     );
   });
 
@@ -246,6 +259,7 @@ describe('User Model Tests', () => {
       lastName: 'Chen',
       email: 'jackiechen@jack.com',
       _csrf: csrfToken,
+      act: accessToken,
     };
     const response = await request
       .put(`/${apiVersion}/users/${username}`)
@@ -260,6 +274,7 @@ describe('User Model Tests', () => {
     const updatePasswordData = {
       password: '`Jackiechen2',
       _csrf: csrfToken,
+      act: accessToken,
     };
     const response = await request
       .patch(`/${apiVersion}/users/${username}`)
@@ -273,6 +288,7 @@ describe('User Model Tests', () => {
     const updatePasswordData = {
       password: '`Jackiechen2',
       _csrf: csrfToken,
+      act: accessToken,
     };
     const response = await request
       .patch(`/${apiVersion}/users/wrongusername`)
@@ -280,7 +296,7 @@ describe('User Model Tests', () => {
     expect(response.status).toBe(401);
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe(
-      'Cannot update user, invalid credentials!'
+      'Cannot update user, invalid credentials!',
     );
   });
 
@@ -288,6 +304,7 @@ describe('User Model Tests', () => {
     const updatePasswordData = {
       password: 'chen',
       _csrf: csrfToken,
+      act: accessToken,
     };
     const response = await request
       .patch(`/${apiVersion}/users/${username}`)
@@ -301,16 +318,21 @@ describe('User Model Tests', () => {
       .delete(`/${apiVersion}/users/wrongusername`)
       .send({
         _csrf: csrfToken,
+        act: accessToken,
       });
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe(
-      'Cannot delete user, invalid credentials!'
+      'Cannot delete user, invalid credentials!',
     );
     expect(response.status).toBe(401);
   });
 
   test('Sign Out - Success', async () => {
-    const response = await request.post(`/${apiVersion}/users/signout`);
+    const response = await request.post(`/${apiVersion}/users/signout`).send({
+      username,
+      act: accessToken,
+      rft: refreshToken,
+    });
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe('Successfully signed out!');
     expect(response.status).toBe(200);
@@ -318,6 +340,7 @@ describe('User Model Tests', () => {
 
   test('Sign Out - No Refresh Token Provided', async () => {
     const response = await request.post(`/${apiVersion}/users/signout`).send({
+      username,
       act: accessToken,
     });
     expect(response.body).toHaveProperty('message');
@@ -326,7 +349,7 @@ describe('User Model Tests', () => {
   });
 
   afterAll(async () => {
-    await stopAPI(app, {
+    await stopAPI(server, {
       env: 'test',
       db: 'hold',
     });

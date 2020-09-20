@@ -14,8 +14,9 @@ import { IRequestIO } from './types';
 process.env.NODE_ENV !== 'production' ? dotEnvConfig() : '';
 
 const app = express();
+const server = createServer(app);
 const port = process.env.PORT || 3000;
-const io = socketIo(createServer(app), { serveClient: false });
+const io = socketIo(server, { serveClient: false });
 
 app.use(helmet());
 app.use(
@@ -35,14 +36,14 @@ app.use((req, res, next) => {
 
 app.use(mainRouter);
 
-if (require.main !== module) {
+if (require.main === module) {
   (async function () {
     await connectToMongoDB(process.env.MONGODB_URI!, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
 
-    app.listen(port, () => {
+    server.listen(port, () => {
       console.log(
         `Sunday's Fancy Todo API is running.\nPORT\t=>\t${port}\nENV\t=>\t${process.env.NODE_ENV!.toUpperCase()}`,
       );
@@ -50,4 +51,4 @@ if (require.main !== module) {
   })();
 }
 
-export default app;
+export default server;

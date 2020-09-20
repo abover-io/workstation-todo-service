@@ -25,14 +25,18 @@ export default class UserControllerV1 {
       const { rft } = req.cookies;
       const newTokens = await handleRefreshToken(rft);
       res.cookie('act', newTokens.accessToken, {
-        httpOnly: decideCookieOptions('httpOnly'),
-        // secure: decideCookieOptions('secure'),
+        httpOnly: true,
+        secure: true,
         path: '/',
+        signed: true,
+        sameSite: 'none'
       });
       res.cookie('rft', newTokens.refreshToken, {
-        httpOnly: decideCookieOptions('httpOnly'),
-        // secure: decideCookieOptions('secure'),
+        httpOnly: true,
+        secure: true,
         path: '/',
+        signed: true,
+        sameSite: 'none'
       });
       res
         .status(200)
@@ -132,16 +136,18 @@ export default class UserControllerV1 {
 
         res.cookie('act', newUserTokens.accessToken, {
           httpOnly: true,
-          // secure: decideCookieOptions('secure'),
+          secure: true,
           path: '/',
           signed: true,
+          sameSite: 'none'
         });
 
         res.cookie('rft', newUserTokens.refreshToken, {
           httpOnly: true,
-          // secure: decideCookieOptions('secure'),
+          secure: true,
           path: '/',
           signed: true,
+          sameSite: 'none'
         });
 
         res.cookie('XSRF-TOKEN', req.csrfToken());
@@ -229,13 +235,17 @@ export default class UserControllerV1 {
         if (compareSync(password, signInUser.password)) {
           res.cookie('act', tokens.accessToken, {
             httpOnly: true,
-            // secure: decideCookieOptions('secure'),
+            secure: true,
             path: '/',
+            signed: true,
+            sameSite: 'none'
           });
           res.cookie('rft', tokens.refreshToken, {
             httpOnly: true,
-            // secure: decideCookieOptions('secure'),
+            secure: true,
             path: '/',
+            signed: true,
+            sameSite: 'none'
           });
 
           res.cookie('XSRF-TOKEN', req.csrfToken());
@@ -335,13 +345,17 @@ export default class UserControllerV1 {
         });
         res.cookie('act', tokens.accessToken, {
           httpOnly: decideCookieOptions('httpOnly'),
-          // secure: decideCookieOptions('secure'),
+          secure: true,
           path: '/',
+          signed: true,
+          sameSite: 'none'
         });
         res.cookie('rft', tokens.refreshToken, {
           httpOnly: decideCookieOptions('httpOnly'),
-          // secure: decideCookieOptions('secure'),
+          secure: true,
           path: '/',
+          signed: true,
+          sameSite: 'none'
         });
         res.status(200).json({
           user: {

@@ -1,9 +1,10 @@
+import fs from 'fs';
 import express from 'express';
 import { connect as connectToMongoDB } from 'mongoose';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { config as dotEnvConfig } from 'dotenv';
-import { Server } from 'http';
+import { createServer, Server } from 'https';
 import socketIo from 'socket.io';
 import helmet from 'helmet';
 
@@ -13,9 +14,15 @@ import { IRequestIO } from './types';
 
 process.env.NODE_ENV !== 'production' ? dotEnvConfig() : '';
 
-const port: number = +process.env.PORT! || 3000;
+const privateKey: string = fs.readFileSync('../ssl/key.pem', 'utf8');
+const certificate: string = fs.readFileSync('../ssl/cert.pem', 'utf8');
+
+const port: number = +process.env.PORT! || 443;
 const app = express();
-const server: Server = new Server(app);
+const server: Server = createServer({
+  key: privateKey,
+  cert: certificate
+}, app);
 const io = socketIo(server, { serveClient: false });
 
 app.use(helmet());
@@ -43,7 +50,7 @@ if (require.main !== module) {
       useUnifiedTopology: true,
     });
 
-    app.listen(port, () => {
+    server.listen(port, () => {
       console.log(
         `Sunday's Fancy Todo API is running.\nPORT\t=>\t${port}\nENV\t=>\t${process.env.NODE_ENV!.toUpperCase()}`,
       );

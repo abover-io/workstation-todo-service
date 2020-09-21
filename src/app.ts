@@ -46,7 +46,7 @@ if (require.main === module) {
       },
     );
 
-    server.listen(port, () => {
+    app.listen(port, () => {
       console.log(
         `Sunday's Fancy Todo API is running.\nPORT\t=>\t${port}\nENV\t=>\t${getEnvVar(
           'NODE_ENV',

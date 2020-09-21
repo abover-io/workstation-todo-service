@@ -8,14 +8,14 @@ import socketIo from 'socket.io';
 import helmet from 'helmet';
 
 import mainRouter from './routes';
-import { getEnvVar } from './utils';
+import { getEnvVar, decideMongoURI } from './utils';
 import { IRequestIO } from './types';
 
-process.env.NODE_ENV !== 'production' ? dotEnvConfig() : '';
+getEnvVar('NODE_ENV') !== 'production' ? dotEnvConfig() : '';
 
 const app = express();
 const server = createServer(app);
-const port = process.env.PORT || 3000;
+const port = getEnvVar('PORT') || 3000;
 const io = socketIo(server, { serveClient: false });
 
 app.use(helmet());
@@ -38,14 +38,19 @@ app.use(mainRouter);
 
 if (require.main === module) {
   (async function () {
-    await connectToMongoDB(process.env.MONGODB_URI!, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await connectToMongoDB(
+      getEnvVar('MONGODB_URI') || decideMongoURI(getEnvVar('NODE_ENV')),
+      {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      },
+    );
 
     server.listen(port, () => {
       console.log(
-        `Sunday's Fancy Todo API is running.\nPORT\t=>\t${port}\nENV\t=>\t${process.env.NODE_ENV!.toUpperCase()}`,
+        `Sunday's Fancy Todo API is running.\nPORT\t=>\t${port}\nENV\t=>\t${getEnvVar(
+          'NODE_ENV',
+        ).toUpperCase()}`,
       );
     });
   })();

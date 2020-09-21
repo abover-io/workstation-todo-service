@@ -12,8 +12,6 @@ RUN yarn && yarn cache clean --force
 
 COPY . .
 
-RUN yarn build
-
 ENTRYPOINT [ "/sbin/tini", "--" ]
 
 ENV NODE_ENV=production

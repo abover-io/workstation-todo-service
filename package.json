@@ -12,7 +12,7 @@
     "dev": "NODE_ENV=development npm-run-all build server",
     "prod": "NODE_ENV=production npm-run-all build server",
     "watch:dev": "nodemon",
-    "test": "jest --coverage --detectOpenHandles --forceExit",
+    "test": "jest --coverage --detectOpenHandles --forceExit && coveralls < coverage/lcov.info",
     "docker:dev": "git checkout dev && docker build -f Dockerfile.dev -t rafiandria23/fancy-todo-api:dev . && docker push rafiandria23/fancy-todo-api:dev && git push origin dev",
     "docker:latest": "git checkout master && git merge dev && docker build -f Dockerfile -t rafiandria23/fancy-todo-api:latest . && docker push rafiandria23/fancy-todo-api:latest && git push origin master && git checkout dev",
     "push": "npm-run-all docker:dev docker:latest"

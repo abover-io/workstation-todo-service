@@ -22,7 +22,7 @@ app.use(helmet());
 app.use(
   cors({
     credentials: true,
-    origin: ['http://localhost:8080', 'https://todo.sundayexplore.tech'],
+    origin: ['https://localhost:8080', 'https://todo.sundayexplore.tech'],
   }),
 );
 app.use(cookieParser(getEnvVar('COOKIE_SECRET')));

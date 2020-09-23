@@ -6,6 +6,7 @@ import { config as dotEnvConfig } from 'dotenv';
 import { createServer } from 'http';
 import socketIo from 'socket.io';
 import helmet from 'helmet';
+import morgan from 'morgan';
 
 import mainRouter from './routes';
 import { getEnvVar, decideMongoURI } from './utils';
@@ -15,9 +16,10 @@ getEnvVar('NODE_ENV') !== 'production' ? dotEnvConfig() : '';
 
 const app = express();
 const server = createServer(app);
-const port = getEnvVar('PORT') || 3000;
+const port = getEnvVar('API_PORT') || 3000;
 const io = socketIo(server, { serveClient: false });
 
+app.use(morgan('common'));
 app.use(helmet());
 app.use(
   cors({

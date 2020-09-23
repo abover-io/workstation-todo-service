@@ -28,17 +28,17 @@ export default class UserControllerV1 {
       const newTokens = await handleRefreshToken(refreshToken);
       res.cookie('act', newTokens.accessToken, {
         httpOnly: true,
-        secure: true,
+        secure: decideCookieOptions('secure'),
         path: '/',
         signed: true,
-        sameSite: 'none'
+        sameSite: decideCookieOptions('sameSite'),
       });
       res.cookie('rft', newTokens.refreshToken, {
         httpOnly: true,
-        secure: true,
+        secure: decideCookieOptions('secure'),
         path: '/',
         signed: true,
-        sameSite: 'none'
+        sameSite: decideCookieOptions('sameSite'),
       });
       res
         .status(200)
@@ -138,21 +138,21 @@ export default class UserControllerV1 {
 
         res.cookie('act', newUserTokens.accessToken, {
           httpOnly: true,
-          secure: true,
+          secure: decideCookieOptions('secure'),
           path: '/',
           signed: true,
-          sameSite: 'none'
+          sameSite: decideCookieOptions('sameSite'),
         });
 
         res.cookie('rft', newUserTokens.refreshToken, {
           httpOnly: true,
-          secure: true,
+          secure: decideCookieOptions('secure'),
           path: '/',
           signed: true,
-          sameSite: 'none'
+          sameSite: decideCookieOptions('sameSite'),
         });
 
-        res.cookie('XSRF-TOKEN', req.csrfToken());
+        // res.cookie('XSRF-TOKEN', req.csrfToken());
 
         res.status(201).json({
           user: {
@@ -237,20 +237,20 @@ export default class UserControllerV1 {
         if (compareSync(password, signInUser.password)) {
           res.cookie('act', tokens.accessToken, {
             httpOnly: true,
-            secure: true,
+            secure: decideCookieOptions('secure'),
             path: '/',
             signed: true,
-            sameSite: 'none'
+            sameSite: decideCookieOptions('sameSite'),
           });
           res.cookie('rft', tokens.refreshToken, {
             httpOnly: true,
-            secure: true,
+            secure: decideCookieOptions('secure'),
             path: '/',
             signed: true,
-            sameSite: 'none'
+            sameSite: decideCookieOptions('sameSite'),
           });
 
-          res.cookie('XSRF-TOKEN', req.csrfToken());
+          // res.cookie('XSRF-TOKEN', req.csrfToken());
 
           res.status(200).json({
             user: {
@@ -347,17 +347,17 @@ export default class UserControllerV1 {
         });
         res.cookie('act', tokens.accessToken, {
           httpOnly: decideCookieOptions('httpOnly'),
-          secure: true,
+          secure: decideCookieOptions('secure'),
           path: '/',
           signed: true,
-          sameSite: 'none'
+          sameSite: decideCookieOptions('sameSite'),
         });
         res.cookie('rft', tokens.refreshToken, {
           httpOnly: decideCookieOptions('httpOnly'),
-          secure: true,
+          secure: decideCookieOptions('secure'),
           path: '/',
           signed: true,
-          sameSite: 'none'
+          sameSite: decideCookieOptions('sameSite'),
         });
         res.status(200).json({
           user: {
@@ -444,6 +444,7 @@ export default class UserControllerV1 {
 
       res.clearCookie('rft', { path: '/' });
       res.clearCookie('act', { path: '/' });
+      res.clearCookie('_csrf', { path: '/' });
 
       res.status(200).json({
         message: 'Successfully deleted account!',
@@ -464,9 +465,13 @@ export default class UserControllerV1 {
       if (!receivedRefreshToken) {
         res.clearCookie('rft', { path: '/' });
         res.clearCookie('act', { path: '/' });
+        res.clearCookie('_csrf', { path: '/' });
         res.status(200).json({ message: 'Successfully signed out!' });
       } else {
-        const { username }: IUser | any = verifyJWT(receivedRefreshToken, JWT_REFRESH_SECRET);
+        const { username }: IUser | any = verifyJWT(
+          receivedRefreshToken,
+          JWT_REFRESH_SECRET,
+        );
 
         const foundUser: IUser | any = await User.findOne({
           username,

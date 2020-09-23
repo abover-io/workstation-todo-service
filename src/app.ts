@@ -24,6 +24,10 @@ app.use(helmet());
 app.use(
   cors({
     credentials: true,
+    origin: [
+      'http://localhost:8000',
+      'https://todo.sundayx.tech'
+    ]
   }),
 );
 app.use(cookieParser(getEnvVar('COOKIE_SECRET')));

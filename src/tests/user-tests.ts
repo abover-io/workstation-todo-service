@@ -163,6 +163,7 @@ describe('User Model Tests', () => {
   });
 
   test('Refresh User Token - Refresh Token Error', async () => {
+    await request.post(`/${apiVersion}/signout`);
     await request.post(`/${apiVersion}/users/refresh`);
     const response = await request.post(`/${apiVersion}/users/refresh`);
     expect(response.status).toBe(401);

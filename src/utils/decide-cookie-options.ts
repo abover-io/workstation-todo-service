@@ -1,4 +1,9 @@
-export default (optionName: 'httpOnly' | 'secure' | 'sameSite'): any => {
+import { Request } from 'express';
+
+export default (
+  optionName: 'httpOnly' | 'secure' | 'sameSite' | 'domain',
+  req?: Request,
+): any => {
   const nodeEnv: string | any = process.env.NODE_ENV;
 
   switch (optionName) {

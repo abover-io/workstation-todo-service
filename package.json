@@ -9,6 +9,7 @@
     "transpile": "babel src -d dist -x .ts,.js,.json",
     "clean": "rimraf dist",
     "build": "npm-run-all clean transpile",
+    "dev:watch": "nodemon",
     "dev": "NODE_ENV=development npm-run-all build server",
     "prod": "NODE_ENV=production npm-run-all build server",
     "watch:dev": "nodemon",

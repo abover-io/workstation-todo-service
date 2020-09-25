@@ -24,7 +24,8 @@ import { JWT_REFRESH_SECRET } from '@/config';
 export default class UserControllerV1 {
   static async refreshToken(req: Request, res: Response, next: NextFunction) {
     try {
-      const refreshToken = req.cookies.rft || req.body.rft;
+      const refreshToken =
+        req.signedCookies.rft || req.cookies.rft || req.body.rft;
       const newTokens = await handleRefreshToken(refreshToken);
       res.cookie('act', newTokens.accessToken, {
         httpOnly: true,
@@ -457,6 +458,7 @@ export default class UserControllerV1 {
 
   static async signOut(req: Request, res: Response, next: NextFunction) {
     const receivedRefreshToken: string =
+      req.signedCookies.rft ||
       req.cookies.rft ||
       req.headers['X-RFT'] ||
       req.headers['x-rft'] ||

@@ -13,6 +13,7 @@ export default class Authorize {
   static async authorizeUser(req: Request, res: Response, next: NextFunction) {
     try {
       const accessToken: string =
+        req.signedCookies.act ||
         req.cookies.act ||
         req.headers.authorization?.split(' ')[1] ||
         req.headers['X-ACT'] ||

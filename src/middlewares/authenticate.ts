@@ -9,6 +9,7 @@ import { JWT_ACCESS_SECRET } from '@/config';
 export default async (req: Request, res: Response, next: NextFunction) => {
   try {
     const accessToken: string =
+      req.signedCookies.act ||
       req.cookies.act ||
       req.headers.authorization?.split(' ')[1] ||
       req.headers['X-ACT'] ||
@@ -18,7 +19,7 @@ export default async (req: Request, res: Response, next: NextFunction) => {
     if (!accessToken) {
       throw createError({
         name: 'AuthorizationError',
-        message: 'No access token provided.'
+        message: 'No access token provided.',
       });
     }
 

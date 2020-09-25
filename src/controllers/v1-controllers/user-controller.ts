@@ -152,9 +152,9 @@ export default class UserControllerV1 {
           sameSite: decideCookieOptions('sameSite'),
         });
 
-        // res.cookie('XSRF-TOKEN', req.csrfToken());
+        res.cookie('XSRF-TOKEN', req.csrfToken());
 
-        res.status(201).json({
+        return res.status(201).json({
           user: {
             firstName,
             lastName,
@@ -170,7 +170,7 @@ export default class UserControllerV1 {
         });
       }
     } catch (err) {
-      next(err);
+      return next(err);
     }
   }
 
@@ -250,9 +250,9 @@ export default class UserControllerV1 {
             sameSite: decideCookieOptions('sameSite'),
           });
 
-          // res.cookie('XSRF-TOKEN', req.csrfToken());
+          res.cookie('XSRF-TOKEN', req.csrfToken());
 
-          res.status(200).json({
+          return res.status(200).json({
             user: {
               firstName,
               lastName,
@@ -275,7 +275,7 @@ export default class UserControllerV1 {
         }
       }
     } catch (err) {
-      next(err);
+      return next(err);
     }
   }
 
@@ -359,7 +359,7 @@ export default class UserControllerV1 {
           signed: true,
           sameSite: decideCookieOptions('sameSite'),
         });
-        res.status(200).json({
+        return res.status(200).json({
           user: {
             firstName,
             lastName,
@@ -370,7 +370,7 @@ export default class UserControllerV1 {
         });
       }
     } catch (err) {
-      next(err);
+      return next(err);
     }
   }
 
@@ -410,7 +410,7 @@ export default class UserControllerV1 {
         { password: hashedPassword },
       );
 
-      res.status(200).json({
+      return res.status(200).json({
         message: 'Successfully updated password!',
       });
     } catch (err) {
@@ -445,12 +445,13 @@ export default class UserControllerV1 {
       res.clearCookie('rft', { path: '/' });
       res.clearCookie('act', { path: '/' });
       res.clearCookie('_csrf', { path: '/' });
+      res.clearCookie('XSRF-TOKEN', { path: '/' });
 
-      res.status(200).json({
+      return res.status(200).json({
         message: 'Successfully deleted account!',
       });
     } catch (err) {
-      next(err);
+      return next(err);
     }
   }
 
@@ -466,6 +467,7 @@ export default class UserControllerV1 {
         res.clearCookie('rft', { path: '/' });
         res.clearCookie('act', { path: '/' });
         res.clearCookie('_csrf', { path: '/' });
+        res.clearCookie('XSRF-TOKEN', { path: '/' });
         res.status(200).json({ message: 'Successfully signed out!' });
       } else {
         const { username }: IUser | any = verifyJWT(
@@ -488,10 +490,10 @@ export default class UserControllerV1 {
 
         res.clearCookie('act', { path: '/' });
         res.clearCookie('rft', { path: '/' });
-        res.status(200).json({ message: 'Successfully signed out!' });
+        return res.status(200).json({ message: 'Successfully signed out!' });
       }
     } catch (err) {
-      next(err);
+      return next(err);
     }
   }
 
@@ -502,7 +504,7 @@ export default class UserControllerV1 {
         username,
       });
       const todos: ITodo[] = await Todo.find({ username });
-      res.status(200).json({
+      return res.status(200).json({
         user: {
           firstName,
           lastName,
@@ -513,7 +515,7 @@ export default class UserControllerV1 {
         message: 'Successfully synced!',
       });
     } catch (err) {
-      next(err);
+      return next(err);
     }
   }
 }

@@ -19,6 +19,8 @@ const server = createServer(app);
 const port = getEnvVar('API_PORT') || 3000;
 const io = socketIo(server, { serveClient: false });
 
+app.set('trust proxy', true);
+
 app.use(morgan('common'));
 app.use(helmet());
 app.use(
@@ -29,8 +31,8 @@ app.use(
       'http://localhost:8000',
       'https://127.0.0.1:8000',
       'https://localhost:8000',
-      'https://todo.sundayx.tech'
-    ]
+      'https://todo.sundayx.tech',
+    ],
   }),
 );
 app.use(cookieParser(getEnvVar('COOKIE_SECRET')));

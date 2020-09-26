@@ -188,7 +188,7 @@ describe('User Model Tests', () => {
   });
 
   test('Sync - Success', async () => {
-    const response = await request.get(`/${apiVersion}/users/sync`).send({
+    const response = await request.post(`/${apiVersion}/users/sync`).send({
       act: accessToken,
     });
     expect(response.body).toHaveProperty('message');

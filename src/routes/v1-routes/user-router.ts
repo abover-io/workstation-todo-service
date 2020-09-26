@@ -53,7 +53,7 @@ userRouter.use(
 
 userRouter.use(authenticate);
 
-userRouter.get('/sync', UserControllerV1.sync);
+userRouter.post('/sync', UserControllerV1.sync);
 userRouter.put(
   '/:username',
   Authorize.authorizeUser,

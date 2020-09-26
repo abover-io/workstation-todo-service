@@ -11,7 +11,7 @@ export default (
       return nodeEnv !== 'production' ? false : true;
 
     case 'sameSite':
-      return nodeEnv !== 'production' ? 'lax' : 'none';
+      return nodeEnv !== 'production' ? 'strict' : 'none';
 
     default:
       return true;

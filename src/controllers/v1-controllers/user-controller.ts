@@ -27,6 +27,7 @@ export default class UserControllerV1 {
       const refreshToken =
         req.signedCookies.rft || req.cookies.rft || req.body.rft;
       const newTokens = await handleRefreshToken(refreshToken);
+
       res.cookie('act', newTokens.accessToken, {
         httpOnly: true,
         secure: decideCookieOptions('secure'),
@@ -34,6 +35,7 @@ export default class UserControllerV1 {
         signed: true,
         sameSite: decideCookieOptions('sameSite'),
       });
+
       res.cookie('rft', newTokens.refreshToken, {
         httpOnly: true,
         secure: decideCookieOptions('secure'),
@@ -41,6 +43,12 @@ export default class UserControllerV1 {
         signed: true,
         sameSite: decideCookieOptions('sameSite'),
       });
+
+      res.cookie('XSRF-TOKEN', req.csrfToken(), {
+        secure: decideCookieOptions('secure'),
+        sameSite: decideCookieOptions('sameSite'),
+      });
+
       res
         .status(200)
         .json({ tokens: newTokens, message: 'Successfully refreshed token!' });
@@ -153,7 +161,10 @@ export default class UserControllerV1 {
           sameSite: decideCookieOptions('sameSite'),
         });
 
-        res.cookie('XSRF-TOKEN', req.csrfToken());
+        res.cookie('XSRF-TOKEN', req.csrfToken(), {
+          secure: decideCookieOptions('secure'),
+          sameSite: decideCookieOptions('sameSite'),
+        });
 
         return res.status(201).json({
           user: {
@@ -251,7 +262,10 @@ export default class UserControllerV1 {
             sameSite: decideCookieOptions('sameSite'),
           });
 
-          res.cookie('XSRF-TOKEN', req.csrfToken());
+          res.cookie('XSRF-TOKEN', req.csrfToken(), {
+            secure: decideCookieOptions('secure'),
+            sameSite: decideCookieOptions('sameSite'),
+          });
 
           return res.status(200).json({
             user: {

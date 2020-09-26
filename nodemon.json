@@ -8,5 +8,5 @@
     "dist",
     "node_modules"
   ],
-  "exec": "npm run dev"
+  "exec": "NODE_ENV=development npm-run-all build server"
 }

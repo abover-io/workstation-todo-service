@@ -160,11 +160,13 @@ describe('User Model Tests', () => {
     expect(response.body.tokens).toHaveProperty('refreshToken');
     expect(response.body.message).toBe('Successfully refreshed token!');
     expect(response.status).toBe(200);
+    csrfToken = response.body.tokens.csrfToken;
+    accessToken = response.body.tokens.accessToken;
+    refreshToken = response.body.tokens.refreshToken;
   });
 
   test('Refresh User Token - Refresh Token Error', async () => {
     await request.post(`/${apiVersion}/signout`);
-    await request.post(`/${apiVersion}/users/refresh`);
     const response = await request.post(`/${apiVersion}/users/refresh`);
     expect(response.status).toBe(401);
     expect(response.body).toHaveProperty('message');
@@ -185,11 +187,15 @@ describe('User Model Tests', () => {
     expect(response.status).toBe(200);
     username = response.body.user.username;
     csrfToken = response.body.tokens.csrfToken;
+    accessToken = response.body.tokens.accessToken;
+    refreshToken = response.body.tokens.refreshToken;
   });
 
   test('Sync - Success', async () => {
     const response = await request.post(`/${apiVersion}/users/sync`).send({
       act: accessToken,
+      rft: refreshToken,
+      _csurf: csrfToken
     });
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe('Successfully synced!');

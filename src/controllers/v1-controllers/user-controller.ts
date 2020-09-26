@@ -53,19 +53,24 @@ export default class UserControllerV1 {
         sameSite: decideCookieOptions('sameSite'),
       });
 
-      res
+      return res
         .status(200)
-        .json({ tokens: newTokens, message: 'Successfully refreshed token!' });
+        .json({
+          tokens: {
+            newTokens,
+            csrfToken: req.csrfToken()
+          }, message: 'Successfully refreshed token!'
+        });
     } catch (err) {
       if (err.name == 'RefreshTokenError') {
-        next(
+        return next(
           createError({
             name: 'AuthorizationError',
             message: err.message,
           }),
         );
       } else {
-        next(err);
+        return next(err);
       }
     }
   }

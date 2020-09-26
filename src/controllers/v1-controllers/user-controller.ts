@@ -22,7 +22,11 @@ import {
 import { JWT_REFRESH_SECRET } from '@/config';
 
 export default class UserControllerV1 {
-  static async refreshToken(req: Request, res: Response, next: NextFunction) {
+  public static async refreshToken(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
     try {
       const refreshToken =
         req.signedCookies.rft || req.cookies.rft || req.body.rft;
@@ -66,7 +70,7 @@ export default class UserControllerV1 {
     }
   }
 
-  static async signUp(req: Request, res: Response, next: NextFunction) {
+  public static async signUp(req: Request, res: Response, next: NextFunction) {
     try {
       const { firstName, lastName = '', username, email, password } = req.body;
       const errorMessages: HttpError[] = [];
@@ -186,7 +190,7 @@ export default class UserControllerV1 {
     }
   }
 
-  static async signIn(req: Request, res: Response, next: NextFunction) {
+  public static async signIn(req: Request, res: Response, next: NextFunction) {
     try {
       const { userIdentifier, password } = req.body;
       const errorMessages: HttpError[] = [];
@@ -294,7 +298,7 @@ export default class UserControllerV1 {
     }
   }
 
-  static async updateUser(req: Request, res: Response, next: NextFunction) {
+  public static async updateUser(req: Request, res: Response, next: NextFunction) {
     try {
       const { username: usernameFromAuth } = (<any>req).user;
       const { username: usernameFromParams } = req.params;
@@ -389,7 +393,11 @@ export default class UserControllerV1 {
     }
   }
 
-  static async updatePassword(req: Request, res: Response, next: NextFunction) {
+  public static async updatePassword(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
     try {
       const { username: usernameFromAuth } = (<any>req).user;
       const { username: usernameFromParams } = req.params;
@@ -433,7 +441,7 @@ export default class UserControllerV1 {
     }
   }
 
-  static async deleteUser(req: Request, res: Response, next: NextFunction) {
+  public static async deleteUser(req: Request, res: Response, next: NextFunction) {
     try {
       const { username: usernameFromAuth } = (<any>req).user;
       const { username: usernameFromParams } = req.params;
@@ -470,7 +478,7 @@ export default class UserControllerV1 {
     }
   }
 
-  static async signOut(req: Request, res: Response, next: NextFunction) {
+  public static async signOut(req: Request, res: Response, next: NextFunction) {
     const receivedRefreshToken: string =
       req.signedCookies.rft ||
       req.cookies.rft ||
@@ -506,6 +514,8 @@ export default class UserControllerV1 {
 
         res.clearCookie('act', { path: '/' });
         res.clearCookie('rft', { path: '/' });
+        res.clearCookie('_csrf', { path: '/' });
+        res.clearCookie('XSRF-TOKEN', { path: '/' });
         return res.status(200).json({ message: 'Successfully signed out!' });
       }
     } catch (err) {
@@ -513,7 +523,7 @@ export default class UserControllerV1 {
     }
   }
 
-  static async sync(req: Request, res: Response, next: NextFunction) {
+  public static async sync(req: Request, res: Response, next: NextFunction) {
     try {
       const { username }: IUser = (<any>req).user;
       const { firstName, lastName, email }: IUser | any = await User.findOne({

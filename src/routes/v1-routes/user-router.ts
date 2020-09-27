@@ -48,12 +48,13 @@ userRouter.use(
       secure: decideCookieOptions('secure'),
       sameSite: decideCookieOptions('sameSite'),
     },
+    value: (req) => req.cookies['XSRF-TOKEN']
   }),
 );
 
 userRouter.use(authenticate);
 
-userRouter.post('/sync', UserControllerV1.sync);
+userRouter.get('/sync', UserControllerV1.sync);
 userRouter.put(
   '/:username',
   Authorize.authorizeUser,

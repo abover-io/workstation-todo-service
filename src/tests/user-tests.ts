@@ -21,11 +21,11 @@ describe('User Model Tests', () => {
 
   test('Sign Up - Success', async () => {
     const signUpData = {
-      firstName: 'John',
+      firstName: 'Jane',
       lastName: 'Doe',
-      username: 'johndoe',
-      email: 'john@doe.com',
-      password: '`Johndoe123',
+      username: 'janedoe',
+      email: 'jane@doe.com',
+      password: '`Jane123',
     };
     const response = await request
       .post(`/${apiVersion}/users/signup`)
@@ -41,11 +41,11 @@ describe('User Model Tests', () => {
 
   test('Sign Up - Validation Error', async () => {
     const signUpData = {
-      firstName: 'John',
+      firstName: 'Jane',
       lastName: 'Doe',
-      username: 'johndoe',
-      email: 'john',
-      password: 'johndoe',
+      username: 'janedoe',
+      email: 'jane',
+      password: 'janedoe',
     };
     const response = await request
       .post(`/${apiVersion}/users/signup`)
@@ -59,11 +59,11 @@ describe('User Model Tests', () => {
 
   test('Sign Up - Unavailable Username', async () => {
     const signUpData = {
-      firstName: 'John',
+      firstName: 'Jane',
       lastName: 'Doe',
-      username: 'johndoe',
-      email: 'john@doe.com',
-      password: '`Johndoe123',
+      username: 'janedoe',
+      email: 'jane@doe.com',
+      password: '`Jane123',
     };
     const response = await request
       .post(`/${apiVersion}/users/signup`)
@@ -75,11 +75,11 @@ describe('User Model Tests', () => {
 
   test('Sign Up - Unavailable Email', async () => {
     const signUpData = {
-      firstName: 'John',
+      firstName: 'Jane',
       lastName: 'Doe',
-      username: 'johndoe2',
-      email: 'john@doe.com',
-      password: '`Johndoe123',
+      username: 'janedoe2',
+      email: 'jane@doe.com',
+      password: '`Jane123',
     };
     const response = await request
       .post(`/${apiVersion}/users/signup`)
@@ -91,8 +91,8 @@ describe('User Model Tests', () => {
 
   test('Sign In - Success', async () => {
     const signInData = {
-      userIdentifier: 'johndoe',
-      password: '`Johndoe123',
+      userIdentifier: 'janedoe',
+      password: '`Jane123',
     };
     const response = await request
       .post(`/${apiVersion}/users/signin`)
@@ -123,7 +123,7 @@ describe('User Model Tests', () => {
 
   test('Sign In - Wrong Username or Password', async () => {
     const signInData = {
-      userIdentifier: 'johndoe',
+      userIdentifier: 'janedoe',
       password: '`Doejohn5468468',
     };
     const response = await request
@@ -136,8 +136,8 @@ describe('User Model Tests', () => {
 
   test('Sign In - Validation Error', async () => {
     const signInData = {
-      userIdentifier: 'johndoe',
-      password: 'john',
+      userIdentifier: 'janedoe',
+      password: 'jane',
     };
     const response = await request
       .post(`/${apiVersion}/users/signin`)
@@ -150,10 +150,7 @@ describe('User Model Tests', () => {
   });
 
   test('Refresh User Token - Success', async () => {
-    const response = await request.post(`/${apiVersion}/users/refresh`).send({
-      act: accessToken,
-      rft: refreshToken,
-    });
+    const response = await request.post(`/${apiVersion}/users/refresh`);
     expect(response.body).toHaveProperty('tokens');
     expect(response.body).toHaveProperty('message');
     expect(response.body.tokens).toHaveProperty('accessToken');
@@ -166,7 +163,7 @@ describe('User Model Tests', () => {
   });
 
   test('Refresh User Token - Refresh Token Error', async () => {
-    await request.post(`/${apiVersion}/signout`);
+    await request.post(`/${apiVersion}/users/signout`);
     const response = await request.post(`/${apiVersion}/users/refresh`);
     expect(response.status).toBe(401);
     expect(response.body).toHaveProperty('message');
@@ -174,8 +171,8 @@ describe('User Model Tests', () => {
 
   test('Sign In - After Refresh Token Error', async () => {
     const signInData = {
-      userIdentifier: 'johndoe',
-      password: '`Johndoe123',
+      userIdentifier: 'janedoe',
+      password: '`Jane123',
     };
     const response = await request
       .post(`/${apiVersion}/users/signin`)
@@ -192,11 +189,7 @@ describe('User Model Tests', () => {
   });
 
   test('Sync - Success', async () => {
-    const response = await request.post(`/${apiVersion}/users/sync`).send({
-      act: accessToken,
-      rft: refreshToken,
-      _csurf: csrfToken
-    });
+    const response = await request.get(`/${apiVersion}/users/sync`);
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe('Successfully synced!');
     expect(response.body).toHaveProperty('user');
@@ -209,8 +202,6 @@ describe('User Model Tests', () => {
       firstName: 'Jackie',
       lastName: 'Chen',
       email: 'jackiechen@jack.com',
-      _csrf: csrfToken,
-      act: accessToken,
     };
     const response = await request
       .put(`/${apiVersion}/users/${username}`)
@@ -227,8 +218,6 @@ describe('User Model Tests', () => {
       firstName: 'Jackie',
       lastName: 'Chen',
       email: 'jackiechen@jack.com',
-      _csrf: csrfToken,
-      act: accessToken,
     };
     const response = await request
       .put(`/${apiVersion}/users/wrongusername`)
@@ -246,8 +235,6 @@ describe('User Model Tests', () => {
       firstName: 'Jackie',
       lastName: 'Chen',
       email: 'jackiechen',
-      _csrf: csrfToken,
-      act: accessToken,
     };
     const response = await request
       .put(`/${apiVersion}/users/${username}`)
@@ -265,8 +252,6 @@ describe('User Model Tests', () => {
       firstName: 'Jackie',
       lastName: 'Chen',
       email: 'jackiechen@jack.com',
-      _csrf: csrfToken,
-      act: accessToken,
     };
     const response = await request
       .put(`/${apiVersion}/users/${username}`)
@@ -280,8 +265,6 @@ describe('User Model Tests', () => {
   test('Update Password - Success', async () => {
     const updatePasswordData = {
       password: '`Jackiechen2',
-      _csrf: csrfToken,
-      act: accessToken,
     };
     const response = await request
       .patch(`/${apiVersion}/users/${username}`)
@@ -294,8 +277,6 @@ describe('User Model Tests', () => {
   test('Update Password - Authorization Error', async () => {
     const updatePasswordData = {
       password: '`Jackiechen2',
-      _csrf: csrfToken,
-      act: accessToken,
     };
     const response = await request
       .patch(`/${apiVersion}/users/wrongusername`)
@@ -310,8 +291,6 @@ describe('User Model Tests', () => {
   test('Update Password - Validation Error', async () => {
     const updatePasswordData = {
       password: 'chen',
-      _csrf: csrfToken,
-      act: accessToken,
     };
     const response = await request
       .patch(`/${apiVersion}/users/${username}`)
@@ -321,12 +300,7 @@ describe('User Model Tests', () => {
   });
 
   test('Delete User - Authorization Error', async () => {
-    const response = await request
-      .delete(`/${apiVersion}/users/wrongusername`)
-      .send({
-        _csrf: csrfToken,
-        act: accessToken,
-      });
+    const response = await request.delete(`/${apiVersion}/users/wrongusername`);
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe(
       'Cannot delete user, invalid credentials!',
@@ -337,8 +311,6 @@ describe('User Model Tests', () => {
   test('Sign Out - Success', async () => {
     const response = await request.post(`/${apiVersion}/users/signout`).send({
       username,
-      act: accessToken,
-      rft: refreshToken,
     });
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe('Successfully signed out!');
@@ -348,7 +320,6 @@ describe('User Model Tests', () => {
   test('Sign Out - No Refresh Token Provided', async () => {
     const response = await request.post(`/${apiVersion}/users/signout`).send({
       username,
-      act: accessToken,
     });
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe('Successfully signed out!');

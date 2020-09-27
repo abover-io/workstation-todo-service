@@ -30,6 +30,7 @@ export default class UserControllerV1 {
     try {
       const refreshToken =
         req.signedCookies.rft || req.cookies.rft || req.body.rft;
+
       const newTokens = await handleRefreshToken(refreshToken);
 
       res.cookie('act', newTokens.accessToken, {
@@ -53,14 +54,13 @@ export default class UserControllerV1 {
         sameSite: decideCookieOptions('sameSite'),
       });
 
-      return res
-        .status(200)
-        .json({
-          tokens: {
-            newTokens,
-            csrfToken: req.csrfToken()
-          }, message: 'Successfully refreshed token!'
-        });
+      return res.status(200).json({
+        tokens: {
+          ...newTokens,
+          csrfToken: req.csrfToken(),
+        },
+        message: 'Successfully refreshed token!',
+      });
     } catch (err) {
       if (err.name == 'RefreshTokenError') {
         return next(
@@ -303,7 +303,11 @@ export default class UserControllerV1 {
     }
   }
 
-  public static async updateUser(req: Request, res: Response, next: NextFunction) {
+  public static async updateUser(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
     try {
       const { username: usernameFromAuth } = (<any>req).user;
       const { username: usernameFromParams } = req.params;
@@ -446,7 +450,11 @@ export default class UserControllerV1 {
     }
   }
 
-  public static async deleteUser(req: Request, res: Response, next: NextFunction) {
+  public static async deleteUser(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
     try {
       const { username: usernameFromAuth } = (<any>req).user;
       const { username: usernameFromParams } = req.params;
@@ -535,6 +543,7 @@ export default class UserControllerV1 {
         username,
       });
       const todos: ITodo[] = await Todo.find({ username });
+
       return res.status(200).json({
         user: {
           firstName,

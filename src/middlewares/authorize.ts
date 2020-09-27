@@ -19,6 +19,7 @@ export default class Authorize {
         req.headers['X-ACT'] ||
         req.headers['x-act'] ||
         req.body.act;
+      
       const user: IUser = (<any>req)['user'];
       const { username }: any = verifyJWT(accessToken, JWT_ACCESS_SECRET);
       const foundUser: IUser | any = await User.findOne({ username });

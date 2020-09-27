@@ -7,7 +7,7 @@ export default function (
   err: HttpError | CustomHttpError,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   switch (err.name) {
     case 'AuthorizationError':
@@ -29,7 +29,7 @@ export default function (
 
     case 'ValidationError':
       return res.status(400).json({ ...err });
-    
+
     case 'RefreshTokenError':
       return res.status(401).json({ ...err });
 
@@ -41,4 +41,4 @@ export default function (
         statusCode: 500,
       });
   }
-};
+}

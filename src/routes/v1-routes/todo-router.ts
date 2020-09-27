@@ -14,6 +14,7 @@ todoRouter.use(
       secure: decideCookieOptions('secure'),
       sameSite: decideCookieOptions('sameSite'),
     },
+    value: (req) => req.cookies['XSRF-TOKEN'],
   }),
 );
 todoRouter.use(authenticate);

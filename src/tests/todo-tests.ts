@@ -24,7 +24,7 @@ describe('Todo Model Tests', () => {
 
   test('Sign In - Success', async () => {
     const signInData = {
-      userIdentifier: 'johndoe',
+      userIdentifier: 'janedoe',
       password: '`Jackiechen2',
     };
     const response = await request
@@ -45,8 +45,6 @@ describe('Todo Model Tests', () => {
       name: 'Create Client using Next.js',
       due: new Date(),
       priority: 0,
-      _csrf: csrfToken,
-      act: accessToken,
     };
     const response = await request
       .post(`/${apiVersion}/todos`)
@@ -59,20 +57,14 @@ describe('Todo Model Tests', () => {
   });
 
   test('Get All Todos - Success', async () => {
-    const response = await request.get(`/${apiVersion}/todos`).send({
-      _csrf: csrfToken,
-      act: accessToken,
-    });
+    const response = await request.get(`/${apiVersion}/todos`).send({});
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('todos');
     expect(Array.isArray(response.body.todos)).toBe(true);
   });
 
   test('Get a Specified Todo - Success', async () => {
-    const response = await request.get(`/${apiVersion}/todos/${todoId}`).send({
-      _csrf: csrfToken,
-      act: accessToken,
-    });
+    const response = await request.get(`/${apiVersion}/todos/${todoId}`);
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('todo');
     expect(response.body.todo instanceof Object).toBe(true);
@@ -83,8 +75,6 @@ describe('Todo Model Tests', () => {
       name: 'Install MySQL',
       due: new Date(),
       priority: 0,
-      _csrf: csrfToken,
-      act: accessToken,
     };
     const response = await request
       .put(`/${apiVersion}/todos/${todoId}`)
@@ -101,8 +91,6 @@ describe('Todo Model Tests', () => {
       name: 'Install MySQL',
       due: new Date(),
       priority: 0,
-      _csrf: csrfToken,
-      act: accessToken,
     };
     const response = await request
       .put(`/${apiVersion}/todos/${wrongTodoID}`)
@@ -115,12 +103,9 @@ describe('Todo Model Tests', () => {
   });
 
   test('Complete Todo - Success', async () => {
-    const response = await request
-      .patch(`/${apiVersion}/todos/complete/${todoId}`)
-      .send({
-        _csrf: csrfToken,
-        act: accessToken,
-      });
+    const response = await request.patch(
+      `/${apiVersion}/todos/complete/${todoId}`,
+    );
     expect(response.body).toHaveProperty('todo');
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe('Successfully completed todo!');
@@ -128,12 +113,9 @@ describe('Todo Model Tests', () => {
   });
 
   test('Complete Todo - Not Found Error', async () => {
-    const response = await request
-      .patch(`/${apiVersion}/todos/complete/${wrongTodoID}`)
-      .send({
-        _csrf: csrfToken,
-        act: accessToken,
-      });
+    const response = await request.patch(
+      `/${apiVersion}/todos/complete/${wrongTodoID}`,
+    );
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe(
       `Cannot complete, no todo whose ID is ${wrongTodoID} found!`,
@@ -142,12 +124,9 @@ describe('Todo Model Tests', () => {
   });
 
   test('Uncomplete Todo - Success', async () => {
-    const response = await request
-      .patch(`/${apiVersion}/todos/uncomplete/${todoId}`)
-      .send({
-        _csrf: csrfToken,
-        act: accessToken,
-      });
+    const response = await request.patch(
+      `/${apiVersion}/todos/uncomplete/${todoId}`,
+    );
     expect(response.body).toHaveProperty('todo');
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe('Successfully uncompleted todo!');
@@ -155,12 +134,9 @@ describe('Todo Model Tests', () => {
   });
 
   test('Uncomplete Todo - Not Found Error', async () => {
-    const response = await request
-      .patch(`/${apiVersion}/todos/uncomplete/${wrongTodoID}`)
-      .send({
-        _csrf: csrfToken,
-        act: accessToken,
-      });
+    const response = await request.patch(
+      `/${apiVersion}/todos/uncomplete/${wrongTodoID}`,
+    );
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe(
       `Cannot uncomplete, no todo whose ID is ${wrongTodoID} found!`,
@@ -169,12 +145,7 @@ describe('Todo Model Tests', () => {
   });
 
   test('Delete Todo - Success', async () => {
-    const response = await request
-      .delete(`/${apiVersion}/todos/${todoId}`)
-      .send({
-        _csrf: csrfToken,
-        act: accessToken,
-      });
+    const response = await request.delete(`/${apiVersion}/todos/${todoId}`);
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('todo');
     expect(response.body).toHaveProperty('message');
@@ -184,12 +155,7 @@ describe('Todo Model Tests', () => {
   });
 
   test('Delete User - Success', async () => {
-    const response = await request
-      .delete(`/${apiVersion}/users/${username}`)
-      .send({
-        _csrf: csrfToken,
-        act: accessToken,
-      });
+    const response = await request.delete(`/${apiVersion}/users/${username}`);
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('message');
     expect(response.body.message).toBe('Successfully deleted account!');

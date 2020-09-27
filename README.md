@@ -45,7 +45,7 @@ Base URL: https://api.todo.sundayx.tech
 |  POST  | /users/signup  | Signs up new user.                              |
 |  POST  | /users/signin  | Signs in users.                                 |
 |  POST  | /users/signout | Signs current user out, based on refresh token. |
-|  POST  | /users/refresh | Generates all tokens, requires refresh token. |
+|  POST  | /users/refresh | Generates all tokens, requires refresh token.   |
 |  PUT   | /users/:userId | Updates specified user.                         |
 | PATCH  | /users/:userId | Updates only the pasword of specified user.     |
 | DELETE | /users/:userId | Deletes specified user.                         |

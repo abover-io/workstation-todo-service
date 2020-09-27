@@ -9,14 +9,14 @@
 
 Sunday Project - Fancy Todo API.
 
-You may want to checkout published docs using Postman.
+## Documentation
 
 [Fancy Todo API Docs on Postman](https://documenter.getpostman.com/view/8807216/Szf52okU)
 
 ## Installation (Development Only)
 
 ```bash
-$ git clone https://github.com/rafiandria23/fancy-todo-api.git
+$ git clone https://github.com/sundayexplore/fancy-todo-api.git
 
 $ cd fancy-todo-api
 
@@ -35,16 +35,17 @@ $ npm run dev
 
 ## Endpoint Summary
 
-Base URL: http://api.todo.sundayexplore.tech
+Base URL: https://api.todo.sundayx.tech
 
 ### User Endpoints
 
 | Method | Endpoint       | Description                                     |
 | :----: | :------------- | :---------------------------------------------- |
-|  POST   | /users/sync    | Syncs user and todo data.                       |
+|  GET   | /users/sync    | Syncs user and todo data.                       |
 |  POST  | /users/signup  | Signs up new user.                              |
 |  POST  | /users/signin  | Signs in users.                                 |
 |  POST  | /users/signout | Signs current user out, based on refresh token. |
+|  POST  | /users/refresh | Generates all tokens, requires refresh token. |
 |  PUT   | /users/:userId | Updates specified user.                         |
 | PATCH  | /users/:userId | Updates only the pasword of specified user.     |
 | DELETE | /users/:userId | Deletes specified user.                         |

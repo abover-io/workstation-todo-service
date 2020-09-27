@@ -1,12 +1,12 @@
-export default function decideMongoURI(
+import { NODE_ENV, MONGODB_CONTAINER } from '@/config';
+
+export default function decideMongoDBURI(
   env?: 'development' | 'test' | 'production' | string,
 ) {
-  const nodeEnv = env || process.env.NODE_ENV;
-  const mongoContainer = process.env.MONGO_CONTAINER;
   const defaultMongoURI = `mongodb://${
-    mongoContainer || 'localhost'
-  }:27017/fancy-todo-api`;
-  switch (nodeEnv) {
+    MONGODB_CONTAINER || 'localhost'
+  }:27017/fancy-todo`;
+  switch (env || NODE_ENV) {
     case 'development':
       return `${defaultMongoURI}-dev`;
 

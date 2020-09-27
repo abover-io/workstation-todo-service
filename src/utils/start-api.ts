@@ -1,20 +1,21 @@
 import { Server } from 'http';
 import { connect as connectToMongoDB } from 'mongoose';
 
+import { MONGODB_URI, NODE_ENV } from '@/config';
 import { IStartApiOptions } from '@/types';
-import { decideMongoURI, getEnvVar } from '@/utils';
+import { decideMongoDBURI } from '@/utils';
 
 export default async function startAPI(
   api: Server,
   options: IStartApiOptions = {
     port: 3000,
-    env: getEnvVar('NODE_ENV') || 'development',
+    env: NODE_ENV || 'development',
   },
 ): Promise<void> {
   const { port, env } = options;
 
   try {
-    await connectToMongoDB(getEnvVar('MONGODB_URI') || decideMongoURI(env), {
+    await connectToMongoDB(MONGODB_URI || decideMongoDBURI(env), {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });

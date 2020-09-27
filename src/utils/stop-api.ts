@@ -4,15 +4,15 @@ import {
 } from 'mongoose';
 import { Server } from 'http';
 
+import { NODE_ENV } from '@/config';
 import { IStopApiOptions } from '@/types';
-import { decideMongoURI } from '@/utils';
 
 export default async function stopAPI(
   api: Server,
   options: IStopApiOptions = {
-    env: 'development',
+    env: NODE_ENV || 'development',
     db: 'hold',
-  }
+  },
 ) {
   const { env, db } = options;
 

@@ -8,15 +8,17 @@ import socketIo from 'socket.io';
 import helmet from 'helmet';
 import morgan from 'morgan';
 
+import { NODE_ENV, API_PORT, COOKIE_SECRET, MONGODB_URI } from '@/config';
+
 import mainRouter from './routes';
-import { getEnvVar, decideMongoURI } from './utils';
+import { getEnvVar, decideMongoDBURI } from './utils';
 import { IRequestIO } from './types';
 
 getEnvVar('NODE_ENV') !== 'production' ? dotEnvConfig() : '';
 
 const app = express();
 const server = createServer(app);
-const port = getEnvVar('API_PORT') || 3000;
+const port = API_PORT || 3000;
 const io = socketIo(server, { serveClient: false });
 
 app.set('trust proxy', true);
@@ -35,7 +37,7 @@ app.use(
     ],
   }),
 );
-app.use(cookieParser(getEnvVar('COOKIE_SECRET')));
+app.use(cookieParser(COOKIE_SECRET));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -48,13 +50,10 @@ app.use(mainRouter);
 
 if (require.main === module) {
   (async function () {
-    await connectToMongoDB(
-      getEnvVar('MONGODB_URI') || decideMongoURI(getEnvVar('NODE_ENV')),
-      {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      },
-    );
+    await connectToMongoDB(MONGODB_URI || decideMongoDBURI(), {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
 
     server.listen(port, () => {
       console.log(

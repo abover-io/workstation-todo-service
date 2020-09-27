@@ -1,17 +1,17 @@
 import { Request } from 'express';
 
+import { NODE_ENV } from '@/config';
+
 export default (
   optionName: 'httpOnly' | 'secure' | 'sameSite' | 'domain',
   req?: Request,
 ): any => {
-  const nodeEnv: string | any = process.env.NODE_ENV;
-
   switch (optionName) {
     case 'secure':
-      return nodeEnv !== 'production' ? false : true;
+      return NODE_ENV !== 'production' ? false : true;
 
     case 'sameSite':
-      return nodeEnv !== 'production' ? 'strict' : 'none';
+      return NODE_ENV !== 'production' ? 'strict' : 'none';
 
     default:
       return true;

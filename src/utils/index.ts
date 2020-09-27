@@ -4,6 +4,6 @@ export { default as handleRefreshToken } from './handle-refresh-token';
 export { default as getEnvVar } from './get-env-var';
 export { default as CustomValidator } from './custom-validator';
 export { default as createToken } from './create-token';
-export { default as decideMongoURI } from './decide-mongo-uri';
+export { default as decideMongoDBURI } from './decide-mongodb-uri';
 export { default as startAPI } from './start-api';
 export { default as stopAPI } from './stop-api';

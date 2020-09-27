@@ -1,6 +1,6 @@
 languange: node_js
 node_js:
-- lts/*
+- node
 sudo: required
 services:
 - docker

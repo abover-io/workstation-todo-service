@@ -16,6 +16,10 @@ const TodoSchema: Schema = new Schema(
       type: Date,
       default: null,
     },
+    isTimeSet: {
+      type: Boolean,
+      default: false,
+    },
     completed: {
       type: Boolean,
       default: false,

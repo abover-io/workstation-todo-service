@@ -21,6 +21,7 @@ export interface ITodo extends Document {
   username: string;
   name: string;
   due: Date;
+  isTimeSet: boolean;
   dueDate?: string;
   dueTime?: string;
   completed?: boolean;

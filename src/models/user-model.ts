@@ -38,6 +38,16 @@ const UserSchema: Schema<IUser> = new Schema(
       type: String,
       required: [true, 'API Key cannot be empty!'],
     },
+    verified: {
+      type: Boolean,
+      required: [true, 'Verification status cannot be empty!'],
+      default: false,
+    },
+    profileImageURL: {
+      type: String,
+      required: [true, 'Profile Image URL cannot be empty!'],
+      default: null,
+    },
   },
   { timestamps: true },
 );

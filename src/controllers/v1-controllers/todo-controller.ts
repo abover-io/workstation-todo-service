@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { Types } from 'mongoose';
 import createError from 'http-errors';
+import moment, { Moment } from 'moment';
 
 import { ITodo, IRequestIO } from '@/types';
 import { Todo } from '@/models';
@@ -8,9 +9,10 @@ import { Todo } from '@/models';
 const { ObjectId } = Types;
 
 export default class TodoControllerV1 {
-  static async getTodos(req: Request, res: Response, next: NextFunction) {
+  public static async getTodos(req: Request, res: Response, next: NextFunction) {
     try {
       const { username } = (<any>req).user;
+
       const todos: ITodo[] | any = await Todo.find({
         username,
         completed: false,
@@ -25,7 +27,7 @@ export default class TodoControllerV1 {
     }
   }
 
-  static async getTodo(req: Request, res: Response, next: NextFunction) {
+  public static async getTodo(req: Request, res: Response, next: NextFunction) {
     try {
       const { username } = (<any>req).user;
       const { todoId } = req.params;
@@ -56,7 +58,7 @@ export default class TodoControllerV1 {
     }
   }
 
-  static async addTodo(req: Request, res: Response, next: NextFunction) {
+  public static async addTodo(req: Request, res: Response, next: NextFunction) {
     try {
       const { username } = (<any>req).user;
       const { io } = req as IRequestIO;
@@ -79,7 +81,7 @@ export default class TodoControllerV1 {
     }
   }
 
-  static async updateTodo(req: Request, res: Response, next: NextFunction) {
+  public static async updateTodo(req: Request, res: Response, next: NextFunction) {
     const { username } = (<any>req).user;
     const { todoId } = req.params;
     const { io } = req as IRequestIO;
@@ -125,7 +127,7 @@ export default class TodoControllerV1 {
     }
   }
 
-  static async completeTodo(req: Request, res: Response, next: NextFunction) {
+  public static async completeTodo(req: Request, res: Response, next: NextFunction) {
     const { username } = (<any>req).user;
     const { todoId } = req.params;
     const { io } = req as IRequestIO;
@@ -168,7 +170,7 @@ export default class TodoControllerV1 {
     }
   }
 
-  static async uncompleteTodo(req: Request, res: Response, next: NextFunction) {
+  public static async uncompleteTodo(req: Request, res: Response, next: NextFunction) {
     const { username } = (<any>req).user;
     const { todoId } = req.params;
     const { io } = req as IRequestIO;
@@ -210,7 +212,7 @@ export default class TodoControllerV1 {
     }
   }
 
-  static async deleteTodo(req: Request, res: Response, next: NextFunction) {
+  public static async deleteTodo(req: Request, res: Response, next: NextFunction) {
     try {
       const { username } = (<any>req).user;
       const { todoId } = req.params;

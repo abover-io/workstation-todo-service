@@ -62,7 +62,7 @@ export default class TodoControllerV1 {
     try {
       const { username } = (<any>req).user;
       const { io } = req as IRequestIO;
-      const { name, due, isTimeSet = false, priority = 0 }: ITodo = req.body;
+      const { name, due, isTimeSet = false, priority = 4 }: ITodo = req.body;
       const todo: ITodo | any = await Todo.create({
         username,
         name,
@@ -85,7 +85,7 @@ export default class TodoControllerV1 {
     const { username } = (<any>req).user;
     const { todoId } = req.params;
     const { io } = req as IRequestIO;
-    const { name, due, isTimeSet = false, priority = 0, position = null }: ITodo = req.body;
+    const { name, due, isTimeSet = false, priority = 4, position = null }: ITodo = req.body;
     const defaultError = createError({
       name: 'NotFoundError',
       message: `Cannot update, no todo whose ID is ${todoId} found!`,

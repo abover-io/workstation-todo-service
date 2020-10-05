@@ -542,7 +542,7 @@ export default class UserControllerV1 {
       const { firstName, lastName, email }: IUser | any = await User.findOne({
         username,
       });
-      const todos: ITodo[] = await Todo.find({ username });
+      const todos: ITodo[] = await Todo.find({ username, completed: false });
 
       return res.status(200).json({
         user: {

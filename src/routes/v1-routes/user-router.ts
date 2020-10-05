@@ -18,6 +18,7 @@ userRouter.post(
   }),
   UserControllerV1.refreshToken,
 );
+
 userRouter.post(
   '/signup',
   csurf({
@@ -29,6 +30,7 @@ userRouter.post(
   }),
   UserControllerV1.signUp,
 );
+
 userRouter.post(
   '/signin',
   csurf({
@@ -40,7 +42,17 @@ userRouter.post(
   }),
   UserControllerV1.signIn,
 );
+
+// userRouter.post('/auth/google');
+// userRouter.post('/auth/github');
+// userRouter.post('/auth/linkedin');
+// userRouter.post('/auth/apple');
+
 userRouter.post('/signout', UserControllerV1.signOut);
+// userRouter.post('/signout/google');
+// userRouter.post('/signout/github');
+// userRouter.post('/signout/linkedin');
+// userRouter.post('/signout/apple');
 
 userRouter.use(
   csurf({

@@ -20,3 +20,7 @@ export const JWT_ACCESS_SECRET: string = getEnvVar('JWT_ACCESS_SECRET');
 export const JWT_REFRESH_SECRET: string = getEnvVar('JWT_REFRESH_SECRET');
 
 export const JWT_API_KEY_SECRET: string = getEnvVar('JWT_API_KEY_SECRET');
+
+export const GOOGLE_OAUTH_CLIENT_ID: string = getEnvVar('GOOGLE_OAUTH_CLIENT_ID');
+
+export const GOOGLE_OAUTH_CLIENT_SECRET: string = getEnvVar('GOOGLE_OAUTH_CLIENT_SECRET');

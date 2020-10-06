@@ -1,7 +1,8 @@
 import { compareSync, hashSync } from 'bcryptjs';
 import createError, { HttpError } from 'http-errors';
 import { Request, Response, NextFunction } from 'express';
-import { verify as verifyJWT } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
+import { OAuth2Client, LoginTicket, TokenPayload } from 'google-auth-library';
 
 import {
   IUser,
@@ -19,14 +20,23 @@ import {
   CustomValidator,
   createToken,
 } from '@/utils';
-import { JWT_REFRESH_SECRET } from '@/config';
+import {
+  JWT_REFRESH_SECRET,
+  GOOGLE_OAUTH_CLIENT_ID,
+  GOOGLE_OAUTH_CLIENT_SECRET,
+} from '@/config';
+
+const googleClient: OAuth2Client = new OAuth2Client({
+  clientId: GOOGLE_OAUTH_CLIENT_ID,
+  clientSecret: GOOGLE_OAUTH_CLIENT_SECRET,
+});
 
 export default class UserControllerV1 {
   public static async refreshToken(
     req: Request,
     res: Response,
     next: NextFunction,
-  ) {
+  ): Promise<void | Response<any>> {
     try {
       const refreshToken =
         req.signedCookies.rft || req.cookies.rft || req.body.rft;
@@ -75,7 +85,11 @@ export default class UserControllerV1 {
     }
   }
 
-  public static async signUp(req: Request, res: Response, next: NextFunction) {
+  public static async signUp(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void | Response<any>> {
     try {
       const { firstName, lastName = '', username, email, password } = req.body;
       const errorMessages: HttpError[] = [];
@@ -139,7 +153,12 @@ export default class UserControllerV1 {
         }
       } else {
         const newUserTokens = await generateUserTokens(
-          { firstName, lastName, username, email },
+          {
+            firstName,
+            lastName,
+            username,
+            email,
+          },
           'signUp',
         );
         const newApiKey = createToken('apiKey', { username, email });
@@ -147,6 +166,7 @@ export default class UserControllerV1 {
         await User.create({
           firstName,
           lastName,
+          isUsernameSet: true,
           username,
           email,
           isPasswordSet: true,
@@ -181,8 +201,11 @@ export default class UserControllerV1 {
           user: {
             firstName,
             lastName,
+            isUsernameSet: true,
             username,
             email,
+            isPasswordSet: true,
+            verified: false,
             apiKey: newApiKey,
           },
           tokens: {
@@ -197,7 +220,11 @@ export default class UserControllerV1 {
     }
   }
 
-  public static async signIn(req: Request, res: Response, next: NextFunction) {
+  public static async signIn(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void | Response<any>> {
     try {
       const { userIdentifier, password } = req.body;
       const errorMessages: HttpError[] = [];
@@ -305,11 +332,163 @@ export default class UserControllerV1 {
     }
   }
 
+  public static async googleSignIn(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void | Response<any>> {
+    try {
+      const googleIdToken: string = req.body.googleIdToken;
+
+      const verifyIdTokenResponse: LoginTicket = await googleClient.verifyIdToken(
+        {
+          idToken: googleIdToken,
+          audience: GOOGLE_OAUTH_CLIENT_ID,
+        },
+      );
+
+      const googleAccountPayload:
+        | TokenPayload
+        | any = verifyIdTokenResponse.getPayload();
+
+      let {
+        given_name: firstName,
+        family_name: lastName,
+        sub: username,
+        email,
+      } = googleAccountPayload as TokenPayload;
+
+      firstName = firstName as string;
+      lastName = lastName as string;
+      username = username as string;
+      email = email as string;
+
+      const existingUser: IUser | any = await User.findOne({
+        email: (googleAccountPayload as TokenPayload).email,
+      });
+
+      if (!existingUser) {
+        const newUserTokens = await generateUserTokens(
+          {
+            firstName,
+            lastName,
+            username,
+            email,
+          },
+          'signUp',
+        );
+
+        const newApiKey = createToken('apiKey', {
+          username,
+          email,
+        });
+
+        await User.create({
+          firstName,
+          lastName,
+          isUsernameSet: true,
+          username,
+          email,
+          isPasswordSet: false,
+          verified: false,
+          refreshTokens: [newUserTokens.refreshToken],
+          apiKey: newApiKey,
+        });
+
+        res.cookie('act', newUserTokens.accessToken, {
+          httpOnly: true,
+          secure: decideCookieOptions('secure'),
+          path: '/',
+          signed: true,
+          sameSite: decideCookieOptions('sameSite'),
+        });
+
+        res.cookie('rft', newUserTokens.refreshToken, {
+          httpOnly: true,
+          secure: decideCookieOptions('secure'),
+          path: '/',
+          signed: true,
+          sameSite: decideCookieOptions('sameSite'),
+        });
+
+        res.cookie('XSRF-TOKEN', req.csrfToken(), {
+          secure: decideCookieOptions('secure'),
+          sameSite: decideCookieOptions('sameSite'),
+        });
+
+        return res.status(201).json({
+          user: {
+            firstName,
+            lastName,
+            isUsernameSet: true,
+            username,
+            email,
+            isPasswordSet: false,
+            verified: false,
+            apiKey: newApiKey,
+          },
+          tokens: {
+            ...newUserTokens,
+            csrfToken: req.csrfToken(),
+          },
+          message: 'Successfully signed up!',
+        });
+      } else {
+        const tokens = await generateUserTokens({
+          firstName,
+          lastName,
+          username,
+          email,
+        });
+
+        res.cookie('act', tokens.accessToken, {
+          httpOnly: true,
+          secure: decideCookieOptions('secure'),
+          path: '/',
+          signed: true,
+          sameSite: decideCookieOptions('sameSite'),
+        });
+        res.cookie('rft', tokens.refreshToken, {
+          httpOnly: true,
+          secure: decideCookieOptions('secure'),
+          path: '/',
+          signed: true,
+          sameSite: decideCookieOptions('sameSite'),
+        });
+
+        res.cookie('XSRF-TOKEN', req.csrfToken(), {
+          secure: decideCookieOptions('secure'),
+          sameSite: decideCookieOptions('sameSite'),
+        });
+
+        return res.status(200).json({
+          user: {
+            firstName,
+            lastName,
+            isUsernameSet: existingUser.isUsernameSet,
+            username,
+            email,
+            isPasswordSet: false,
+            verified: false,
+            apiKey: existingUser.apiKey,
+          },
+          message: 'Successfully signed in!',
+          tokens: {
+            ...tokens,
+            csrfToken: req.csrfToken(),
+          },
+        });
+      }
+    } catch (err) {
+      return next(err);
+    }
+  }
+
   public static async updateUser(
     req: Request,
     res: Response,
     next: NextFunction,
-  ) {
+  ): Promise<void | Response<any>> {
     try {
       const { username: usernameFromAuth } = (<any>req).user;
       const { username: usernameFromParams } = req.params;
@@ -365,16 +544,23 @@ export default class UserControllerV1 {
           expose: false,
         });
       } else {
+        const updatedApiKey = createToken('apiKey', {
+          username: usernameFromAuth,
+          email,
+        });
+
         await User.updateOne(
           { username: usernameFromAuth },
-          { firstName, lastName, email },
+          { firstName, lastName, email, apiKey: updatedApiKey },
         );
+
         const tokens = await generateUserTokens({
           firstName,
           lastName,
           username: usernameFromAuth,
           email,
         });
+
         res.cookie('act', tokens.accessToken, {
           httpOnly: decideCookieOptions('httpOnly'),
           secure: decideCookieOptions('secure'),
@@ -382,6 +568,7 @@ export default class UserControllerV1 {
           signed: true,
           sameSite: decideCookieOptions('sameSite'),
         });
+
         res.cookie('rft', tokens.refreshToken, {
           httpOnly: decideCookieOptions('httpOnly'),
           secure: decideCookieOptions('secure'),
@@ -389,12 +576,21 @@ export default class UserControllerV1 {
           signed: true,
           sameSite: decideCookieOptions('sameSite'),
         });
+
         return res.status(200).json({
           user: {
             firstName,
             lastName,
+            isUsernameSet: (existedUser as IUser).isUsernameSet,
             username: usernameFromAuth,
             email,
+            isPasswordSet: (existedUser as IUser).isPasswordSet,
+            verified: (existedUser as IUser).verified,
+            apiKey: updatedApiKey,
+          },
+          tokens: {
+            ...tokens,
+            csrfToken: req.csrfToken(),
           },
           message: 'Successfully updated user!',
         });
@@ -408,7 +604,7 @@ export default class UserControllerV1 {
     req: Request,
     res: Response,
     next: NextFunction,
-  ) {
+  ): Promise<void | Response<any>> {
     try {
       const { username: usernameFromAuth } = (<any>req).user;
       const { username: usernameFromParams } = req.params;
@@ -456,7 +652,7 @@ export default class UserControllerV1 {
     req: Request,
     res: Response,
     next: NextFunction,
-  ) {
+  ): Promise<void | Response<any>> {
     try {
       const { username: usernameFromAuth } = (<any>req).user;
       const { username: usernameFromParams } = req.params;
@@ -493,7 +689,11 @@ export default class UserControllerV1 {
     }
   }
 
-  public static async signOut(req: Request, res: Response, next: NextFunction) {
+  public static async signOut(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void | Response<any>> {
     const receivedRefreshToken: string =
       req.signedCookies.rft ||
       req.cookies.rft ||
@@ -509,7 +709,7 @@ export default class UserControllerV1 {
         res.clearCookie('XSRF-TOKEN', { path: '/' });
         res.status(200).json({ message: 'Successfully signed out!' });
       } else {
-        const { username }: IUser | any = verifyJWT(
+        const { username }: IUser | any = jwt.verify(
           receivedRefreshToken,
           JWT_REFRESH_SECRET,
         );
@@ -538,12 +738,17 @@ export default class UserControllerV1 {
     }
   }
 
-  public static async sync(req: Request, res: Response, next: NextFunction) {
+  public static async sync(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void | Response<any>> {
     try {
       const { username }: IUser = (<any>req).user;
       const {
         firstName,
         lastName,
+        isUsernameSet,
         email,
         isPasswordSet,
         verified,
@@ -557,6 +762,7 @@ export default class UserControllerV1 {
         user: {
           firstName,
           lastName,
+          isUsernameSet,
           username,
           email,
           isPasswordSet,

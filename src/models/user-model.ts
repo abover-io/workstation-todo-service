@@ -13,10 +13,15 @@ const UserSchema: Schema<IUser> = new Schema(
     lastName: {
       type: String,
     },
+    isUsernameSet: {
+      type: Boolean,
+      default: false
+    },
     username: {
       type: String,
-      required: [true, 'Username cannot be empty!'],
+      // required: [true, 'Username cannot be empty!'],
       unique: [true, 'Username is not available.'],
+      minlength: [6, 'Username must be at least 6 characters!']
     },
     email: {
       type: String,
@@ -31,7 +36,7 @@ const UserSchema: Schema<IUser> = new Schema(
     password: {
       type: String,
       // required: [true, 'Password cannot be empty!'],
-      minlength: [6, 'Minimum length is 6 characters!'],
+      minlength: [6, 'Password must be at least 6 characters!'],
     },
     refreshTokens: [
       {

@@ -6,13 +6,14 @@ import { OAuth2Client, LoginTicket, TokenPayload } from 'google-auth-library';
 
 import {
   IUser,
+  ISocial,
   ISignUpValidations,
   CustomHttpError,
   ISignInValidations,
   IUpdateUserValidations,
   ITodo,
 } from '@/typings';
-import { User, Todo } from '@/models';
+import { User, Social, Todo } from '@/models';
 import {
   generateUserTokens,
   handleRefreshToken,
@@ -363,8 +364,17 @@ export default class UserControllerV1 {
       username = username as string;
       email = email as string;
 
+      const googleId: string = (googleAccountPayload as TokenPayload)
+        .sub as string;
+
       const existingUser: IUser | any = await User.findOne({
         email: (googleAccountPayload as TokenPayload).email,
+      });
+
+      const existingSocial: ISocial | any = await Social.findOne({
+        name: 'google',
+        socialId: googleId,
+        userId: (existingUser as IUser)._id,
       });
 
       if (!existingUser) {
@@ -383,7 +393,7 @@ export default class UserControllerV1 {
           email,
         });
 
-        await User.create({
+        const newUser: IUser | any = await User.create({
           firstName,
           lastName,
           isUsernameSet: true,
@@ -394,6 +404,14 @@ export default class UserControllerV1 {
           refreshTokens: [newUserTokens.refreshToken],
           apiKey: newApiKey,
         });
+
+        if (!existingSocial) {
+          await Social.create({
+            name: 'google',
+            socialId: googleId,
+            userId: (newUser as IUser)._id,
+          });
+        }
 
         res.cookie('act', newUserTokens.accessToken, {
           httpOnly: true,
@@ -434,6 +452,14 @@ export default class UserControllerV1 {
           message: 'Successfully signed up!',
         });
       } else {
+        if (!existingSocial) {
+          await Social.create({
+            name: 'google',
+            socialId: googleId,
+            userId: (existingUser as IUser)._id,
+          });
+        }
+
         const tokens = await generateUserTokens({
           firstName,
           lastName,

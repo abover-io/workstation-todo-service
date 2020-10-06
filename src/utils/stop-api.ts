@@ -5,7 +5,7 @@ import {
 import { Server } from 'http';
 
 import { NODE_ENV } from '@/config';
-import { IStopApiOptions } from '@/types';
+import { IStopApiOptions } from '@/typings';
 
 export default async function stopAPI(
   api: Server,

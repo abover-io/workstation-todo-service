@@ -10,7 +10,7 @@ import {
   ISignInValidations,
   IUpdateUserValidations,
   ITodo,
-} from '@/types';
+} from '@/typings';
 import { User, Todo } from '@/models';
 import {
   generateUserTokens,
@@ -149,7 +149,9 @@ export default class UserControllerV1 {
           lastName,
           username,
           email,
+          isPasswordSet: true,
           password,
+          verified: false,
           refreshTokens: [newUserTokens.refreshToken],
           apiKey: newApiKey,
         });
@@ -439,7 +441,7 @@ export default class UserControllerV1 {
 
       await User.updateOne(
         { username: usernameFromAuth },
-        { password: hashedPassword },
+        { isPasswordSet: true, password: hashedPassword },
       );
 
       return res.status(200).json({
@@ -539,7 +541,14 @@ export default class UserControllerV1 {
   public static async sync(req: Request, res: Response, next: NextFunction) {
     try {
       const { username }: IUser = (<any>req).user;
-      const { firstName, lastName, email }: IUser | any = await User.findOne({
+      const {
+        firstName,
+        lastName,
+        email,
+        isPasswordSet,
+        verified,
+        apiKey,
+      }: IUser | any = await User.findOne({
         username,
       });
       const todos: ITodo[] = await Todo.find({ username, completed: false });
@@ -550,6 +559,9 @@ export default class UserControllerV1 {
           lastName,
           username,
           email,
+          isPasswordSet,
+          verified,
+          apiKey,
         },
         todos,
         message: 'Successfully synced!',

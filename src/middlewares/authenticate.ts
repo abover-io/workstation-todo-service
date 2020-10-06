@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { verify as verifyJWT } from 'jsonwebtoken';
 import createError from 'http-errors';
 
-import { IUser } from '@/types';
+import { IUser } from '@/typings';
 import { User } from '@/models';
 import { JWT_ACCESS_SECRET } from '@/config';
 

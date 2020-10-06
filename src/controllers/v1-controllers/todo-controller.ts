@@ -3,7 +3,7 @@ import { Types } from 'mongoose';
 import createError from 'http-errors';
 import moment, { Moment } from 'moment';
 
-import { ITodo, IRequestIO } from '@/types';
+import { ITodo, IRequestIO } from '@/typings';
 import { Todo } from '@/models';
 
 const { ObjectId } = Types;

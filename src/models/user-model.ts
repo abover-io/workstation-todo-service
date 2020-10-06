@@ -2,7 +2,7 @@ import { Schema, model, Model, HookNextFunction } from 'mongoose';
 import validator from 'validator';
 import { hashSync } from 'bcryptjs';
 
-import { IUser } from '@/types';
+import { IUser } from '@/typings';
 
 const UserSchema: Schema<IUser> = new Schema(
   {
@@ -24,9 +24,13 @@ const UserSchema: Schema<IUser> = new Schema(
       unique: [true, 'Email is not available.'],
       validate: [validator.isEmail, 'Invalid email address!'],
     },
+    isPasswordSet: {
+      type: Boolean,
+      default: false,
+    },
     password: {
       type: String,
-      required: [true, 'Password cannot be empty!'],
+      // required: [true, 'Password cannot be empty!'],
       minlength: [6, 'Minimum length is 6 characters!'],
     },
     refreshTokens: [
@@ -51,7 +55,10 @@ const UserSchema: Schema<IUser> = new Schema(
 );
 
 UserSchema.pre('save', function (this: IUser, next: HookNextFunction) {
-  this.password = hashSync(this.password, 10);
+  if (this.password) {
+    this.password = hashSync(this.password, 10);
+  }
+
   next();
 });
 

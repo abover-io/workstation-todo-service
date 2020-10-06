@@ -72,6 +72,10 @@ userRouter.put(
   Authorize.authorizeUser,
   UserControllerV1.updateUser,
 );
+
+// userRouter.patch('/verify')
+
+
 userRouter.patch(
   '/:username',
   Authorize.authorizeUser,

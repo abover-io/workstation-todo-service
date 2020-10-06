@@ -3,7 +3,7 @@ import { Types } from 'mongoose';
 import { Request, Response, NextFunction } from 'express';
 import { verify as verifyJWT } from 'jsonwebtoken';
 
-import { IUser, ITodo } from '@/types';
+import { IUser, ITodo } from '@/typings';
 import { User, Todo } from '@/models';
 import { JWT_ACCESS_SECRET } from '@/config';
 

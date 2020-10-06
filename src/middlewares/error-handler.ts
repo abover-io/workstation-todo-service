@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { HttpError } from 'http-errors';
 
-import { CustomHttpError } from '@/types';
+import { CustomHttpError } from '@/typings';
 
 export default function (
   err: HttpError | CustomHttpError,

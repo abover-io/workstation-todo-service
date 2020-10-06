@@ -2,7 +2,7 @@ import { Server } from 'http';
 import { connect as connectToMongoDB } from 'mongoose';
 
 import { MONGODB_URI, NODE_ENV } from '@/config';
-import { IStartApiOptions } from '@/types';
+import { IStartApiOptions } from '@/typings';
 import { decideMongoDBURI } from '@/utils';
 
 export default async function startAPI(

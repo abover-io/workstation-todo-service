@@ -1,6 +1,6 @@
 import { sign as signJWT } from 'jsonwebtoken';
 
-import { IUser, IUserTokens } from '@/types';
+import { IUser, IUserTokens } from '@/typings';
 import { User } from '@/models';
 import { JWT_ACCESS_SECRET, JWT_REFRESH_SECRET } from '@/config';
 

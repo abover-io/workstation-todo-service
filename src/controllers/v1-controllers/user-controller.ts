@@ -357,6 +357,7 @@ export default class UserControllerV1 {
         family_name: lastName,
         sub: username,
         email,
+        picture: profileImageURL,
       } = googleAccountPayload as TokenPayload;
 
       firstName = firstName as string;
@@ -374,7 +375,6 @@ export default class UserControllerV1 {
       const existingSocial: ISocial | any = await Social.findOne({
         name: 'google',
         socialId: googleId,
-        userId: (existingUser as IUser)._id,
       });
 
       if (!existingUser) {
@@ -401,17 +401,16 @@ export default class UserControllerV1 {
           email,
           isPasswordSet: false,
           verified: false,
+          profileImageURL,
           refreshTokens: [newUserTokens.refreshToken],
           apiKey: newApiKey,
         });
 
-        if (!existingSocial) {
-          await Social.create({
-            name: 'google',
-            socialId: googleId,
-            userId: (newUser as IUser)._id,
-          });
-        }
+        await Social.create({
+          name: 'google',
+          socialId: googleId,
+          userId: (newUser as IUser)._id,
+        });
 
         res.cookie('act', newUserTokens.accessToken, {
           httpOnly: true,
@@ -444,6 +443,7 @@ export default class UserControllerV1 {
             isPasswordSet: false,
             verified: false,
             apiKey: newApiKey,
+            profileImageURL,
           },
           tokens: {
             ...newUserTokens,

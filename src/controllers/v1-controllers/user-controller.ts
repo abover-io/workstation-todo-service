@@ -549,9 +549,14 @@ export default class UserControllerV1 {
           email,
         });
 
-        await User.updateOne(
+        const {
+          isUsernameSet,
+          isPasswordSet,
+          verified,
+        }: IUser | any = await User.findOneAndUpdate(
           { username: usernameFromAuth },
           { firstName, lastName, email, apiKey: updatedApiKey },
+          { new: true },
         );
 
         const tokens = await generateUserTokens({
@@ -577,15 +582,17 @@ export default class UserControllerV1 {
           sameSite: decideCookieOptions('sameSite'),
         });
 
+        console.log(existedUser);
+
         return res.status(200).json({
           user: {
             firstName,
             lastName,
-            isUsernameSet: (existedUser as IUser).isUsernameSet,
+            isUsernameSet,
             username: usernameFromAuth,
             email,
-            isPasswordSet: (existedUser as IUser).isPasswordSet,
-            verified: (existedUser as IUser).verified,
+            isPasswordSet,
+            verified,
             apiKey: updatedApiKey,
           },
           tokens: {

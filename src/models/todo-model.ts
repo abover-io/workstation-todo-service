@@ -5,31 +5,31 @@ import { ITodo } from '@/typings';
 const TodoSchema: Schema = new Schema(
   {
     username: {
-      type: String,
+      type: Schema.Types.String,
       required: [true, 'Todo has to have username!'],
     },
     name: {
-      type: String,
+      type: Schema.Types.String,
       required: [true, 'Todo name cannot be empty!'],
     },
     due: {
-      type: Date,
+      type: Schema.Types.Date,
       default: null,
     },
     isTimeSet: {
-      type: Boolean,
+      type: Schema.Types.Boolean,
       default: false,
     },
     completed: {
-      type: Boolean,
+      type: Schema.Types.Boolean,
       default: false,
     },
     priority: {
-      type: Number,
+      type: Schema.Types.Number,
       default: 4,
     },
     position: {
-      type: Number,
+      type: Schema.Types.Number,
       default: null,
     },
   },

@@ -7,52 +7,48 @@ import { IUser } from '@/typings';
 const UserSchema: Schema<IUser> = new Schema(
   {
     firstName: {
-      type: String,
+      type: Schema.Types.String,
       required: [true, 'First name cannot be empty!'],
     },
     lastName: {
-      type: String,
+      type: Schema.Types.String,
     },
     isUsernameSet: {
-      type: Boolean,
+      type: Schema.Types.Boolean,
       default: false
     },
     username: {
-      type: String,
+      type: Schema.Types.String,
       // required: [true, 'Username cannot be empty!'],
       unique: [true, 'Username is not available.'],
       minlength: [6, 'Username must be at least 6 characters!']
     },
     email: {
-      type: String,
+      type: Schema.Types.String,
       required: [true, 'Email cannot be empty!'],
       unique: [true, 'Email is not available.'],
       validate: [validator.isEmail, 'Invalid email address!'],
     },
     isPasswordSet: {
-      type: Boolean,
+      type: Schema.Types.Boolean,
       default: false,
     },
     password: {
-      type: String,
+      type: Schema.Types.String,
       // required: [true, 'Password cannot be empty!'],
       minlength: [6, 'Password must be at least 6 characters!'],
     },
-    refreshTokens: [
-      {
-        type: String,
-      },
-    ],
+    refreshTokens: [Schema.Types.String],
     apiKey: {
-      type: String,
+      type: Schema.Types.String,
       required: [true, 'API Key cannot be empty!'],
     },
     verified: {
-      type: Boolean,
+      type: Schema.Types.Boolean,
       default: false,
     },
     profileImageURL: {
-      type: String,
+      type: Schema.Types.String,
       default: null,
     },
   },

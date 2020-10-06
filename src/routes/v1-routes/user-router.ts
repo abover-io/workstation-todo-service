@@ -43,7 +43,17 @@ userRouter.post(
   UserControllerV1.signIn,
 );
 
-// userRouter.post('/auth/google');
+userRouter.post(
+  '/auth/google',
+  csurf({
+    cookie: {
+      secure: decideCookieOptions('secure'),
+      sameSite: decideCookieOptions('sameSite'),
+    },
+    ignoreMethods: ['POST'],
+  }),
+  UserControllerV1.googleSignIn,
+);
 // userRouter.post('/auth/github');
 // userRouter.post('/auth/linkedin');
 // userRouter.post('/auth/apple');
@@ -60,7 +70,7 @@ userRouter.use(
       secure: decideCookieOptions('secure'),
       sameSite: decideCookieOptions('sameSite'),
     },
-    value: (req) => req.cookies['XSRF-TOKEN']
+    value: (req) => req.cookies['XSRF-TOKEN'],
   }),
 );
 
@@ -74,7 +84,6 @@ userRouter.put(
 );
 
 // userRouter.patch('/verify')
-
 
 userRouter.patch(
   '/:username',

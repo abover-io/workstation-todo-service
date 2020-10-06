@@ -1,12 +1,7 @@
 {
-  "watch": [
-    "src"
-  ],
+  "verbose": true,
+  "watch": ["src"],
   "ext": "ts",
-  "ignore": [
-    "src/**/*.spec.ts",
-    "dist",
-    "node_modules"
-  ],
-  "exec": "NODE_ENV=development npm-run-all build server"
+  "ignore": ["src/**/*.spec.ts", "dist", "node_modules"],
+  "exec": "cross-env NODE_ENV=development npm-run-all build server"
 }

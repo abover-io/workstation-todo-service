@@ -474,6 +474,7 @@ export default class UserControllerV1 {
           signed: true,
           sameSite: decideCookieOptions('sameSite'),
         });
+
         res.cookie('rft', tokens.refreshToken, {
           httpOnly: true,
           secure: decideCookieOptions('secure'),
@@ -494,9 +495,10 @@ export default class UserControllerV1 {
             isUsernameSet: existingUser.isUsernameSet,
             username,
             email,
-            isPasswordSet: false,
-            verified: false,
+            isPasswordSet: existingUser.isPasswordSet,
+            verified: existingUser.verified,
             apiKey: existingUser.apiKey,
+            profileImageURL,
           },
           message: 'Successfully signed in!',
           tokens: {

@@ -12,7 +12,7 @@ import { NODE_ENV, API_PORT, COOKIE_SECRET, MONGODB_URI } from '@/config';
 
 import mainRouter from './routes';
 import { getEnvVar, decideMongoDBURI } from './utils';
-import { IRequestIO } from './types';
+import { IRequestIO } from './typings';
 
 getEnvVar('NODE_ENV') !== 'production' ? dotEnvConfig() : '';
 

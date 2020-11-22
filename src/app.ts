@@ -11,10 +11,10 @@ import morgan from 'morgan';
 import { NODE_ENV, API_PORT, COOKIE_SECRET, MONGODB_URI } from '@/config';
 
 import mainRouter from './routes';
-import { getEnvVar, decideMongoDBURI } from './utils';
+import { getEnv, decideMongoDBURI } from './utils';
 import { IRequestIO } from './typings';
 
-getEnvVar('NODE_ENV') !== 'production' ? dotEnvConfig() : '';
+getEnv('NODE_ENV') !== 'production' ? dotEnvConfig() : '';
 
 const app = express();
 const server = createServer(app);
@@ -57,7 +57,7 @@ if (require.main === module) {
 
     server.listen(port, () => {
       console.log(
-        `Sunday's Fancy Todo API is running.\nPORT\t=>\t${port}\nENV\t=>\t${getEnvVar(
+        `Sunday's Fancy Todo API is running.\nPORT\t=>\t${port}\nENV\t=>\t${getEnv(
           'NODE_ENV',
         ).toUpperCase()}`,
       );

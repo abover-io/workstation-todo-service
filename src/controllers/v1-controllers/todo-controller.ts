@@ -1,26 +1,82 @@
 import { Request, Response, NextFunction } from 'express';
-import { Types } from 'mongoose';
+import { Types, QueryFindOptions, MongooseFilterQuery } from 'mongoose';
 import createError from 'http-errors';
-import moment, { Moment } from 'moment';
 
 import { ITodo, IRequestIO } from '@/typings';
 import { Todo } from '@/models';
 
+// Utils
+import { redisClient } from '@/utils';
+
 const { ObjectId } = Types;
 
 export default class TodoControllerV1 {
-  public static async getTodos(req: Request, res: Response, next: NextFunction) {
+  public static async getTodos(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
     try {
       const { username } = (<any>req).user;
 
-      const todos: ITodo[] | any = await Todo.find({
+      const options: QueryFindOptions = {
+        limit: 100,
+        skip: 0,
+      };
+
+      const conditions: MongooseFilterQuery<Pick<ITodo, keyof ITodo>> = {
         username,
         completed: false,
-      });
+      };
+
+      let cachedTodos: any = await redisClient.getAsync(
+        JSON.stringify({
+          model: 'todos',
+          conditions,
+          options,
+        }),
+      );
+
+      if (cachedTodos) {
+        cachedTodos = JSON.parse(cachedTodos);
+
+        return res.status(200).json({
+          message: `Successfully fetched all todos with ${cachedTodos.todos.length} in total!`,
+          count: cachedTodos.todos.length,
+          total: cachedTodos.total,
+          todos: cachedTodos.todos,
+        });
+      }
+
+      const todos: ITodo[] | any = await Todo.find(
+        {
+          username,
+          completed: false,
+        },
+        null,
+        options,
+      );
+
+      const totalTodos: number = await Todo.countDocuments({ username });
+
+      await redisClient.setexAsync(
+        JSON.stringify({
+          model: 'todos',
+          conditions,
+          options,
+        }),
+        60,
+        JSON.stringify({
+          totalTodos: '',
+          todos: '',
+        }),
+      );
 
       return res.status(200).json({
-        todos,
         message: `Successfully fetched all todos with ${todos.length} in total!`,
+        count: todos.length,
+        total: totalTodos,
+        todos,
       });
     } catch (err) {
       return next(err);
@@ -81,11 +137,21 @@ export default class TodoControllerV1 {
     }
   }
 
-  public static async updateTodo(req: Request, res: Response, next: NextFunction) {
+  public static async updateTodo(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
     const { username } = (<any>req).user;
     const { todoId } = req.params;
     const { io } = req as IRequestIO;
-    const { name, due, isTimeSet = false, priority = 4, position = null }: ITodo = req.body;
+    const {
+      name,
+      due,
+      isTimeSet = false,
+      priority = 4,
+      position = null,
+    }: ITodo = req.body;
     const defaultError = createError({
       name: 'NotFoundError',
       message: `Cannot update, no todo whose ID is ${todoId} found!`,
@@ -127,7 +193,11 @@ export default class TodoControllerV1 {
     }
   }
 
-  public static async completeTodo(req: Request, res: Response, next: NextFunction) {
+  public static async completeTodo(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
     const { username } = (<any>req).user;
     const { todoId } = req.params;
     const { io } = req as IRequestIO;
@@ -170,7 +240,11 @@ export default class TodoControllerV1 {
     }
   }
 
-  public static async uncompleteTodo(req: Request, res: Response, next: NextFunction) {
+  public static async uncompleteTodo(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
     const { username } = (<any>req).user;
     const { todoId } = req.params;
     const { io } = req as IRequestIO;
@@ -212,7 +286,11 @@ export default class TodoControllerV1 {
     }
   }
 
-  public static async deleteTodo(req: Request, res: Response, next: NextFunction) {
+  public static async deleteTodo(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
     try {
       const { username } = (<any>req).user;
       const { todoId } = req.params;

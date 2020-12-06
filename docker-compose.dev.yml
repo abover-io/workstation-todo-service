@@ -12,7 +12,7 @@ services:
       - mongodb-volume:/data/db
 
   api:
-    image: rafiandria23/fancy-todo-api:dev
+    image: sundayx/fancy-todo-api:dev
     restart: always
     ports:
       - 3000

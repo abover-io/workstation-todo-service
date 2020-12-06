@@ -12,8 +12,8 @@
     "dev": "nodemon",
     "prod": "cross-env NODE_ENV=production npm-run-all build server",
     "test": "jest --coverage --detectOpenHandles --forceExit && coveralls < coverage/lcov.info",
-    "docker:dev": "git checkout dev && docker build -f Dev.Dockerfile -t sundayx/fancy-todo-api:dev . && docker push sundayx/fancy-todo-api:dev && git push origin dev",
-    "docker:latest": "git checkout master && git merge dev && docker build -f Prod.Dockerfile -t sundayx/fancy-todo-api:latest . && docker push sundayx/fancy-todo-api:latest && git push origin master && git checkout dev",
+    "docker:dev": "docker build -f Dev.Dockerfile -t sundayx/fancy-todo-api:dev . && docker push sundayx/fancy-todo-api:dev",
+    "docker:latest": "docker build -f Prod.Dockerfile -t sundayx/fancy-todo-api:latest . && docker push sundayx/fancy-todo-api:latest",
     "push": "npm-run-all docker:dev docker:latest"
   },
   "repository": {

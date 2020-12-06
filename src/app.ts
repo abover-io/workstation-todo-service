@@ -1,20 +1,24 @@
 import express from 'express';
-import { connect as connectToMongoDB } from 'mongoose';
+import mongoose from 'mongoose';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import { config as dotEnvConfig } from 'dotenv';
 import { createServer } from 'http';
 import socketIo from 'socket.io';
 import helmet from 'helmet';
 import morgan from 'morgan';
 
-import { NODE_ENV, API_PORT, COOKIE_SECRET, MONGODB_URI } from '@/config';
+import {
+  API_PORT,
+  COOKIE_SECRET,
+  MONGODB_URI,
+  DB_USER,
+  DB_PASSWORD,
+  DB_NAME,
+} from '@/config';
 
 import mainRouter from './routes';
-import { getEnv, decideMongoDBURI } from './utils';
+import { getEnv } from './utils';
 import { IRequestIO } from './typings';
-
-getEnv('NODE_ENV') !== 'production' ? dotEnvConfig() : '';
 
 const app = express();
 const server = createServer(app);
@@ -50,9 +54,14 @@ app.use(mainRouter);
 
 if (require.main === module) {
   (async function () {
-    await connectToMongoDB(MONGODB_URI || decideMongoDBURI(), {
+    await mongoose.connect(MONGODB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
+      useCreateIndex: true,
+      useFindAndModify: true,
+      dbName: DB_NAME,
+      user: DB_USER,
+      pass: DB_PASSWORD,
     });
 
     server.listen(port, () => {

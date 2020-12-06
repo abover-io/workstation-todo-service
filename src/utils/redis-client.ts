@@ -9,6 +9,16 @@ const redisClient: RedisClient = createClient({
   password: getEnv('REDIS_PASSWORD'),
 });
 
+function delAsync(...keys: string[]): Promise<number | Error | null> {
+  return new Promise((resolve, reject) => {
+    redisClient.del(...keys, (err, reply) => {
+      if (err) return reject(err);
+
+      return resolve(reply);
+    });
+  });
+}
+
 export default {
   ...redisClient,
   getAsync: promisify(redisClient.get).bind(redisClient),
@@ -17,5 +27,7 @@ export default {
   setexAsync: promisify(redisClient.setex).bind(redisClient),
   hsetAsync: promisify(redisClient.hset).bind(redisClient),
   keysAsync: promisify(redisClient.keys).bind(redisClient),
-  delAsync: promisify(redisClient.del).bind(redisClient),
+  endAsync: promisify(redisClient.end).bind(redisClient),
+  quitAsync: promisify(redisClient.quit).bind(redisClient),
+  delAsync,
 };

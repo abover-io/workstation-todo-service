@@ -7,7 +7,10 @@ services:
     ports:
       - 27017
     environment:
-      MONGO_INITDB_DATABASE: "fancy-todo-api"
+      MONGO_INITDB_DATABASE: "fancy-todo"
+    volumes:
+      - mongodb-volume:/data/db
+
   api:
     image: rafiandria23/fancy-todo-api:latest
     restart: always
@@ -38,3 +41,6 @@ secrets:
     external: true
   COOKIE_SECRET:
     external: true
+
+volumes:
+  mongodb-volume:

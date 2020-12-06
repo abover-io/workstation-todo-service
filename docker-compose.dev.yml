@@ -7,7 +7,10 @@ services:
     ports:
       - 27018:27017
     environment:
-      MONGO_INITDB_DATABASE: "fancy-todo-api-dev"
+      MONGO_INITDB_DATABASE: "fancy-todo-dev"
+    volumes:
+      - mongodb-volume:/data/db
+
   api:
     image: rafiandria23/fancy-todo-api:dev
     restart: always
@@ -19,7 +22,7 @@ services:
       - mongodb
     environment:
       NODE_ENV: development
-      MONGODB_CONTAINER: fancy-todo-api_mongodb
+      MONGODB_CONTAINER: fancy-todo_mongodb
       JWT_ACCESS_SECRET: /run/secrets/JWT_ACCESS_SECRET
       JWT_REFRESH_SECRET: /run/secrets/JWT_REFRESH_SECRET
       JWT_API_KEY_SECRET: /run/secrets/JWT_API_KEY_SECRET
@@ -42,3 +45,6 @@ secrets:
     external: true
   COOKIE_SECRET:
     external: true
+
+volumes:
+  mongodb-volume:

@@ -5,11 +5,15 @@ services:
     image: mongo:latest
     restart: always
     ports:
-      - 27018:27017
+      - 27017
     environment:
-      MONGO_INITDB_DATABASE: "fancy-todo-dev"
-      MONGO_INITDB_USERNAME: "root"
+      MONGO_INITDB_DATABASE_FILE: /run/secrets/DB_NAME
+      MONGO_INITDB_USERNAME_FILE: /run/secrets/DB_USER
       MONGO_INITDB_PASSWORD_FILE: /run/secrets/DB_PASSWORD
+    secrets:
+      - DB_NAME
+      - DB_USER
+      - DB_PASSWORD
     volumes:
       - mongodb-volume:/data/db
 
@@ -17,7 +21,7 @@ services:
     image: redis:latest
     restart: always
     ports:
-      - 6379:6379
+      - 6379
     environment:
       REDIS_PASSWORD: /run/secrets/REDIS_PASSWORD
     command: [
@@ -35,7 +39,7 @@ services:
     image: sundayx/fancy-todo-api:dev
     restart: always
     ports:
-      - 3000
+      - 80:3000
     depends_on:
       - mongodb
       - redis
@@ -43,10 +47,10 @@ services:
       - mongodb
       - redis
     environment:
-      NODE_ENV: development
+      NODE_ENV: "test"
       MONGODB_URI: "mongodb://fancy-todo_mongodb:27017"
-      DB_NAME: "fancy-todo-dev"
-      DB_USER: "root"
+      DB_NAME: /run/secrets/DB_NAME
+      DB_USER: /run/secrets/DB_USER
       DB_PASSWORD: /run/secrets/DB_PASSWORD
       JWT_ACCESS_SECRET: /run/secrets/JWT_ACCESS_SECRET
       JWT_REFRESH_SECRET: /run/secrets/JWT_REFRESH_SECRET
@@ -55,6 +59,8 @@ services:
       REDIS_URL: "redis://fancy-todo_redis"
       REDIS_PASSWORD: /run/secrets/REDIS_PASSWORD
     secrets:
+      - DB_NAME
+      - DB_USER
       - DB_PASSWORD
       - JWT_ACCESS_SECRET
       - JWT_REFRESH_SECRET
@@ -66,6 +72,10 @@ services:
       - "/usr/local/app/node_modules"
 
 secrets:
+  DB_NAME:
+    external: true
+  DB_USER:
+    external: true
   DB_PASSWORD:
     external: true
   REDIS_PASSWORD:

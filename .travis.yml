@@ -1,17 +1,26 @@
+branches:
+  only:
+    - master
+
 languange: node_js
+
 node_js:
-- node
+  - node
+
 sudo: required
+
 services:
-- docker
+  - docker
+
 install:
-- docker swarm init
-- printf $JWT_ACCESS_SECRET | docker secret create JWT_ACCESS_SECRET -
-- printf $JWT_REFRESH_SECRET | docker secret create JWT_REFRESH_SECRET -
-- printf $JWT_API_KEY_SECRET | docker secret create JWT_API_KEY_SECRET -
-- printf $COOKIE_SECRET | docker secret create COOKIE_SECRET -
+  - docker swarm init
+  - printf $JWT_ACCESS_SECRET | docker secret create JWT_ACCESS_SECRET -
+  - printf $JWT_REFRESH_SECRET | docker secret create JWT_REFRESH_SECRET -
+  - printf $JWT_API_KEY_SECRET | docker secret create JWT_API_KEY_SECRET -
+  - printf $COOKIE_SECRET | docker secret create COOKIE_SECRET -
+
 script:
-- docker stack deploy --compose-file=docker-compose.dev.yml fancy-todo-api
-- sleep 30
-- docker stack --orchestrator swarm services fancy-todo-api
-- docker exec -it $(docker ps -q -f name=fancy-todo-api_api) yarn test
+  - docker stack deploy --compose-file=docker-compose.dev.yml fancy-todo-api
+  - sleep 30
+  - docker stack --orchestrator swarm services fancy-todo-api
+  - docker exec -it $(docker ps -q -f name=fancy-todo-api_api) yarn test

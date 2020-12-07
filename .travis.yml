@@ -20,6 +20,10 @@ before_install:
 
 install:
   - docker swarm init
+  - printf $DB_NAME | docker secret create DB_NAME -
+  - printf $DB_USER | docker secret create DB_USER -
+  - printf $DB_PASSWORD | docker secret create DB_PASSWORD -
+  - printf $REDIS_PASSWORD | docker secret create REDIS_PASSWORD -
   - printf $JWT_ACCESS_SECRET | docker secret create JWT_ACCESS_SECRET -
   - printf $JWT_REFRESH_SECRET | docker secret create JWT_REFRESH_SECRET -
   - printf $JWT_API_KEY_SECRET | docker secret create JWT_API_KEY_SECRET -

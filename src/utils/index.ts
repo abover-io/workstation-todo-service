@@ -4,7 +4,4 @@ export { default as handleRefreshToken } from './handle-refresh-token';
 export { default as getEnv } from './get-env';
 export { default as CustomValidator } from './custom-validator';
 export { default as createToken } from './create-token';
-export { default as decideMongoDBURI } from './decide-mongodb-uri';
-export { default as startAPI } from './start-api';
-export { default as stopAPI } from './stop-api';
 export { default as redisClient } from './redis-client';

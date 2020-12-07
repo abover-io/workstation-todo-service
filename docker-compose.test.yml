@@ -5,7 +5,7 @@ services:
     image: mongo:latest
     restart: always
     ports:
-      - 27017
+      - 27017:27017
     environment:
       MONGO_INITDB_DATABASE_FILE: /run/secrets/DB_NAME
       MONGO_INITDB_USERNAME_FILE: /run/secrets/DB_USER
@@ -21,7 +21,7 @@ services:
     image: redis:latest
     restart: always
     ports:
-      - 6379
+      - 6379:6379
     environment:
       REDIS_PASSWORD: /run/secrets/REDIS_PASSWORD
     command: [
@@ -39,7 +39,7 @@ services:
     image: sundayx/fancy-todo-api:dev
     restart: always
     ports:
-      - 3000
+      - 3000:3000
     depends_on:
       - mongodb
       - redis

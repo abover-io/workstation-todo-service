@@ -5,7 +5,7 @@ services:
     image: mongo:latest
     restart: always
     ports:
-      - 27018:27017
+      - 27017:27017
     environment:
       MONGO_INITDB_DATABASE: "fancy-todo-dev"
       MONGO_INITDB_USERNAME: "root"
@@ -35,7 +35,7 @@ services:
     image: sundayx/fancy-todo-api:dev
     restart: always
     ports:
-      - 3000
+      - 3000:3000
     depends_on:
       - mongodb
       - redis
@@ -44,6 +44,7 @@ services:
       - redis
     environment:
       NODE_ENV: development
+      PORT: 3000
       MONGODB_URI: "mongodb://fancy-todo_mongodb:27017"
       DB_NAME: "fancy-todo-dev"
       DB_USER: "root"

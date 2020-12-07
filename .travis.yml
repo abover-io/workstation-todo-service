@@ -29,9 +29,9 @@ install:
   - printf $JWT_API_KEY_SECRET | docker secret create JWT_API_KEY_SECRET -
   - printf $COOKIE_SECRET | docker secret create COOKIE_SECRET -
   - docker stack deploy --compose-file=docker-compose.test.yml fancy-todo
-  - while [ "$(curl -sS localhost:27017)" = "" ]; do echo "Retrying to connect to MongoDB..."; sleep 1; done && echo "Finished."
+  - while [ "$(curl -sS 127.0.0.1:27017)" = "" ]; do echo "Retrying to connect to MongoDB..."; sleep 1; done && echo "Finished."
   - while [ "$(docker ps -q -f name=fancy-todo_redis)" = "" ]; do echo "Retrying to connect to Redis..."; sleep 1; done && echo "Finished."
-  - while [ "$(curl -sS localhost:3000)" = "" ]; do echo "Retrying to connect to SmartCart API..."; sleep 1; done && echo "Finished."
+  - while [ "$(curl -sS 127.0.0.1:3000)" = "" ]; do echo "Retrying to connect to SmartCart API..."; sleep 1; done && echo "Finished."
 
 script:
   - docker exec -it $(docker ps -q -f name=fancy-todo_api) yarn test

@@ -1,9 +1,9 @@
 import supertest from 'supertest';
 
-import app from '@/app';
+import server from '@/server';
 import { apiVersion } from '@/config';
 
-const request = supertest.agent(app);
+const request = supertest.agent(server);
 
 const wrongTodoID = 'thisiswrongtodoobjectid';
 

@@ -1,6 +1,6 @@
 import supertest from 'supertest';
 
-import server from '@/app';
+import server from '@/server';
 import { apiVersion } from '@/config';
 
 const request = supertest.agent(server);

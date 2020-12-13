@@ -2,36 +2,42 @@
   "name": "fancy-todo-api",
   "version": "2.0.0",
   "description": "Sunday's Fancy Todo API",
-  "main": "app.js",
+  "main": "server.js",
   "scripts": {
     "start": "npm run prod",
-    "server": "node ./dist/app.js",
+    "server": "node ./dist/server.js",
     "transpile": "babel src -d dist -x .ts,.js,.json",
     "clean": "rimraf dist",
     "build": "npm-run-all clean transpile",
     "dev": "nodemon",
     "prod": "cross-env NODE_ENV=production npm-run-all build server",
     "test": "jest --coverage --detectOpenHandles --forceExit && coveralls < coverage/lcov.info",
-    "docker:dev": "docker build -f Dev.Dockerfile -t sundayx/fancy-todo-api:dev . && docker push sundayx/fancy-todo-api:dev",
-    "docker:latest": "docker build -f Prod.Dockerfile -t sundayx/fancy-todo-api:latest . && docker push sundayx/fancy-todo-api:latest",
-    "push": "npm-run-all docker:dev docker:latest"
+    "docker:build:dev": "docker build -f Dev.Dockerfile -t sundayx/fancy-todo-api:dev .",
+    "docker:push:dev": "docker push sundayx/fancy-todo-api:dev",
+    "docker:build:latest": "docker build -f Prod.Dockerfile -t sundayx/fancy-todo-api:latest .",
+    "docker:push:latest": "docker push sundayx/fancy-todo-api:latest"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sunday-project/fancy-todo-api.git"
+    "url": "git+https://github.com/sundayexplore/fancy-todo-api.git"
   },
   "keywords": [
     "express",
     "mongodb",
     "mongoose",
-    "typescript"
+    "typescript",
+    "rest",
+    "api",
+    "todo",
+    "todolist",
+    "opensource"
   ],
   "author": "Adam Rafiandri",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/rafiandria23/fancy-todo/issues"
+    "url": "https://github.com/sundayexplore/fancy-todo/issues"
   },
-  "homepage": "https://github.com/rafiandria23/fancy-todo#readme",
+  "homepage": "https://github.com/sundayexplore/fancy-todo#readme",
   "dependencies": {
     "@babel/runtime": "^7.11.2",
     "bcryptjs": "^2.4.3",
@@ -47,7 +53,6 @@
     "moment": "^2.29.0",
     "mongoose": "^5.9.6",
     "morgan": "^1.10.0",
-    "redis": "^3.0.2",
     "rimraf": "^3.0.2",
     "socket.io": "^2.3.0",
     "tslib": "^2.0.1",

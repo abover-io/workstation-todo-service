@@ -5,9 +5,6 @@ import createError from 'http-errors';
 import { ITodo, IRequestIO } from '@/typings';
 import { Todo } from '@/models';
 
-// Utils
-import { redisClient } from '@/utils';
-
 const { ObjectId } = Types;
 
 export default class TodoControllerV1 {
@@ -29,25 +26,6 @@ export default class TodoControllerV1 {
         completed: false,
       };
 
-      let cachedTodos: any = await redisClient.getAsync(
-        JSON.stringify({
-          model: 'todos',
-          conditions,
-          options,
-        }),
-      );
-
-      if (cachedTodos) {
-        cachedTodos = JSON.parse(cachedTodos);
-
-        return res.status(200).json({
-          message: `Successfully fetched all todos with ${cachedTodos.todos.length} in total!`,
-          count: cachedTodos.todos.length,
-          total: cachedTodos.total,
-          todos: cachedTodos.todos,
-        });
-      }
-
       const todos: ITodo[] | any = await Todo.find(
         {
           username,
@@ -58,19 +36,6 @@ export default class TodoControllerV1 {
       );
 
       const totalTodos: number = await Todo.countDocuments({ username });
-
-      await redisClient.setexAsync(
-        JSON.stringify({
-          model: 'todos',
-          conditions,
-          options,
-        }),
-        60,
-        JSON.stringify({
-          totalTodos: '',
-          todos: '',
-        }),
-      );
 
       return res.status(200).json({
         message: `Successfully fetched all todos with ${todos.length} in total!`,

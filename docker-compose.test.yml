@@ -17,24 +17,6 @@ services:
     volumes:
       - mongodb-volume:/data/db
 
-  redis:
-    image: redis:latest
-    restart: always
-    ports:
-      - 6379:6379
-    environment:
-      REDIS_PASSWORD: /run/secrets/REDIS_PASSWORD
-    command: [
-        "bash",
-        "-c",
-        '
-        docker-entrypoint.sh
-        --requirepass "$$(cat $$REDIS_PASSWORD)"
-        ',
-      ]
-    secrets:
-      - REDIS_PASSWORD
-
   api:
     image: sundayx/fancy-todo-api:dev
     restart: always
@@ -56,8 +38,6 @@ services:
       JWT_REFRESH_SECRET: /run/secrets/JWT_REFRESH_SECRET
       JWT_API_KEY_SECRET: /run/secrets/JWT_API_KEY_SECRET
       COOKIE_SECRET: /run/secrets/COOKIE_SECRET
-      REDIS_URL: "redis://fancy-todo_redis"
-      REDIS_PASSWORD: /run/secrets/REDIS_PASSWORD
     secrets:
       - DB_NAME
       - DB_USER
@@ -66,7 +46,6 @@ services:
       - JWT_REFRESH_SECRET
       - JWT_API_KEY_SECRET
       - COOKIE_SECRET
-      - REDIS_PASSWORD
     volumes:
       - "./:/usr/local/app"
       - "/usr/local/app/node_modules"
@@ -77,8 +56,6 @@ secrets:
   DB_USER:
     external: true
   DB_PASSWORD:
-    external: true
-  REDIS_PASSWORD:
     external: true
   JWT_ACCESS_SECRET:
     external: true

@@ -6,9 +6,6 @@ import { MONGODB_URI, DB_USER, DB_PASSWORD } from '@/config';
 // Models
 import { User, Todo } from '@/models';
 
-// Utils
-import { redisClient } from '@/utils';
-
 function importTest(name: string, path: string) {
   return describe(name, () => {
     require(path);
@@ -42,7 +39,5 @@ describe('Fancy Todo API Tests', () => {
     await mongoose.connection.db.dropDatabase();
 
     await mongoose.connection.close();
-
-    await redisClient.endAsync(undefined);
   });
 });

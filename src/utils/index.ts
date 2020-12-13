@@ -4,4 +4,3 @@ export { default as handleRefreshToken } from './handle-refresh-token';
 export { default as getEnv } from './get-env';
 export { default as CustomValidator } from './custom-validator';
 export { default as createToken } from './create-token';
-export { default as redisClient } from './redis-client';

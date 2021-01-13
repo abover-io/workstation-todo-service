@@ -8,8 +8,10 @@ services:
       - 27017:27017
     environment:
       MONGO_INITDB_DATABASE: "fancy-todo-dev"
-      MONGO_INITDB_USERNAME: "root"
-      MONGO_INITDB_PASSWORD_FILE: /run/secrets/DB_PASSWORD
+      MONGO_INITDB_ROOT_USERNAME: "root"
+      MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/DB_PASSWORD
+    secrets:
+      - DB_PASSWORD
     volumes:
       - mongodb-volume:/data/db
 
@@ -20,10 +22,8 @@ services:
       - 3000:3000
     depends_on:
       - mongodb
-      - redis
     links:
       - mongodb
-      - redis
     environment:
       NODE_ENV: development
       PORT: 3000

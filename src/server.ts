@@ -3,12 +3,15 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { createServer } from 'http';
-import socketIo from 'socket.io';
+import createError from 'http-errors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import moment from 'moment';
 
+// Config
 import {
   API_PORT,
+  BASE_PATH,
   COOKIE_SECRET,
   MONGODB_URI,
   DB_USER,
@@ -16,14 +19,18 @@ import {
   DB_NAME,
 } from '@/config';
 
-import mainRouter from './routes';
+// Middlewares
+import { errorHandler } from '@/middlewares';
+
+// Utils
 import { getEnv } from './utils';
-import { IRequestIO } from './typings';
+
+// Routes
+import mainRouter from './routes';
 
 const app = express();
 const server = createServer(app);
 const port = API_PORT || 3000;
-const io = socketIo(server, { serveClient: false });
 
 app.set('trust proxy', true);
 
@@ -45,12 +52,22 @@ app.use(cookieParser(COOKIE_SECRET));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.use((req, res, next) => {
-  (req as IRequestIO).io = io;
-  next();
+app.get('/', (_, res) => {
+  return res.status(200).json({
+    status: 200,
+    message: `Successfully connected! Make sure to use ${BASE_PATH} as Base Path!`,
+    date: moment().format('YYYY-MM-DD'),
+    time: moment().format('HH:mm:ss'),
+  });
 });
 
-app.use(mainRouter);
+app.use(BASE_PATH, mainRouter);
+
+app.use((_, __, next) => {
+  return next(createError(404, 'Route not found!'));
+});
+
+mainRouter.use(errorHandler);
 
 if (require.main === module) {
   (async function () {

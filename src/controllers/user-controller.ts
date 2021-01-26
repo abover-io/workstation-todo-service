@@ -4,16 +4,28 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { OAuth2Client, LoginTicket, TokenPayload } from 'google-auth-library';
 
+// Typings
 import {
-  IUser,
   ISocial,
   ISignUpValidations,
   CustomHttpError,
   ISignInValidations,
   IUpdateUserValidations,
-  ITodo,
 } from '@/typings';
+import { IUserDocument } from '@/typings/user-typings';
+import { ITodoDocument } from '@/typings/todo-typings';
+
+// Config
+import {
+  JWT_REFRESH_SECRET,
+  GOOGLE_OAUTH_CLIENT_ID,
+  GOOGLE_OAUTH_CLIENT_SECRET,
+} from '@/config';
+
+// Models
 import { User, Social, Todo } from '@/models';
+
+// Utils
 import {
   generateUserTokens,
   handleRefreshToken,
@@ -21,18 +33,13 @@ import {
   CustomValidator,
   createToken,
 } from '@/utils';
-import {
-  JWT_REFRESH_SECRET,
-  GOOGLE_OAUTH_CLIENT_ID,
-  GOOGLE_OAUTH_CLIENT_SECRET,
-} from '@/config';
 
 const googleClient: OAuth2Client = new OAuth2Client({
   clientId: GOOGLE_OAUTH_CLIENT_ID,
   clientSecret: GOOGLE_OAUTH_CLIENT_SECRET,
 });
 
-export default class UserControllerV1 {
+export default class UserController {
   public static async refreshToken(
     req: Request,
     res: Response,
@@ -127,7 +134,7 @@ export default class UserControllerV1 {
         throw httpErrorWithMultipleMessages;
       }
 
-      const existedUser: IUser | any = await User.findOne({
+      const existedUser: IUserDocument | any = await User.findOne({
         $or: [
           {
             username,
@@ -368,7 +375,7 @@ export default class UserControllerV1 {
       const googleId: string = (googleAccountPayload as TokenPayload)
         .sub as string;
 
-      const existingUser: IUser | any = await User.findOne({
+      const existingUser: IUserDocument | any = await User.findOne({
         email: (googleAccountPayload as TokenPayload).email,
       });
 
@@ -393,7 +400,7 @@ export default class UserControllerV1 {
           email,
         });
 
-        const newUser: IUser | any = await User.create({
+        const newUser: IUserDocument | any = await User.create({
           firstName,
           lastName,
           isUsernameSet: true,
@@ -409,7 +416,7 @@ export default class UserControllerV1 {
         await Social.create({
           name: 'google',
           socialId: googleId,
-          userId: (newUser as IUser)._id,
+          userId: (newUser as IUserDocument)._id,
         });
 
         res.cookie('act', newUserTokens.accessToken, {
@@ -456,7 +463,7 @@ export default class UserControllerV1 {
           await Social.create({
             name: 'google',
             socialId: googleId,
-            userId: (existingUser as IUser)._id,
+            userId: (existingUser as IUserDocument)._id,
           });
         }
 
@@ -563,7 +570,7 @@ export default class UserControllerV1 {
         throw httpErrorWithMultipleMessages;
       }
 
-      const existedUser: IUser | any = await User.findOne({ email });
+      const existedUser: IUserDocument | any = await User.findOne({ email });
 
       if (existedUser) {
         throw createError({
@@ -581,7 +588,7 @@ export default class UserControllerV1 {
           isUsernameSet,
           isPasswordSet,
           verified,
-        }: IUser | any = await User.findOneAndUpdate(
+        }: IUserDocument | any = await User.findOneAndUpdate(
           { username: usernameFromAuth },
           { firstName, lastName, email, apiKey: updatedApiKey },
           { new: true },
@@ -744,12 +751,12 @@ export default class UserControllerV1 {
         res.clearCookie('XSRF-TOKEN', { path: '/' });
         res.status(200).json({ message: 'Successfully signed out!' });
       } else {
-        const { username }: IUser | any = jwt.verify(
+        const { username }: IUserDocument | any = jwt.verify(
           receivedRefreshToken,
           JWT_REFRESH_SECRET,
         );
 
-        const foundUser: IUser | any = await User.findOne({
+        const foundUser: IUserDocument | any = await User.findOne({
           username,
         });
 
@@ -779,7 +786,7 @@ export default class UserControllerV1 {
     next: NextFunction,
   ): Promise<void | Response<any>> {
     try {
-      const { username }: IUser = (<any>req).user;
+      const { username }: IUserDocument = (<any>req).user;
       const {
         firstName,
         lastName,
@@ -788,10 +795,13 @@ export default class UserControllerV1 {
         isPasswordSet,
         verified,
         apiKey,
-      }: IUser | any = await User.findOne({
+      }: IUserDocument | any = await User.findOne({
         username,
       });
-      const todos: ITodo[] = await Todo.find({ username, completed: false });
+      const todos: ITodoDocument[] = await Todo.find({
+        username,
+        completed: false,
+      });
 
       return res.status(200).json({
         user: {

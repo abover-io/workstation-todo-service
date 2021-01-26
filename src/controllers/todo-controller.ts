@@ -1,13 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
-import { Types, QueryFindOptions, MongooseFilterQuery } from 'mongoose';
+import { Types, QueryOptions, MongooseFilterQuery } from 'mongoose';
 import createError from 'http-errors';
 
-import { ITodo, IRequestIO } from '@/typings';
+// Typings
+import { ITodoDocument } from '@/typings/todo-typings';
+
+// Models
 import { Todo } from '@/models';
 
 const { ObjectId } = Types;
 
-export default class TodoControllerV1 {
+export default class TodoController {
   public static async getTodos(
     req: Request,
     res: Response,
@@ -16,17 +19,19 @@ export default class TodoControllerV1 {
     try {
       const { username } = (<any>req).user;
 
-      const options: QueryFindOptions = {
+      const options: QueryOptions = {
         limit: 100,
         skip: 0,
       };
 
-      const conditions: MongooseFilterQuery<Pick<ITodo, keyof ITodo>> = {
+      const conditions: MongooseFilterQuery<
+        Pick<ITodoDocument, keyof ITodoDocument>
+      > = {
         username,
         completed: false,
       };
 
-      const todos: ITodo[] | any = await Todo.find(
+      const todos: ITodoDocument[] | any = await Todo.find(
         {
           username,
           completed: false,
@@ -52,7 +57,7 @@ export default class TodoControllerV1 {
     try {
       const { username } = (<any>req).user;
       const { todoId } = req.params;
-      const todo: ITodo | any = await Todo.findOne({
+      const todo: ITodoDocument | any = await Todo.findOne({
         $and: [
           {
             _id: ObjectId(todoId),
@@ -82,17 +87,19 @@ export default class TodoControllerV1 {
   public static async addTodo(req: Request, res: Response, next: NextFunction) {
     try {
       const { username } = (<any>req).user;
-      const { io } = req as IRequestIO;
-      const { name, due, isTimeSet = false, priority = 4 }: ITodo = req.body;
-      const todo: ITodo | any = await Todo.create({
+      const {
+        name,
+        due,
+        isTimeSet = false,
+        priority = 4,
+      }: ITodoDocument = req.body;
+      const todo: ITodoDocument | any = await Todo.create({
         username,
         name,
         due,
         isTimeSet,
         priority,
       });
-
-      io.emit(`${username}-add-todo`, { todo });
 
       return res
         .status(201)
@@ -109,21 +116,20 @@ export default class TodoControllerV1 {
   ) {
     const { username } = (<any>req).user;
     const { todoId } = req.params;
-    const { io } = req as IRequestIO;
     const {
       name,
       due,
       isTimeSet = false,
       priority = 4,
       position = null,
-    }: ITodo = req.body;
+    }: ITodoDocument = req.body;
     const defaultError = createError({
       name: 'NotFoundError',
       message: `Cannot update, no todo whose ID is ${todoId} found!`,
     });
 
     try {
-      const todo: ITodo | any = await Todo.findOneAndUpdate(
+      const todo: ITodoDocument | any = await Todo.findOneAndUpdate(
         {
           $and: [
             {
@@ -148,8 +154,6 @@ export default class TodoControllerV1 {
         throw defaultError;
       }
 
-      io.emit(`${username}-update-todo`, { todo });
-
       return res
         .status(200)
         .json({ todo, message: 'Successfully updated todo!' });
@@ -165,14 +169,13 @@ export default class TodoControllerV1 {
   ) {
     const { username } = (<any>req).user;
     const { todoId } = req.params;
-    const { io } = req as IRequestIO;
     const defaultError = createError({
       name: 'NotFoundError',
       message: `Cannot complete, no todo whose ID is ${todoId} found!`,
     });
 
     try {
-      const todo: ITodo | any = await Todo.findOneAndUpdate(
+      const todo: ITodoDocument | any = await Todo.findOneAndUpdate(
         {
           $and: [
             {
@@ -195,8 +198,6 @@ export default class TodoControllerV1 {
         throw defaultError;
       }
 
-      io.emit(`${username}-update-todo`, { todo });
-
       return res
         .status(200)
         .json({ todo, message: 'Successfully completed todo!' });
@@ -212,14 +213,13 @@ export default class TodoControllerV1 {
   ) {
     const { username } = (<any>req).user;
     const { todoId } = req.params;
-    const { io } = req as IRequestIO;
     const defaultError = createError({
       name: 'NotFoundError',
       message: `Cannot uncomplete, no todo whose ID is ${todoId} found!`,
     });
 
     try {
-      const todo: ITodo | any = await Todo.findOneAndUpdate(
+      const todo: ITodoDocument | any = await Todo.findOneAndUpdate(
         {
           $and: [
             {
@@ -241,8 +241,6 @@ export default class TodoControllerV1 {
         });
       }
 
-      io.emit(`${username}-update-todo`, { todo });
-
       return res
         .status(200)
         .json({ todo, message: 'Successfully uncompleted todo!' });
@@ -259,8 +257,7 @@ export default class TodoControllerV1 {
     try {
       const { username } = (<any>req).user;
       const { todoId } = req.params;
-      const { io } = req as IRequestIO;
-      const todo: ITodo | any = await Todo.findOneAndDelete({
+      const todo: ITodoDocument | any = await Todo.findOneAndDelete({
         $and: [
           {
             _id: ObjectId(todoId),
@@ -277,8 +274,6 @@ export default class TodoControllerV1 {
           message: `Cannot delete, no todo whose ID is ${todoId} found!`,
         });
       }
-
-      io.emit(`${username}-delete-todo`, { todo });
 
       return res
         .status(200)

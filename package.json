@@ -1,6 +1,6 @@
 {
   "name": "fancy-todo-api",
-  "version": "2.0.0",
+  "version": "1.0.0",
   "description": "Sunday's Fancy Todo API",
   "main": "server.js",
   "scripts": {
@@ -50,7 +50,6 @@
     "mongoose": "^5.11.13",
     "morgan": "^1.10.0",
     "rimraf": "^3.0.2",
-    "socket.io": "^3.1.0",
     "tslib": "^2.1.0",
     "validator": "^13.0.0"
   },

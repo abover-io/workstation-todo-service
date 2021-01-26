@@ -22,7 +22,8 @@ jobs:
     resource_class: small
     steps:
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+          version: 19.03.8
 
       - run:
           name: Build Docker Image

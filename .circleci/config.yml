@@ -4,7 +4,7 @@ workflows:
   build-and-push:
     jobs:
       - build:
-          context: sundayx-context
+          context: sundayx-default
           filters:
             branches:
               only: main

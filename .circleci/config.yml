@@ -13,17 +13,19 @@ jobs:
   build:
     docker:
       - image: docker:19.03.13
-        auth:
-          username: $DOCKER_HUB_USERNAME
-          password: $DOCKER_HUB_PASSWORD
     environment:
       IMAGE_NAME: sundayx/fancy-todo-api
       IMAGE_TAG: latest
     resource_class: small
     steps:
       - checkout
+
       - setup_remote_docker:
           version: 19.03.13
+
+      - run:
+          name: Sign In to Docker Hub
+          command: docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
 
       - run:
           name: Build Docker Image

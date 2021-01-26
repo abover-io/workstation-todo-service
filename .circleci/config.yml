@@ -1,0 +1,32 @@
+version: 2.1
+
+workflows:
+  build-and-push:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: main
+
+jobs:
+  build:
+    docker:
+      - image: docker:19.03.8
+        auth:
+          username: $DOCKER_HUB_USERNAME
+          password: $DOCKER_HUB_PASSWORD
+    environment:
+      IMAGE_NAME: sundayx/fancy-todo-api
+      IMAGE_TAG: latest
+    resource_class: small
+    steps:
+      - checkout
+      - setup_remote_docker
+
+      - run:
+          name: Build Docker Image
+          command: docker build -t $IMAGE_NAME:$IMAGE_TAG .
+
+      - run:
+          name: Push Docker Image to Docker Hub
+          command: docker push $IMAGE_NAME:$IMAGE_TAG

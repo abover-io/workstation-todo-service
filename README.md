@@ -1,7 +1,6 @@
 # Fancy Todo API
 
-[![Build Status](https://travis-ci.com/sundayexplore/fancy-todo-api.svg?branch=master)](https://travis-ci.com/sunday-project/fancy-todo-api)
-[![Coverage Status](https://coveralls.io/repos/github/sundayexplore/fancy-todo-api/badge.svg?branch=master)](https://coveralls.io/github/sundayexplore/fancy-todo-api?branch=master)
+[![Sunday Explore](https://circleci.com/gh/sundayexplore/fancy-todo-api.svg?style=svg)](https://github.com/sundayexplore/fancy-todo-api)
 [![GitHub Issues](https://img.shields.io/github/issues/sundayexplore/fancy-todo-api?style=flat)](https://github.com/sundayexplore/fancy-todo-api/issues)
 [![GitHub Forks](https://img.shields.io/github/forks/sundayexplore/fancy-todo-api?style=flat)](https://github.com/sundayexplore/fancy-todo-api/network)
 [![GitHub Stars](https://img.shields.io/github/stars/sundayexplore/fancy-todo-api?style=flat)](https://github.com/sundayexplore/fancy-todo-api/stargazers)

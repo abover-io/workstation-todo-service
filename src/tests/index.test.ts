@@ -28,9 +28,9 @@ describe('Fancy Todo API Tests', () => {
     await Todo.deleteMany({});
   });
 
-  importTest('User Tests', './user-tests');
+  importTest('User Tests', './user');
 
-  importTest('Todo Tests', './todo-tests');
+  importTest('Todo Tests', './todo');
 
   afterAll(async () => {
     await User.deleteMany({});

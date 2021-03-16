@@ -9,36 +9,35 @@ export default function (
   res: Response,
   next: NextFunction,
 ) {
+  const errObj = {
+    name: err.name,
+    status: err.status,
+    message: err.message,
+  };
+
   switch (err.name) {
     case 'AuthorizationError':
-      return res.status(401).json({ message: err.message });
+      return res.status(401).json(errObj);
 
     case 'BadRequestError':
-      return res.status(400).json({ message: err.message });
+      return res.status(400).json(errObj);
 
     case 'JsonWebTokenError':
-      return res.status(400).json({ message: 'Invalid token!' });
+      return res.status(400).json(errObj);
 
     case 'NotFoundError':
-      return res
-        .status(404)
-        .json({ ...err, name: 'NotFoundError', status: 404, statusCode: 404 });
+      return res.status(404).json(errObj);
 
     case 'AlreadyExistsError':
-      return res.status(400).json({ ...err });
+      return res.status(400).json(errObj);
 
     case 'ValidationError':
-      return res.status(400).json({ ...err });
+      return res.status(400).json(errObj);
 
     case 'RefreshTokenError':
-      return res.status(401).json({ ...err });
+      return res.status(401).json(errObj);
 
     default:
-      return res.status(500).json({
-        message: err.message,
-        name: err.name,
-        status: 500,
-        statusCode: 500,
-      });
+      return res.status(500).json(errObj);
   }
 }

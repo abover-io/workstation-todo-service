@@ -1,7 +1,7 @@
 import supertest from 'supertest';
 
 import server from '@/server';
-import { apiVersion } from '@/config';
+import { BASE_PATH } from '@/config';
 
 const request = supertest.agent(server);
 
@@ -19,7 +19,7 @@ test('Sign Up - Success', async () => {
     password: '`Jane123',
   };
   const response = await request
-    .post(`/${apiVersion}/users/signup`)
+    .post(`${BASE_PATH}/users/signup`)
     .send(signUpData);
   expect(response.body).toHaveProperty('message');
   expect(response.body.message).toBe('Successfully signed up!');
@@ -39,13 +39,13 @@ test('Sign Up - Validation Error', async () => {
     password: 'janedoe',
   };
   const response = await request
-    .post(`/${apiVersion}/users/signup`)
+    .post(`${BASE_PATH}/users/signup`)
     .send(signUpData);
-  expect(response.status).toBe(400);
   expect(response.body).toHaveProperty('message');
   expect(response.body.message).toBe(
     'Failed to sign up, please correct user information!',
   );
+  expect(response.status).toBe(400);
 });
 
 test('Sign Up - Unavailable Username', async () => {
@@ -57,11 +57,11 @@ test('Sign Up - Unavailable Username', async () => {
     password: '`Jane123',
   };
   const response = await request
-    .post(`/${apiVersion}/users/signup`)
+    .post(`${BASE_PATH}/users/signup`)
     .send(signUpData);
-  expect(response.status).toBe(400);
   expect(response.body).toHaveProperty('message');
   expect(response.body.message).toBe(`Username isn't available.`);
+  expect(response.status).toBe(400);
 });
 
 test('Sign Up - Unavailable Email', async () => {
@@ -73,11 +73,11 @@ test('Sign Up - Unavailable Email', async () => {
     password: '`Jane123',
   };
   const response = await request
-    .post(`/${apiVersion}/users/signup`)
+    .post(`${BASE_PATH}/users/signup`)
     .send(signUpData);
-  expect(response.status).toBe(400);
   expect(response.body).toHaveProperty('message');
   expect(response.body.message).toBe(`Email isn't available.`);
+  expect(response.status).toBe(400);
 });
 
 test('Sign In - Success', async () => {
@@ -86,7 +86,7 @@ test('Sign In - Success', async () => {
     password: '`Jane123',
   };
   const response = await request
-    .post(`/${apiVersion}/users/signin`)
+    .post(`${BASE_PATH}/users/signin`)
     .send(signInData);
 
   expect(response.body).toHaveProperty('user');
@@ -105,7 +105,7 @@ test('Sign In - User Not Found', async () => {
     password: '`Doejohn456',
   };
   const response = await request
-    .post(`/${apiVersion}/users/signin`)
+    .post(`${BASE_PATH}/users/signin`)
     .send(signInData);
   expect(response.body).toHaveProperty('message');
   expect(response.body.message).toBe('User not found, please sign up first!');
@@ -118,7 +118,7 @@ test('Sign In - Wrong Username or Password', async () => {
     password: '`Doejohn5468468',
   };
   const response = await request
-    .post(`/${apiVersion}/users/signin`)
+    .post(`${BASE_PATH}/users/signin`)
     .send(signInData);
   expect(response.body).toHaveProperty('message');
   expect(response.body.message).toBe('Wrong username or password!');
@@ -131,17 +131,17 @@ test('Sign In - Validation Error', async () => {
     password: 'jane',
   };
   const response = await request
-    .post(`/${apiVersion}/users/signin`)
+    .post(`${BASE_PATH}/users/signin`)
     .send(signInData);
-  expect(response.status).toBe(400);
   expect(response.body).toHaveProperty('message');
   expect(response.body.message).toBe(
     'Failed to sign in, please correct user information!',
   );
+  expect(response.status).toBe(400);
 });
 
 test('Refresh User Token - Success', async () => {
-  const response = await request.post(`/${apiVersion}/users/refresh`);
+  const response = await request.post(`${BASE_PATH}/users/refresh`);
   expect(response.body).toHaveProperty('tokens');
   expect(response.body).toHaveProperty('message');
   expect(response.body.tokens).toHaveProperty('accessToken');
@@ -154,10 +154,10 @@ test('Refresh User Token - Success', async () => {
 });
 
 test('Refresh User Token - Refresh Token Error', async () => {
-  await request.post(`/${apiVersion}/users/signout`);
-  const response = await request.post(`/${apiVersion}/users/refresh`);
-  expect(response.status).toBe(401);
+  await request.post(`${BASE_PATH}/users/signout`);
+  const response = await request.post(`${BASE_PATH}/users/refresh`);
   expect(response.body).toHaveProperty('message');
+  expect(response.status).toBe(401);
 });
 
 test('Sign In - After Refresh Token Error', async () => {
@@ -166,7 +166,7 @@ test('Sign In - After Refresh Token Error', async () => {
     password: '`Jane123',
   };
   const response = await request
-    .post(`/${apiVersion}/users/signin`)
+    .post(`${BASE_PATH}/users/signin`)
     .send(signInData);
 
   expect(response.body).toHaveProperty('user');
@@ -180,7 +180,7 @@ test('Sign In - After Refresh Token Error', async () => {
 });
 
 test('Sync - Success', async () => {
-  const response = await request.get(`/${apiVersion}/users/sync`);
+  const response = await request.get(`${BASE_PATH}/users/sync`);
   expect(response.body).toHaveProperty('message');
   expect(response.body.message).toBe('Successfully synced!');
   expect(response.body).toHaveProperty('user');
@@ -195,7 +195,7 @@ test('Update User - Success', async () => {
     email: 'jackiechen@jack.com',
   };
   const response = await request
-    .put(`/${apiVersion}/users/${username}`)
+    .put(`${BASE_PATH}/users/${username}`)
     .send(updateUserData);
 
   expect(response.body).toHaveProperty('user');
@@ -211,14 +211,14 @@ test('Update User - Authorization Error', async () => {
     email: 'jackiechen@jack.com',
   };
   const response = await request
-    .put(`/${apiVersion}/users/wrongusername`)
+    .put(`${BASE_PATH}/users/wrongusername`)
     .send(updateUserData);
 
-  expect(response.status).toBe(401);
   expect(response.body).toHaveProperty('message');
   expect(response.body.message).toBe(
     'Cannot update user, invalid credentials!',
   );
+  expect(response.status).toBe(401);
 });
 
 test('Update User - Validation Error', async () => {
@@ -228,14 +228,14 @@ test('Update User - Validation Error', async () => {
     email: 'jackiechen',
   };
   const response = await request
-    .put(`/${apiVersion}/users/${username}`)
+    .put(`${BASE_PATH}/users/${username}`)
     .send(updateUserData);
 
-  expect(response.status).toBe(400);
   expect(response.body).toHaveProperty('message');
   expect(response.body.message).toBe(
     'Cannot update, please correct user information!',
   );
+  expect(response.status).toBe(400);
 });
 
 test('Update User - Unavailable Email', async () => {
@@ -245,12 +245,12 @@ test('Update User - Unavailable Email', async () => {
     email: 'jackiechen@jack.com',
   };
   const response = await request
-    .put(`/${apiVersion}/users/${username}`)
+    .put(`${BASE_PATH}/users/${username}`)
     .send(updateUserData);
 
-  expect(response.status).toBe(400);
   expect(response.body).toHaveProperty('message');
   expect(response.body.message).toBe(`Email isn't available.`);
+  expect(response.status).toBe(400);
 });
 
 test('Update Password - Success', async () => {
@@ -258,7 +258,7 @@ test('Update Password - Success', async () => {
     password: '`Jackiechen2',
   };
   const response = await request
-    .patch(`/${apiVersion}/users/${username}`)
+    .patch(`${BASE_PATH}/users/${username}`)
     .send(updatePasswordData);
   expect(response.body).toHaveProperty('message');
   expect(response.body.message).toBe('Successfully updated password!');
@@ -270,13 +270,13 @@ test('Update Password - Authorization Error', async () => {
     password: '`Jackiechen2',
   };
   const response = await request
-    .patch(`/${apiVersion}/users/wrongusername`)
+    .patch(`${BASE_PATH}/users/wrongusername`)
     .send(updatePasswordData);
-  expect(response.status).toBe(401);
   expect(response.body).toHaveProperty('message');
   expect(response.body.message).toBe(
     'Cannot update user, invalid credentials!',
   );
+  expect(response.status).toBe(401);
 });
 
 test('Update Password - Validation Error', async () => {
@@ -284,14 +284,14 @@ test('Update Password - Validation Error', async () => {
     password: 'chen',
   };
   const response = await request
-    .patch(`/${apiVersion}/users/${username}`)
+    .patch(`${BASE_PATH}/users/${username}`)
     .send(updatePasswordData);
-  expect(response.status).toBe(400);
   expect(response.body).toHaveProperty('message');
+  expect(response.status).toBe(400);
 });
 
 test('Delete User - Authorization Error', async () => {
-  const response = await request.delete(`/${apiVersion}/users/wrongusername`);
+  const response = await request.delete(`${BASE_PATH}/users/wrongusername`);
   expect(response.body).toHaveProperty('message');
   expect(response.body.message).toBe(
     'Cannot delete user, invalid credentials!',
@@ -300,7 +300,7 @@ test('Delete User - Authorization Error', async () => {
 });
 
 test('Sign Out - Success', async () => {
-  const response = await request.post(`/${apiVersion}/users/signout`).send({
+  const response = await request.post(`${BASE_PATH}/users/signout`).send({
     username,
   });
   expect(response.body).toHaveProperty('message');
@@ -309,7 +309,7 @@ test('Sign Out - Success', async () => {
 });
 
 test('Sign Out - No Refresh Token Provided', async () => {
-  const response = await request.post(`/${apiVersion}/users/signout`).send({
+  const response = await request.post(`${BASE_PATH}/users/signout`).send({
     username,
   });
   expect(response.body).toHaveProperty('message');

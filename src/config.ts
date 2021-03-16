@@ -21,8 +21,10 @@ export const JWT_ACCESS_SECRET: string = getEnv('JWT_ACCESS_SECRET');
 export const JWT_REFRESH_SECRET: string = getEnv('JWT_REFRESH_SECRET');
 export const JWT_API_KEY_SECRET: string = getEnv('JWT_API_KEY_SECRET');
 
-// Google OAuth Configs
-export const GOOGLE_OAUTH_CLIENT_ID: string = getEnv('GOOGLE_OAUTH_CLIENT_ID');
-export const GOOGLE_OAUTH_CLIENT_SECRET: string = getEnv(
-  'GOOGLE_OAUTH_CLIENT_SECRET',
+// Google OAuth Web Configs
+export const GOOGLE_OAUTH_WEB_CLIENT_ID: string = getEnv(
+  'GOOGLE_OAUTH_WEB_CLIENT_ID',
+);
+export const GOOGLE_OAUTH_WEB_CLIENT_SECRET: string = getEnv(
+  'GOOGLE_OAUTH_WEB_CLIENT_SECRET',
 );

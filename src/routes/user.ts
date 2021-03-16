@@ -1,13 +1,13 @@
 import { Router } from 'express';
 import csurf from 'csurf';
 
-import { UserControllerV1 } from '@/controllers/v1-controllers';
+import { UserController } from '@/controllers';
 import { authenticate, Authorize } from '@/middlewares';
 import { decideCookieOptions } from '@/utils';
 
-const userRouter = Router();
+const UserRouter = Router();
 
-userRouter.post(
+UserRouter.post(
   '/refresh',
   csurf({
     cookie: {
@@ -16,10 +16,10 @@ userRouter.post(
     },
     ignoreMethods: ['POST'],
   }),
-  UserControllerV1.refreshToken,
+  UserController.refreshToken,
 );
 
-userRouter.post(
+UserRouter.post(
   '/signup',
   csurf({
     cookie: {
@@ -28,10 +28,10 @@ userRouter.post(
     },
     ignoreMethods: ['POST'],
   }),
-  UserControllerV1.signUp,
+  UserController.signUp,
 );
 
-userRouter.post(
+UserRouter.post(
   '/signin',
   csurf({
     cookie: {
@@ -40,10 +40,10 @@ userRouter.post(
     },
     ignoreMethods: ['POST'],
   }),
-  UserControllerV1.signIn,
+  UserController.signIn,
 );
 
-userRouter.post(
+UserRouter.post(
   '/auth/google',
   csurf({
     cookie: {
@@ -52,19 +52,19 @@ userRouter.post(
     },
     ignoreMethods: ['POST'],
   }),
-  UserControllerV1.googleSignIn,
+  UserController.googleSignIn,
 );
-// userRouter.post('/auth/github');
-// userRouter.post('/auth/linkedin');
-// userRouter.post('/auth/apple');
+// UserRouter.post('/auth/github');
+// UserRouter.post('/auth/linkedin');
+// UserRouter.post('/auth/apple');
 
-userRouter.post('/signout', UserControllerV1.signOut);
-// userRouter.post('/signout/google');
-// userRouter.post('/signout/github');
-// userRouter.post('/signout/linkedin');
-// userRouter.post('/signout/apple');
+UserRouter.post('/signout', UserController.signOut);
+// UserRouter.post('/signout/google');
+// UserRouter.post('/signout/github');
+// UserRouter.post('/signout/linkedin');
+// UserRouter.post('/signout/apple');
 
-userRouter.use(
+UserRouter.use(
   csurf({
     cookie: {
       secure: decideCookieOptions('secure'),
@@ -74,26 +74,26 @@ userRouter.use(
   }),
 );
 
-userRouter.use(authenticate);
+UserRouter.use(authenticate);
 
-userRouter.get('/sync', UserControllerV1.sync);
-userRouter.put(
+UserRouter.get('/sync', UserController.sync);
+UserRouter.put(
   '/:username',
   Authorize.authorizeUser,
-  UserControllerV1.updateUser,
+  UserController.updateUser,
 );
 
-// userRouter.patch('/verify')
+// UserRouter.patch('/verify')
 
-userRouter.patch(
+UserRouter.patch(
   '/:username',
   Authorize.authorizeUser,
-  UserControllerV1.updatePassword,
+  UserController.updatePassword,
 );
-userRouter.delete(
+UserRouter.delete(
   '/:username',
   Authorize.authorizeUser,
-  UserControllerV1.deleteUser,
+  UserController.deleteUser,
 );
 
-export default userRouter;
+export default UserRouter;

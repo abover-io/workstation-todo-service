@@ -1,7 +1,7 @@
 import supertest from 'supertest';
 
 import server from '@/server';
-import { apiVersion } from '@/config';
+import { BASE_PATH } from '@/config';
 
 const request = supertest.agent(server);
 
@@ -19,7 +19,7 @@ test('Sign In - Success', async () => {
     password: '`Jackiechen2',
   };
   const response = await request
-    .post(`/${apiVersion}/users/signin`)
+    .post(`${BASE_PATH}/users/signin`)
     .send(signInData);
   expect(response.body).toHaveProperty('user');
   expect(response.body).toHaveProperty('message');
@@ -37,7 +37,7 @@ test('Add Todo - Success', async () => {
     due: new Date(),
     priority: 0,
   };
-  const response = await request.post(`/${apiVersion}/todos`).send(addTodoData);
+  const response = await request.post(`${BASE_PATH}/todos`).send(addTodoData);
   expect(response.body).toHaveProperty('todo');
   expect(response.body).toHaveProperty('message');
   expect(response.body.todo.name).toBe(addTodoData.name);
@@ -46,17 +46,17 @@ test('Add Todo - Success', async () => {
 });
 
 test('Get All Todos - Success', async () => {
-  const response = await request.get(`/${apiVersion}/todos`).send({});
-  expect(response.status).toBe(200);
+  const response = await request.get(`${BASE_PATH}/todos`).send({});
   expect(response.body).toHaveProperty('todos');
   expect(Array.isArray(response.body.todos)).toBe(true);
+  expect(response.status).toBe(200);
 });
 
 test('Get a Specified Todo - Success', async () => {
-  const response = await request.get(`/${apiVersion}/todos/${todoId}`);
-  expect(response.status).toBe(200);
+  const response = await request.get(`${BASE_PATH}/todos/${todoId}`);
   expect(response.body).toHaveProperty('todo');
   expect(response.body.todo instanceof Object).toBe(true);
+  expect(response.status).toBe(200);
 });
 
 test('Update Todo - Success', async () => {
@@ -66,7 +66,7 @@ test('Update Todo - Success', async () => {
     priority: 0,
   };
   const response = await request
-    .put(`/${apiVersion}/todos/${todoId}`)
+    .put(`${BASE_PATH}/todos/${todoId}`)
     .send(updateTodoData);
   expect(response.body).toHaveProperty('todo');
   expect(response.body).toHaveProperty('message');
@@ -82,7 +82,7 @@ test('Update Todo - Not Found Error', async () => {
     priority: 0,
   };
   const response = await request
-    .put(`/${apiVersion}/todos/${wrongTodoID}`)
+    .put(`${BASE_PATH}/todos/${wrongTodoID}`)
     .send(updateTodoData);
   expect(response.body).toHaveProperty('message');
   expect(response.body.message).toBe(
@@ -92,9 +92,7 @@ test('Update Todo - Not Found Error', async () => {
 });
 
 test('Complete Todo - Success', async () => {
-  const response = await request.patch(
-    `/${apiVersion}/todos/complete/${todoId}`,
-  );
+  const response = await request.patch(`${BASE_PATH}/todos/complete/${todoId}`);
   expect(response.body).toHaveProperty('todo');
   expect(response.body).toHaveProperty('message');
   expect(response.body.message).toBe('Successfully completed todo!');
@@ -103,7 +101,7 @@ test('Complete Todo - Success', async () => {
 
 test('Complete Todo - Not Found Error', async () => {
   const response = await request.patch(
-    `/${apiVersion}/todos/complete/${wrongTodoID}`,
+    `${BASE_PATH}/todos/complete/${wrongTodoID}`,
   );
   expect(response.body).toHaveProperty('message');
   expect(response.body.message).toBe(
@@ -114,7 +112,7 @@ test('Complete Todo - Not Found Error', async () => {
 
 test('Uncomplete Todo - Success', async () => {
   const response = await request.patch(
-    `/${apiVersion}/todos/uncomplete/${todoId}`,
+    `${BASE_PATH}/todos/uncomplete/${todoId}`,
   );
   expect(response.body).toHaveProperty('todo');
   expect(response.body).toHaveProperty('message');
@@ -124,7 +122,7 @@ test('Uncomplete Todo - Success', async () => {
 
 test('Uncomplete Todo - Not Found Error', async () => {
   const response = await request.patch(
-    `/${apiVersion}/todos/uncomplete/${wrongTodoID}`,
+    `${BASE_PATH}/todos/uncomplete/${wrongTodoID}`,
   );
   expect(response.body).toHaveProperty('message');
   expect(response.body.message).toBe(
@@ -134,18 +132,18 @@ test('Uncomplete Todo - Not Found Error', async () => {
 });
 
 test('Delete Todo - Success', async () => {
-  const response = await request.delete(`/${apiVersion}/todos/${todoId}`);
-  expect(response.status).toBe(200);
+  const response = await request.delete(`${BASE_PATH}/todos/${todoId}`);
   expect(response.body).toHaveProperty('todo');
   expect(response.body).toHaveProperty('message');
   expect(response.body.todo instanceof Object).toBe(true);
   expect(typeof response.body.message).toBe('string');
   expect(response.body.message).toBe('Successfully deleted todo!');
+  expect(response.status).toBe(200);
 });
 
 test('Delete User - Success', async () => {
-  const response = await request.delete(`/${apiVersion}/users/${username}`);
-  expect(response.status).toBe(200);
+  const response = await request.delete(`${BASE_PATH}/users/${username}`);
   expect(response.body).toHaveProperty('message');
   expect(response.body.message).toBe('Successfully deleted account!');
+  expect(response.status).toBe(200);
 });

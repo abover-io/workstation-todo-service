@@ -3,7 +3,7 @@ import { Types, QueryOptions, MongooseFilterQuery } from 'mongoose';
 import createError from 'http-errors';
 
 // Typings
-import { ITodoDocument } from '@/typings/todo-typings';
+import { ITodoDocument } from '@/typings/todo';
 
 // Models
 import { Todo } from '@/models';

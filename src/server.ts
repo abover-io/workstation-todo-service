@@ -26,7 +26,7 @@ import { errorHandler } from '@/middlewares';
 import { getEnv } from './utils';
 
 // Routes
-import mainRouter from './routes';
+import MainRouter from './routes';
 
 const app = express();
 const server = createServer(app);
@@ -61,13 +61,13 @@ app.get('/', (_, res) => {
   });
 });
 
-app.use(BASE_PATH, mainRouter);
+app.use(BASE_PATH, MainRouter);
 
 app.use((_, __, next) => {
   return next(createError(404, 'Route not found!'));
 });
 
-mainRouter.use(errorHandler);
+app.use(errorHandler);
 
 if (require.main === module) {
   (async function () {

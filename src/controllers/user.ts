@@ -12,14 +12,14 @@ import {
   ISignInValidations,
   IUpdateUserValidations,
 } from '@/typings';
-import { IUserDocument } from '@/typings/user-typings';
-import { ITodoDocument } from '@/typings/todo-typings';
+import { IUserDocument } from '@/typings/user';
+import { ITodoDocument } from '@/typings/todo';
 
 // Config
 import {
   JWT_REFRESH_SECRET,
-  GOOGLE_OAUTH_CLIENT_ID,
-  GOOGLE_OAUTH_CLIENT_SECRET,
+  GOOGLE_OAUTH_WEB_CLIENT_ID,
+  GOOGLE_OAUTH_WEB_CLIENT_SECRET,
 } from '@/config';
 
 // Models
@@ -35,8 +35,8 @@ import {
 } from '@/utils';
 
 const googleClient: OAuth2Client = new OAuth2Client({
-  clientId: GOOGLE_OAUTH_CLIENT_ID,
-  clientSecret: GOOGLE_OAUTH_CLIENT_SECRET,
+  clientId: GOOGLE_OAUTH_WEB_CLIENT_ID,
+  clientSecret: GOOGLE_OAUTH_WEB_CLIENT_SECRET,
 });
 
 export default class UserController {
@@ -351,7 +351,7 @@ export default class UserController {
       const verifyIdTokenResponse: LoginTicket = await googleClient.verifyIdToken(
         {
           idToken: googleIdToken,
-          audience: GOOGLE_OAUTH_CLIENT_ID,
+          audience: GOOGLE_OAUTH_WEB_CLIENT_ID,
         },
       );
 
@@ -616,8 +616,6 @@ export default class UserController {
           signed: true,
           sameSite: decideCookieOptions('sameSite'),
         });
-
-        console.log(existedUser);
 
         return res.status(200).json({
           user: {

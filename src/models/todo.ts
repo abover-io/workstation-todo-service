@@ -1,8 +1,8 @@
 import { Schema, model, Model } from 'mongoose';
 
-import { ITodo } from '@/typings';
+import { ITodoDocument } from '@/typings/todo';
 
-const TodoSchema: Schema = new Schema(
+const TodoSchema: Schema<ITodoDocument> = new Schema(
   {
     username: {
       type: Schema.Types.String,
@@ -36,6 +36,6 @@ const TodoSchema: Schema = new Schema(
   { timestamps: true },
 );
 
-const Todo: Model<ITodo> = model<ITodo>('Todo', TodoSchema);
+const Todo: Model<ITodoDocument> = model<ITodoDocument>('Todo', TodoSchema, 'todos');
 
 export default Todo;

@@ -5,15 +5,12 @@ import moment from 'moment';
 import UserRouter from './user';
 import TodoRouter from './todo';
 
-// Config
-import { BASE_PATH } from '@/config';
-
 const MainRouter = Router();
 
 MainRouter.get('/', (_, res) => {
   return res.status(200).json({
     status: 200,
-    message: `Successfully connected! Make sure to use ${BASE_PATH} as Base Path!`,
+    message: 'OK',
     date: moment().format('YYYY-MM-DD'),
     time: moment().format('HH:mm:ss'),
   });

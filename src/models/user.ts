@@ -2,9 +2,9 @@ import { Schema, model, Model, HookNextFunction } from 'mongoose';
 import validator from 'validator';
 import { hashSync } from 'bcryptjs';
 
-import { IUser } from '@/typings';
+import { IUserDocument } from '@/typings/user';
 
-const UserSchema: Schema<IUser> = new Schema(
+const UserSchema: Schema<IUserDocument> = new Schema(
   {
     firstName: {
       type: Schema.Types.String,
@@ -55,7 +55,7 @@ const UserSchema: Schema<IUser> = new Schema(
   { timestamps: true },
 );
 
-UserSchema.pre('save', function (this: IUser, next: HookNextFunction) {
+UserSchema.pre('save', function (this: IUserDocument, next: HookNextFunction) {
   if (this.password) {
     this.password = hashSync(this.password, 10);
   }
@@ -63,6 +63,6 @@ UserSchema.pre('save', function (this: IUser, next: HookNextFunction) {
   next();
 });
 
-const User: Model<IUser> = model<IUser>('User', UserSchema);
+const User: Model<IUserDocument> = model<IUserDocument>('User', UserSchema, 'users');
 
 export default User;

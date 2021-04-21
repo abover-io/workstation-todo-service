@@ -1,9 +1,9 @@
 import { Document, Types } from 'mongoose';
+import { Moment } from 'moment';
 
 export interface IUser {
   _id?: Types.ObjectId;
-  firstName: string;
-  lastName: string;
+  name: string;
   isUsernameSet: boolean;
   username: string;
   email: string;
@@ -11,7 +11,6 @@ export interface IUser {
   password?: string;
   verified: boolean;
   profileImageURL?: string;
-  refreshTokens: String[];
   apiKey: string;
   createdAt?: Date;
   updatedAt?: Date;
@@ -19,8 +18,7 @@ export interface IUser {
 
 export interface IUserDocument extends Document {
   _id: Types.ObjectId;
-  firstName: string;
-  lastName: string;
+  name: string;
   isUsernameSet: boolean;
   username: string;
   email: string;
@@ -28,7 +26,6 @@ export interface IUserDocument extends Document {
   password?: string;
   verified: boolean;
   profileImageURL?: string;
-  refreshTokens: String[];
   apiKey: string;
   createdAt?: Date;
   updatedAt?: Date;

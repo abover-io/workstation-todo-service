@@ -11,9 +11,9 @@ import {
   CustomHttpError,
   ISignInValidations,
   IUpdateUserValidations,
-} from '@/typings';
-import { IUserDocument } from '@/typings/user';
-import { ITodoDocument } from '@/typings/todo';
+} from '@/types';
+import { IUserDocument } from '@/types/user';
+import { ITodoDocument } from '@/types/todo';
 
 // Config
 import {

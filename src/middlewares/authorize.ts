@@ -3,7 +3,7 @@ import { Types } from 'mongoose';
 import { Request, Response, NextFunction } from 'express';
 import { verify as verifyJWT } from 'jsonwebtoken';
 
-import { IUser, ITodo } from '@/typings';
+import { IUser, ITodo } from '@/types';
 import { User, Todo } from '@/models';
 import { JWT_ACCESS_SECRET } from '@/config';
 
@@ -19,7 +19,7 @@ export default class Authorize {
         req.headers['X-ACT'] ||
         req.headers['x-act'] ||
         req.body.act;
-      
+
       const user: IUser = (<any>req)['user'];
       const { username }: any = verifyJWT(accessToken, JWT_ACCESS_SECRET);
       const foundUser: IUser | any = await User.findOne({ username });

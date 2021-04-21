@@ -1,11 +1,11 @@
 import { verify as verifyJWT, sign as signJWT } from 'jsonwebtoken';
 
-import { IHandleRefreshTokenOutput } from '@/typings';
+import { IHandleRefreshTokenOutput } from '@/types';
 import { User } from '@/models';
 import { JWT_ACCESS_SECRET, JWT_REFRESH_SECRET } from '@/config';
 
 export default async function (
-  refreshToken: string | any
+  refreshToken: string | any,
 ): Promise<IHandleRefreshTokenOutput> {
   const defaultError = new Error();
   defaultError.name = 'RefreshTokenError';
@@ -14,7 +14,7 @@ export default async function (
   try {
     const decodedRefreshToken: any = verifyJWT(
       refreshToken,
-      JWT_REFRESH_SECRET
+      JWT_REFRESH_SECRET,
     );
     const foundUser = await User.findOne({
       username: decodedRefreshToken.username,
@@ -30,22 +30,22 @@ export default async function (
         const newAccessToken = await signJWT(
           { firstName, lastName, email, username },
           JWT_ACCESS_SECRET,
-          { expiresIn: '7d' }
+          { expiresIn: '7d' },
         );
         const newRefreshToken = await signJWT(
           { username },
           JWT_REFRESH_SECRET,
-          { expiresIn: '365d' }
+          { expiresIn: '365d' },
         );
         const newUserRefreshTokens = userRefreshTokens.filter(
           (refreshTokenEl) => {
             return refreshTokenEl != refreshToken;
-          }
+          },
         );
         newUserRefreshTokens.push(newRefreshToken);
         await User.updateOne(
           { username },
-          { refreshTokens: newUserRefreshTokens }
+          { refreshTokens: newUserRefreshTokens },
         );
         return Promise.resolve({
           accessToken: newAccessToken,

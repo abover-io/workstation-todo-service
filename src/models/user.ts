@@ -1,33 +1,26 @@
 import { Schema, model, Model, HookNextFunction } from 'mongoose';
-import validator from 'validator';
 import { hashSync } from 'bcryptjs';
 
-import { IUser } from '@/typings';
+import { IUserDocument } from '@/types/user';
 
-const UserSchema: Schema<IUser> = new Schema(
+const UserSchema: Schema<IUserDocument> = new Schema<IUserDocument>(
   {
-    firstName: {
+    name: {
       type: Schema.Types.String,
-      required: [true, 'First name cannot be empty!'],
-    },
-    lastName: {
-      type: Schema.Types.String,
+      required: true,
     },
     isUsernameSet: {
       type: Schema.Types.Boolean,
-      default: false
+      default: false,
     },
     username: {
       type: Schema.Types.String,
-      // required: [true, 'Username cannot be empty!'],
-      unique: [true, 'Username is not available.'],
-      minlength: [6, 'Username must be at least 6 characters!']
+      unique: true,
     },
     email: {
       type: Schema.Types.String,
-      required: [true, 'Email cannot be empty!'],
-      unique: [true, 'Email is not available.'],
-      validate: [validator.isEmail, 'Invalid email address!'],
+      required: true,
+      unique: true,
     },
     isPasswordSet: {
       type: Schema.Types.Boolean,
@@ -35,13 +28,11 @@ const UserSchema: Schema<IUser> = new Schema(
     },
     password: {
       type: Schema.Types.String,
-      // required: [true, 'Password cannot be empty!'],
-      minlength: [6, 'Password must be at least 6 characters!'],
     },
     refreshTokens: [Schema.Types.String],
     apiKey: {
       type: Schema.Types.String,
-      required: [true, 'API Key cannot be empty!'],
+      required: true,
     },
     verified: {
       type: Schema.Types.Boolean,
@@ -55,7 +46,7 @@ const UserSchema: Schema<IUser> = new Schema(
   { timestamps: true },
 );
 
-UserSchema.pre('save', function (this: IUser, next: HookNextFunction) {
+UserSchema.pre('save', function (this: IUserDocument, next: HookNextFunction) {
   if (this.password) {
     this.password = hashSync(this.password, 10);
   }
@@ -63,6 +54,10 @@ UserSchema.pre('save', function (this: IUser, next: HookNextFunction) {
   next();
 });
 
-const User: Model<IUser> = model<IUser>('User', UserSchema);
+const User: Model<IUserDocument> = model<IUserDocument>(
+  'User',
+  UserSchema,
+  'users',
+);
 
 export default User;

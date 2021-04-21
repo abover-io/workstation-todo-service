@@ -1,7 +1,7 @@
 import { Schema, model, Model } from 'mongoose';
 
 // Typings
-import { ISocial } from '@/typings';
+import { ISocial } from '@/types';
 
 const SocialSchema: Schema<ISocial> = new Schema(
   {

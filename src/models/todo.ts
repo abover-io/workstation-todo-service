@@ -1,19 +1,23 @@
 import { Schema, model, Model } from 'mongoose';
 
-import { ITodo } from '@/typings';
+import { ITodoDocument } from '@/types/todo';
 
-const TodoSchema: Schema = new Schema(
+const TodoSchema: Schema<ITodoDocument> = new Schema<ITodoDocument>(
   {
     username: {
       type: Schema.Types.String,
-      required: [true, 'Todo has to have username!'],
+      required: true,
     },
     name: {
       type: Schema.Types.String,
-      required: [true, 'Todo name cannot be empty!'],
+      required: true,
     },
-    due: {
-      type: Schema.Types.Date,
+    notes: {
+      type: Schema.Types.String,
+      default: null,
+    },
+    url: {
+      type: Schema.Types.String,
       default: null,
     },
     isTimeSet: {
@@ -25,17 +29,21 @@ const TodoSchema: Schema = new Schema(
       default: false,
     },
     priority: {
-      type: Schema.Types.Number,
-      default: 4,
+      type: Schema.Types.String,
+      default: 'none',
     },
-    position: {
-      type: Schema.Types.Number,
-      default: null,
+    listId: {
+      type: Schema.Types.ObjectId,
+      required: true,
     },
   },
   { timestamps: true },
 );
 
-const Todo: Model<ITodo> = model<ITodo>('Todo', TodoSchema);
+const Todo: Model<ITodoDocument> = model<ITodoDocument>(
+  'Todo',
+  TodoSchema,
+  'todos',
+);
 
 export default Todo;

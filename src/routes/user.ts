@@ -54,15 +54,8 @@ UserRouter.post(
   }),
   UserController.googleSignIn,
 );
-// UserRouter.post('/auth/github');
-// UserRouter.post('/auth/linkedin');
-// UserRouter.post('/auth/apple');
 
 UserRouter.post('/signout', UserController.signOut);
-// UserRouter.post('/signout/google');
-// UserRouter.post('/signout/github');
-// UserRouter.post('/signout/linkedin');
-// UserRouter.post('/signout/apple');
 
 UserRouter.use(
   csurf({

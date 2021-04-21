@@ -54,10 +54,14 @@ UserSchema.pre('save', function (this: IUserDocument, next: HookNextFunction) {
   next();
 });
 
+<<<<<<< HEAD
 const User: Model<IUserDocument> = model<IUserDocument>(
   'User',
   UserSchema,
   'users',
 );
+=======
+const User: Model<IUserDocument> = model<IUserDocument>('User', UserSchema, 'users');
+>>>>>>> 2c2cb20c1f0e8eefaddb3f015fffc2ab5f57d2a2
 
 export default User;

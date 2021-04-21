@@ -3,7 +3,7 @@ import { Schema, model, Model } from 'mongoose';
 // Typings
 import { ISocial } from '@/types';
 
-const SocialSchema: Schema<ISocial> = new Schema(
+const SocialSchema: Schema<ISocialDocument> = new Schema(
   {
     name: {
       type: Schema.Types.String,
@@ -23,6 +23,6 @@ const SocialSchema: Schema<ISocial> = new Schema(
   },
 );
 
-const Social: Model<ISocial> = model<ISocial>('Social', SocialSchema);
+const Social: Model<ISocialDocument> = model<ISocialDocument>('Social', SocialSchema, 'socials');
 
 export default Social;

@@ -41,13 +41,15 @@ export default class CustomValidator {
       return 'Password is required!';
     } else if (input.length < 6) {
       return 'Password must be at least 6 characters!';
-    } else if (
-      input.length >= 6 &&
-      !/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*)(+=._-`])([a-zA-Z0-9!@#$%^&*)(+=._-`]+)$/g.test(
-        input,
-      )
-    ) {
-      return 'Password must contain at least a Number, a Special Character, and an Upper-Case Letter!';
     }
+
+    // if (
+    //   input.length >= 6 &&
+    //   !/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*)(+=._-`])([a-zA-Z0-9!@#$%^&*)(+=._-`]+)$/g.test(
+    //     input,
+    //   )
+    // ) {
+    //   return 'Password must contain at least a Number, a Special Character, and an Upper-Case Letter!';
+    // }
   }
 }

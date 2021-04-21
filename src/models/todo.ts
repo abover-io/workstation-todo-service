@@ -40,10 +40,14 @@ const TodoSchema: Schema<ITodoDocument> = new Schema<ITodoDocument>(
   { timestamps: true },
 );
 
+<<<<<<< HEAD
 const Todo: Model<ITodoDocument> = model<ITodoDocument>(
   'Todo',
   TodoSchema,
   'todos',
 );
+=======
+const Todo: Model<ITodoDocument> = model<ITodoDocument>('Todo', TodoSchema, 'todos');
+>>>>>>> 2c2cb20c1f0e8eefaddb3f015fffc2ab5f57d2a2
 
 export default Todo;

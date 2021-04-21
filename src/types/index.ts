@@ -1,12 +1,4 @@
-import { Document, Types } from 'mongoose';
 import { HttpError } from 'http-errors';
-
-export interface ISocial extends Document {
-  _id: Types.ObjectId;
-  name: string;
-  socialId: string | number | Types.ObjectId;
-  userId: Types.ObjectId;
-}
 
 export interface ISignUpValidations {
   [key: string]: string | any;

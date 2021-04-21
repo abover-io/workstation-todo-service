@@ -5,7 +5,7 @@ export const NODE_ENV: string = getEnv('NODE_ENV');
 
 // API Configs
 export const API_PORT: number = getEnv('API_PORT');
-export const BASE_PATH: string = '/api/v1';
+export const BASE_PATH: string = '/api/todo/v1';
 
 // DB Configs
 export const MONGODB_URI: string = getEnv('MONGODB_URI');

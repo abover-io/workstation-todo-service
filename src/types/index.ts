@@ -1,4 +1,12 @@
+import { Request } from 'express';
 import { HttpError } from 'http-errors';
+
+// Types
+import { IUser } from '@/types/user';
+
+export interface ICustomRequest extends Request {
+  user?: IUser;
+}
 
 export interface ISignUpValidations {
   [key: string]: string | any;

@@ -1,9 +1,9 @@
 import { Schema, model, Model } from 'mongoose';
 
 // Typings
-import { ISocial } from '@/types';
+import { ISocialDocument } from '@/types/social';
 
-const SocialSchema: Schema<ISocialDocument> = new Schema(
+const SocialSchema: Schema<ISocialDocument> = new Schema<ISocialDocument>(
   {
     name: {
       type: Schema.Types.String,

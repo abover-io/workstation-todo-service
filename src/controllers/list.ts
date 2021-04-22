@@ -7,7 +7,7 @@ import { ICustomRequest } from '@/types';
 import { IListDocument, IList } from '@/types/list';
 
 // Models
-import { List } from '@/models';
+import { List, Todo, Subtodo } from '@/models';
 
 const { ObjectId } = Types;
 
@@ -23,6 +23,9 @@ export default class ListController {
       const options: QueryOptions = {
         limit: 100,
         skip: 0,
+        sort: {
+          _id: 1,
+        },
       };
 
       const conditions: MongooseFilterQuery<
@@ -31,7 +34,58 @@ export default class ListController {
         username,
       };
 
-      const getAllListsPipeline: any[] = [];
+      const getAllListsPipeline: any[] = [
+        {
+          $match: {
+            username,
+          },
+        },
+        {
+          $skip: options.skip,
+        },
+        {
+          $limit: options.limit,
+        },
+        {
+          $lookup: {
+            from: Todo.collection.name,
+            let: {
+              listId: '$_id',
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ['$listId', '$$listId'],
+                  },
+                },
+              },
+              {
+                $lookup: {
+                  from: Subtodo.collection.name,
+                  let: {
+                    todoId: '$_id',
+                  },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {
+                          $eq: ['$todoId', '$$todoId'],
+                        },
+                      },
+                    },
+                  ],
+                  as: 'subtodos',
+                },
+              },
+            ],
+            as: 'todos',
+          },
+        },
+        {
+          $sort: options.sort,
+        },
+      ];
 
       const [lists, total] = await Promise.all([
         List.aggregate(getAllListsPipeline),

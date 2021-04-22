@@ -6,9 +6,9 @@ import authenticate from '@/middlewares/authenticate';
 import { ListController } from '@/controllers';
 import { decideCookieOptions } from '@/utils';
 
-const TodoRouter = Router();
+const ListRouter = Router();
 
-TodoRouter.use(
+ListRouter.use(
   csurf({
     cookie: {
       secure: decideCookieOptions('secure'),
@@ -17,14 +17,14 @@ TodoRouter.use(
     value: (req) => req.cookies['XSRF-TOKEN'],
   }),
 );
-TodoRouter.use(authenticate);
-TodoRouter.get('/', ListController.getAllLists);
-TodoRouter.post('/', ListController.createList);
-TodoRouter.put('/:todoId', Authorize.authorizeTodo, ListController.updateList);
-TodoRouter.delete(
-  '/:todoId',
+ListRouter.use(authenticate);
+ListRouter.get('/', ListController.getAllLists);
+ListRouter.post('/', ListController.createList);
+ListRouter.put('/:listId', Authorize.authorizeTodo, ListController.updateList);
+ListRouter.delete(
+  '/:listId',
   Authorize.authorizeTodo,
   ListController.deleteList,
 );
 
-export default TodoRouter;
+export default ListRouter;

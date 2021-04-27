@@ -10,7 +10,7 @@ import { Subtodo } from '@/models';
 
 const { ObjectId } = Types;
 
-export default class TodoController {
+export default class SubtodoController {
   public static async getAllSubtodos(
     req: Request,
     res: Response,
@@ -81,8 +81,6 @@ export default class TodoController {
     next: NextFunction,
   ) {
     try {
-      const;
-
       const subtodoId: string | any =
         req.params.subtodoId || req.query.subtodoId;
 
@@ -134,7 +132,7 @@ export default class TodoController {
     });
 
     try {
-      const todo: ITodoDocument | any = await Todo.findOneAndUpdate(
+      const todo: ISubtodoDocument | null = await Subtodo.findOneAndUpdate(
         {
           $and: [
             {
@@ -174,11 +172,11 @@ export default class TodoController {
     const { todoId } = req.params;
     const defaultError = createError({
       name: 'NotFoundError',
-      message: `Cannot uncomplete, no todo whose ID is ${todoId} found!`,
+      message: `Cannot uncomplete, no subtodo with ID ${todoId}`,
     });
 
     try {
-      const todo: ITodoDocument | any = await Todo.findOneAndUpdate(
+      const todo: ISubtodoDocument | null = await Subtodo.findOneAndUpdate(
         {
           $and: [
             {
@@ -202,13 +200,13 @@ export default class TodoController {
 
       return res
         .status(200)
-        .json({ todo, message: 'Successfully uncompleted todo!' });
+        .json({ todo, message: 'Successfully uncompleted subtodo!' });
     } catch (err) {
       return next(defaultError);
     }
   }
 
-  public static async deleteTodo(
+  public static async deleteSubtodo(
     req: Request,
     res: Response,
     next: NextFunction,
@@ -216,7 +214,7 @@ export default class TodoController {
     try {
       const { username } = (<any>req).user;
       const { todoId } = req.params;
-      const todo: ITodoDocument | any = await Todo.findOneAndDelete({
+      const todo: ISubtodoDocument | any = await Subtodo.findOneAndDelete({
         $and: [
           {
             _id: ObjectId(todoId),

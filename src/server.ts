@@ -53,12 +53,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.get('/', (_, res) => {
-  return res.status(200).json({
-    status: 200,
-    message: `Successfully connected! Make sure to use ${BASE_PATH} as Base Path!`,
-    date: moment().format('YYYY-MM-DD'),
-    time: moment().format('HH:mm:ss'),
-  });
+  return res.status(301).redirect(BASE_PATH);
 });
 
 app.use(BASE_PATH, MainRouter);

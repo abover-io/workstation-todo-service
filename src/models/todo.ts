@@ -4,8 +4,8 @@ import { ITodoDocument } from '@/types/todo';
 
 const TodoSchema: Schema<ITodoDocument> = new Schema<ITodoDocument>(
   {
-    username: {
-      type: Schema.Types.String,
+    listId: {
+      type: Schema.Types.ObjectId,
       required: true,
     },
     name: {
@@ -20,9 +20,17 @@ const TodoSchema: Schema<ITodoDocument> = new Schema<ITodoDocument>(
       type: Schema.Types.String,
       default: null,
     },
+    isDateSet: {
+      type: Schema.Types.Boolean,
+      default: false,
+    },
     isTimeSet: {
       type: Schema.Types.Boolean,
       default: false,
+    },
+    due: {
+      type: Schema.Types.Date,
+      default: null,
     },
     completed: {
       type: Schema.Types.Boolean,
@@ -31,10 +39,6 @@ const TodoSchema: Schema<ITodoDocument> = new Schema<ITodoDocument>(
     priority: {
       type: Schema.Types.String,
       default: 'none',
-    },
-    listId: {
-      type: Schema.Types.ObjectId,
-      required: true,
     },
   },
   { timestamps: true },

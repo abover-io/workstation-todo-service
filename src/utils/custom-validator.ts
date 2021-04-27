@@ -1,7 +1,7 @@
 export default class CustomValidator {
-  static firstName(input: string) {
+  static Name(input: string) {
     if (!input) {
-      return 'First Name cannot be empty!';
+      return 'Name cannot be empty!';
     }
   }
 

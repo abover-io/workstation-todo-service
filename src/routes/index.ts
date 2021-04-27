@@ -3,20 +3,19 @@ import moment from 'moment';
 
 // Routers
 import UserRouter from './user';
-import TodoRouter from './todo';
+import ListRouter from './list';
 
 const MainRouter = Router();
 
 MainRouter.get('/', (_, res) => {
   return res.status(200).json({
-    status: 200,
-    message: 'OK',
+    service: 'Fancy Todo',
     date: moment().format('YYYY-MM-DD'),
     time: moment().format('HH:mm:ss'),
   });
 });
 
 MainRouter.use('/users', UserRouter);
-MainRouter.use('/todos', TodoRouter);
+MainRouter.use('/lists', ListRouter);
 
 export default MainRouter;

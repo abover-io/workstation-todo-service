@@ -10,8 +10,7 @@ export interface ICustomRequest extends Request {
 
 export interface ISignUpValidations {
   [key: string]: string | any;
-  firstName: string | any;
-  username: string | any;
+  name: string | any;
   email: string | any;
   password: string | any;
 }
@@ -43,6 +42,6 @@ export interface IHandleRefreshTokenOutput {
 
 export interface IUpdateUserValidations {
   [key: string]: string | any;
-  firstName: string | any;
+  name: string | any;
   email: string | any;
 }

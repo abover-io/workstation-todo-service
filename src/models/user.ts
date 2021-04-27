@@ -9,30 +9,14 @@ const UserSchema: Schema<IUserDocument> = new Schema<IUserDocument>(
       type: Schema.Types.String,
       required: true,
     },
-    isUsernameSet: {
-      type: Schema.Types.Boolean,
-      default: false,
-    },
-    username: {
-      type: Schema.Types.String,
-      unique: true,
-    },
     email: {
       type: Schema.Types.String,
       required: true,
       unique: true,
     },
-    isPasswordSet: {
-      type: Schema.Types.Boolean,
-      default: false,
-    },
     password: {
       type: Schema.Types.String,
-    },
-    refreshTokens: [Schema.Types.String],
-    apiKey: {
-      type: Schema.Types.String,
-      required: true,
+      default: null,
     },
     verified: {
       type: Schema.Types.Boolean,

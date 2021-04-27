@@ -4,29 +4,21 @@ import { Moment } from 'moment';
 export interface IUser {
   _id?: Types.ObjectId;
   name: string;
-  isUsernameSet: boolean;
-  username: string;
   email: string;
-  isPasswordSet: boolean;
-  password?: string;
+  password: string | null;
   verified: boolean;
-  profileImageURL?: string;
-  apiKey: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+  profileImageURL: string | null;
+  createdAt?: Date | Moment | string;
+  updatedAt?: Date | Moment | string;
 }
 
 export interface IUserDocument extends Document {
   _id: Types.ObjectId;
   name: string;
-  isUsernameSet: boolean;
-  username: string;
   email: string;
-  isPasswordSet: boolean;
-  password?: string;
+  password: string | null;
   verified: boolean;
-  profileImageURL?: string;
-  apiKey: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+  profileImageURL: string | null;
+  createdAt?: Date | Moment | string;
+  updatedAt?: Date | Moment | string;
 }

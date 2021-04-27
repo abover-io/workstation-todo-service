@@ -2,6 +2,7 @@ import { Router } from 'express';
 import moment from 'moment';
 
 // Routers
+import AuthRouter from './auth';
 import UserRouter from './user';
 import ListRouter from './list';
 
@@ -15,6 +16,7 @@ MainRouter.get('/', (_, res) => {
   });
 });
 
+MainRouter.use('/auth', AuthRouter);
 MainRouter.use('/users', UserRouter);
 MainRouter.use('/lists', ListRouter);
 

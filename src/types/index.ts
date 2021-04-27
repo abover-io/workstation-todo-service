@@ -5,7 +5,7 @@ import { HttpError } from 'http-errors';
 import { IUser } from '@/types/user';
 
 export interface ICustomRequest extends Request {
-  user?: IUser;
+  user: IUser;
 }
 
 export interface ISignUpValidations {

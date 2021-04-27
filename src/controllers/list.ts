@@ -18,7 +18,7 @@ export default class ListController {
     next: NextFunction,
   ) {
     try {
-      const { username } = (<ICustomRequest>req).user!;
+      const { email } = (<ICustomRequest>req).user;
 
       const options: QueryOptions = {
         limit: 100,
@@ -31,13 +31,13 @@ export default class ListController {
       const conditions: MongooseFilterQuery<
         Pick<IListDocument, keyof IListDocument>
       > = {
-        username,
+        email,
       };
 
       const getAllListsPipeline: any[] = [
         {
           $match: {
-            username,
+            email,
           },
         },
         {
@@ -61,22 +61,7 @@ export default class ListController {
                 },
               },
               {
-                $lookup: {
-                  from: Subtodo.collection.name,
-                  let: {
-                    todoId: '$_id',
-                  },
-                  pipeline: [
-                    {
-                      $match: {
-                        $expr: {
-                          $eq: ['$todoId', '$$todoId'],
-                        },
-                      },
-                    },
-                  ],
-                  as: 'subtodos',
-                },
+                $count: 'total',
               },
             ],
             as: 'todos',
@@ -87,13 +72,9 @@ export default class ListController {
         },
       ];
 
-      const [lists, total] = await Promise.all([
-        List.aggregate(getAllListsPipeline),
-        List.countDocuments(conditions),
-      ]);
+      const lists = await List.aggregate(getAllListsPipeline);
 
       return res.status(200).json({
-        total,
         lists,
       });
     } catch (err) {
@@ -107,11 +88,11 @@ export default class ListController {
     next: NextFunction,
   ) {
     try {
-      const { username } = (<ICustomRequest>req).user!;
+      const { email } = (<ICustomRequest>req).user!;
       const { name, color }: IList = <IList>req.body;
 
       const createdList: IListDocument = await List.create({
-        username,
+        email,
         name,
         color,
       });
@@ -128,7 +109,7 @@ export default class ListController {
     next: NextFunction,
   ) {
     try {
-      const { username } = (<ICustomRequest>req).user!;
+      const { email } = (<ICustomRequest>req).user!;
       const listId: string | any = req.params.listId || req.query.listId;
       const { name, color }: IList = <IList>req.body;
 
@@ -143,7 +124,7 @@ export default class ListController {
               _id: ObjectId(listId),
             },
             {
-              username,
+              email,
             },
           ],
         },
@@ -170,7 +151,7 @@ export default class ListController {
     next: NextFunction,
   ) {
     try {
-      const { username } = (<ICustomRequest>req).user!;
+      const { email } = (<ICustomRequest>req).user!;
       const listId: string | any = req.params.listId || req.query.listId;
 
       const deletedList: IListDocument | null = await List.findOneAndDelete({
@@ -179,7 +160,7 @@ export default class ListController {
             _id: ObjectId(listId),
           },
           {
-            username,
+            email,
           },
         ],
       });

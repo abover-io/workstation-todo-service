@@ -12,16 +12,6 @@ import { decideCookieOptions } from '@/utils';
 
 const AuthRouter = Router();
 
-AuthRouter.use(
-  csurf({
-    cookie: {
-      secure: decideCookieOptions('secure'),
-      sameSite: decideCookieOptions('sameSite'),
-    },
-    value: (req) => req.cookies['XSRF-TOKEN'],
-  }),
-);
-
 AuthRouter.post(
   '/refresh',
   csurf({
@@ -71,6 +61,16 @@ AuthRouter.post(
 );
 
 AuthRouter.post('/signout', AuthController.signOut);
+
+AuthRouter.use(
+  csurf({
+    cookie: {
+      secure: decideCookieOptions('secure'),
+      sameSite: decideCookieOptions('sameSite'),
+    },
+    value: (req) => req.cookies['XSRF-TOKEN'],
+  }),
+);
 
 AuthRouter.use(authenticate);
 

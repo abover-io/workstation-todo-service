@@ -96,11 +96,10 @@ export default class AuthController {
     next: NextFunction,
   ): Promise<void | Response<any>> {
     try {
-      const { firstName, lastName = '', username, email, password } = req.body;
+      const { name, username, email, password } = req.body;
       const errorMessages: HttpError[] = [];
       const validations: ISignUpValidations = {
-        firstName: CustomValidator.firstName(firstName),
-        username: CustomValidator.username(username),
+        name: CustomValidator.Name(name),
         email: CustomValidator.email(email),
         password: CustomValidator.password(password),
       };
@@ -159,26 +158,17 @@ export default class AuthController {
       } else {
         const newUserTokens = await generateUserTokens(
           {
-            firstName,
-            lastName,
-            username,
+            name,
             email,
           },
           'signUp',
         );
-        const newApiKey = createToken('apiKey', { username, email });
 
         await User.create({
-          firstName,
-          lastName,
-          isUsernameSet: true,
-          username,
+          name,
           email,
-          isPasswordSet: true,
           password,
           verified: false,
-          refreshTokens: [newUserTokens.refreshToken],
-          apiKey: newApiKey,
         });
 
         res.cookie('act', newUserTokens.accessToken, {
@@ -204,14 +194,9 @@ export default class AuthController {
 
         return res.status(201).json({
           user: {
-            firstName,
-            lastName,
-            isUsernameSet: true,
-            username,
+            name,
             email,
-            isPasswordSet: true,
             verified: false,
-            apiKey: newApiKey,
           },
           tokens: {
             ...newUserTokens,

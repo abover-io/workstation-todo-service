@@ -2,8 +2,9 @@ import { compareSync } from 'bcryptjs';
 import createError, { HttpError } from 'http-errors';
 import { Request, Response, NextFunction } from 'express';
 import { OAuth2Client, LoginTicket, TokenPayload } from 'google-auth-library';
+import jwt from 'jsonwebtoken';
 
-// Typings
+// Types
 import {
   ISignUpValidations,
   CustomHttpError,
@@ -15,6 +16,8 @@ import { ITodoDocument } from '@/types/todo';
 
 // Config
 import {
+  JWT_REFRESH_SECRET,
+  JWT_ACCESS_SECRET,
   GOOGLE_OAUTH_WEB_CLIENT_ID,
   GOOGLE_OAUTH_WEB_CLIENT_SECRET,
 } from '@/config';
@@ -23,13 +26,7 @@ import {
 import { User, Social, Todo } from '@/models';
 
 // Utils
-import {
-  generateUserTokens,
-  handleRefreshToken,
-  decideCookieOptions,
-  CustomValidator,
-  createToken,
-} from '@/utils';
+import { CustomValidator, redis } from '@/utils';
 
 const googleClient: OAuth2Client = new OAuth2Client({
   clientId: GOOGLE_OAUTH_WEB_CLIENT_ID,
@@ -43,50 +40,94 @@ export default class AuthController {
     next: NextFunction,
   ): Promise<void | Response<any>> {
     try {
-      const refreshToken =
-        req.signedCookies.rft || req.cookies.rft || req.body.rft;
+      const rft =
+        req.signedCookies.rft ||
+        req.cookies.rft ||
+        req.headers['X-RFT'] ||
+        req.headers['x-RFT'] ||
+        req.body.rft;
 
-      const newTokens = await handleRefreshToken(refreshToken);
+      if (!rft) {
+        throw createError(401, 'Please sign in to continue!');
+      }
 
-      res.cookie('act', newTokens.accessToken, {
-        httpOnly: true,
-        secure: decideCookieOptions('secure'),
-        path: '/',
-        signed: true,
-        sameSite: decideCookieOptions('sameSite'),
+      const decodedRft: any = jwt.verify(rft, JWT_REFRESH_SECRET);
+
+      const foundUser: IUserDocument | null = await User.findOne({
+        email: decodedRft.email,
       });
 
-      res.cookie('rft', newTokens.refreshToken, {
+      if (!foundUser) {
+        throw createError(401, 'Please sign in to continue!');
+      }
+
+      const newAct: string = jwt.sign(
+        {
+          email: foundUser.email,
+        },
+        JWT_ACCESS_SECRET,
+        {
+          expiresIn: '7d',
+        },
+      );
+
+      const newRft: string = jwt.sign(
+        {
+          email: foundUser.email,
+        },
+        JWT_REFRESH_SECRET,
+        {
+          expiresIn: '30d',
+        },
+      );
+
+      await Promise.all([
+        redis.setexAsync(
+          JSON.stringify({
+            type: 'act',
+            userId: foundUser._id,
+          }),
+          60 * 60 * 24 * 7,
+          newAct,
+        ),
+        redis.setexAsync(
+          JSON.stringify({
+            type: 'rft',
+            userId: foundUser._id,
+          }),
+          60 * 60 * 24 * 30,
+          newRft,
+        ),
+      ]);
+
+      res.cookie('act', newAct, {
         httpOnly: true,
-        secure: decideCookieOptions('secure'),
+        secure: req.secure,
         path: '/',
         signed: true,
-        sameSite: decideCookieOptions('sameSite'),
+        sameSite: req.secure ? 'none' : false,
+      });
+
+      res.cookie('rft', newRft, {
+        httpOnly: true,
+        secure: req.secure,
+        path: '/',
+        signed: true,
+        sameSite: req.secure ? 'none' : false,
       });
 
       res.cookie('XSRF-TOKEN', req.csrfToken(), {
-        secure: decideCookieOptions('secure'),
-        sameSite: decideCookieOptions('sameSite'),
+        secure: req.secure,
+        sameSite: req.secure ? 'none' : false,
       });
 
       return res.status(200).json({
-        tokens: {
-          ...newTokens,
-          csrfToken: req.csrfToken(),
-        },
-        message: 'Successfully refreshed token!',
+        csrf: req.csrfToken(),
+        act: newAct,
+        rft: newRft,
       });
     } catch (err) {
-      if (err.name == 'RefreshTokenError') {
-        return next(
-          createError({
-            name: 'AuthorizationError',
-            message: err.message,
-          }),
-        );
-      } else {
-        return next(err);
-      }
+      return err;
     }
   }
 
@@ -173,23 +214,23 @@ export default class AuthController {
 
         res.cookie('act', newUserTokens.accessToken, {
           httpOnly: true,
-          secure: decideCookieOptions('secure'),
+          secure: req.secure,
           path: '/',
           signed: true,
-          sameSite: decideCookieOptions('sameSite'),
+          sameSite: req.secure ? 'none' : false,
         });
 
         res.cookie('rft', newUserTokens.refreshToken, {
           httpOnly: true,
-          secure: decideCookieOptions('secure'),
+          secure: req.secure,
           path: '/',
           signed: true,
-          sameSite: decideCookieOptions('sameSite'),
+          sameSite: req.secure ? 'none' : false,
         });
 
         res.cookie('XSRF-TOKEN', req.csrfToken(), {
-          secure: decideCookieOptions('secure'),
-          sameSite: decideCookieOptions('sameSite'),
+          secure: req.secure,
+          sameSite: req.secure ? 'none' : false,
         });
 
         return res.status(201).json({
@@ -277,22 +318,22 @@ export default class AuthController {
         if (compareSync(password, signInUser.password)) {
           res.cookie('act', tokens.accessToken, {
             httpOnly: true,
-            secure: decideCookieOptions('secure'),
+            secure: req.secure,
             path: '/',
             signed: true,
-            sameSite: decideCookieOptions('sameSite'),
+            sameSite: req.secure ? 'none' : false,
           });
           res.cookie('rft', tokens.refreshToken, {
             httpOnly: true,
-            secure: decideCookieOptions('secure'),
+            secure: req.secure,
             path: '/',
             signed: true,
-            sameSite: decideCookieOptions('sameSite'),
+            sameSite: req.secure ? 'none' : false,
           });
 
           res.cookie('XSRF-TOKEN', req.csrfToken(), {
-            secure: decideCookieOptions('secure'),
-            sameSite: decideCookieOptions('sameSite'),
+            secure: req.secure,
+            sameSite: req.secure ? 'none' : false,
           });
 
           return res.status(200).json({
@@ -403,23 +444,23 @@ export default class AuthController {
 
         res.cookie('act', newUserTokens.accessToken, {
           httpOnly: true,
-          secure: decideCookieOptions('secure'),
+          secure: req.secure,
           path: '/',
           signed: true,
-          sameSite: decideCookieOptions('sameSite'),
+          sameSite: req.secure ? 'none' : false,
         });
 
         res.cookie('rft', newUserTokens.refreshToken, {
           httpOnly: true,
-          secure: decideCookieOptions('secure'),
+          secure: req.secure,
           path: '/',
           signed: true,
-          sameSite: decideCookieOptions('sameSite'),
+          sameSite: req.secure ? 'none' : false,
         });
 
         res.cookie('XSRF-TOKEN', req.csrfToken(), {
-          secure: decideCookieOptions('secure'),
-          sameSite: decideCookieOptions('sameSite'),
+          secure: req.secure,
+          sameSite: req.secure ? 'none' : false,
         });
 
         return res.status(201).json({
@@ -458,23 +499,23 @@ export default class AuthController {
 
         res.cookie('act', tokens.accessToken, {
           httpOnly: true,
-          secure: decideCookieOptions('secure'),
+          secure: req.secure,
           path: '/',
           signed: true,
-          sameSite: decideCookieOptions('sameSite'),
+          sameSite: req.secure ? 'none' : false,
         });
 
         res.cookie('rft', tokens.refreshToken, {
           httpOnly: true,
-          secure: decideCookieOptions('secure'),
+          secure: req.secure,
           path: '/',
           signed: true,
-          sameSite: decideCookieOptions('sameSite'),
+          sameSite: req.secure ? 'none' : false,
         });
 
         res.cookie('XSRF-TOKEN', req.csrfToken(), {
-          secure: decideCookieOptions('secure'),
-          sameSite: decideCookieOptions('sameSite'),
+          secure: req.secure,
+          sameSite: req.secure ? 'none' : false,
         });
 
         return res.status(200).json({

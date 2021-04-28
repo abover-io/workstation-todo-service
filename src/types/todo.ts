@@ -18,7 +18,7 @@ export interface ITodo {
 
 export interface ITodoDocument extends Document {
   _id: Types.ObjectId;
-  username: string;
+  listId: Types.ObjectId;
   name: string;
   notes: string | null;
   url: string | null;
@@ -27,7 +27,6 @@ export interface ITodoDocument extends Document {
   due: Date | Moment | string | null;
   completed: boolean;
   priority: string;
-  listId: Types.ObjectId;
   createdAt?: Date | Moment | string;
   updatedAt?: Date | Moment | string;
 }

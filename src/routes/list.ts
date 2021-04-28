@@ -6,7 +6,7 @@ import authenticate from '@/middlewares/authenticate';
 import { ListController } from '@/controllers';
 import { decideCookieOptions } from '@/utils';
 
-const ListRouter = Router();
+const ListRouter: Router = Router();
 
 ListRouter.use(
   csurf({

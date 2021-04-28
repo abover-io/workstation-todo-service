@@ -12,7 +12,7 @@ export interface IList {
 
 export interface IListDocument extends Document {
   _id: Types.ObjectId;
-  username: string;
+  email: string;
   name: string;
   color: string;
   createdAt?: Date | Moment | string;

@@ -91,7 +91,7 @@ export default class TodoController {
         name,
         due,
         isTimeSet = false,
-        priority = 4,
+        priority = 'none',
       }: ITodoDocument = req.body;
       const todo: ITodoDocument | any = await Todo.create({
         username,
@@ -120,8 +120,7 @@ export default class TodoController {
       name,
       due,
       isTimeSet = false,
-      priority = 4,
-      position = null,
+      priority = 'none',
     }: ITodoDocument = req.body;
     const defaultError = createError({
       name: 'NotFoundError',
@@ -145,7 +144,6 @@ export default class TodoController {
           due,
           isTimeSet,
           priority,
-          position,
         },
         { new: true },
       );

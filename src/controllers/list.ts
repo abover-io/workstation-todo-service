@@ -88,7 +88,7 @@ export default class ListController {
     next: NextFunction,
   ) {
     try {
-      const { email } = (<ICustomRequest>req).user!;
+      const { email } = (<ICustomRequest>req).user;
       const { name, color }: IList = <IList>req.body;
 
       const createdList: IListDocument = await List.create({
@@ -109,7 +109,7 @@ export default class ListController {
     next: NextFunction,
   ) {
     try {
-      const { email } = (<ICustomRequest>req).user!;
+      const { email } = (<ICustomRequest>req).user;
       const listId: string | any = req.params.listId || req.query.listId;
       const { name, color }: IList = <IList>req.body;
 

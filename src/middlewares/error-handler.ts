@@ -1,21 +1,32 @@
 import { Request, Response, NextFunction } from 'express';
 import { HttpError } from 'http-errors';
 
-import { CustomHttpError } from '@/types';
-
 export default function (
-  err: HttpError | CustomHttpError,
+  err: HttpError,
   req: Request,
   res: Response,
   next: NextFunction,
 ) {
-  if (err.status != 500) {
-    return res.status(err.status).json({
-      message: err.message,
-    });
-  }
+  switch (err.status) {
+    case 400:
+      if (err.validations) {
+        return res.status(400).json({
+          message: err.message,
+          validations: err.validations,
+        });
+      }
+      return res.status(400).json({
+        message: err.message,
+      });
 
-  return res.status(500).json({
-    message: err.message,
-  });
+    case 404:
+      return res.status(404).json({
+        message: err.message,
+      });
+
+    default:
+      return res.status(500).json({
+        message: err.message,
+      });
+  }
 }

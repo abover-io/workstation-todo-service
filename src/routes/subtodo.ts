@@ -4,16 +4,12 @@ import csurf from 'csurf';
 import Authorize from '@/middlewares/authorize';
 import authenticate from '@/middlewares/authenticate';
 import { SubtodoController } from '@/controllers';
-import { decideCookieOptions } from '@/utils';
 
 const SubtodoRouter: Router = Router();
 
 SubtodoRouter.use(
   csurf({
-    cookie: {
-      secure: decideCookieOptions('secure'),
-      sameSite: decideCookieOptions('sameSite'),
-    },
+    value: (req) => req.cookies['XSRF-TOKEN'],
   }),
 );
 SubtodoRouter.use(authenticate);

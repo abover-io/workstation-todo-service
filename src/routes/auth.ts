@@ -7,73 +7,50 @@ import authenticate from '@/middlewares/authenticate';
 // Controllers
 import { AuthController } from '@/controllers';
 
-// Utils
-import { decideCookieOptions } from '@/utils';
-
 const AuthRouter = Router();
 
 AuthRouter.post(
   '/refresh',
   csurf({
-    cookie: {
-      secure: decideCookieOptions('secure'),
-      sameSite: decideCookieOptions('sameSite'),
-    },
     ignoreMethods: ['POST'],
   }),
-  AuthController.refreshToken,
+  AuthController.RefreshToken,
 );
 
 AuthRouter.post(
   '/signup',
   csurf({
-    cookie: {
-      secure: decideCookieOptions('secure'),
-      sameSite: decideCookieOptions('sameSite'),
-    },
     ignoreMethods: ['POST'],
   }),
-  AuthController.signUp,
+  AuthController.SignUp,
 );
 
 AuthRouter.post(
   '/signin',
   csurf({
-    cookie: {
-      secure: decideCookieOptions('secure'),
-      sameSite: decideCookieOptions('sameSite'),
-    },
     ignoreMethods: ['POST'],
   }),
-  AuthController.signIn,
+  AuthController.SignIn,
 );
 
 AuthRouter.post(
   '/auth/google',
   csurf({
-    cookie: {
-      secure: decideCookieOptions('secure'),
-      sameSite: decideCookieOptions('sameSite'),
-    },
     ignoreMethods: ['POST'],
   }),
-  AuthController.googleSignIn,
+  AuthController.GoogleSignIn,
 );
 
-AuthRouter.post('/signout', AuthController.signOut);
+AuthRouter.post('/signout', AuthController.SignOut);
 
 AuthRouter.use(
   csurf({
-    cookie: {
-      secure: decideCookieOptions('secure'),
-      sameSite: decideCookieOptions('sameSite'),
-    },
     value: (req) => req.cookies['XSRF-TOKEN'],
   }),
 );
 
 AuthRouter.use(authenticate);
 
-AuthRouter.get('/sync', AuthController.sync);
+AuthRouter.get('/sync', AuthController.Sync);
 
 export default AuthRouter;

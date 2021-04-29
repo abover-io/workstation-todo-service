@@ -1,7 +1,7 @@
 import fs from 'fs';
-import { config as dotEnvConfig } from 'dotenv';
+import dotenv from 'dotenv';
 
-process.env.NODE_ENV?.toLowerCase() !== 'production' ? dotEnvConfig() : '';
+process.env.NODE_ENV?.toLowerCase() !== 'production' ? dotenv.config() : '';
 
 export default function getEnv(name: string): string | any {
   try {

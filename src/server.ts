@@ -2,11 +2,10 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import { createServer } from 'http';
 import createError from 'http-errors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import moment from 'moment';
+import { createServer } from 'http';
 
 // Config
 import {
@@ -44,7 +43,7 @@ app.use(
       'http://localhost:8000',
       'https://127.0.0.1:8000',
       'https://localhost:8000',
-      'https://todo.sundayx.tech',
+      'https://sundayx.tech',
     ],
   }),
 );
@@ -78,7 +77,7 @@ if (require.main === module) {
 
     server.listen(port, () => {
       console.log(
-        `Fancy Todo API is running.\nPORT\t=>\t${port}\nENV\t=>\t${getEnv(
+        `Fancy Todo API is running\nPORT\t=>\t${port}\nENV\t=>\t${getEnv(
           'NODE_ENV',
         ).toUpperCase()}`,
       );

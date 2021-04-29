@@ -5,6 +5,8 @@ import moment from 'moment';
 import AuthRouter from './auth';
 import UserRouter from './user';
 import ListRouter from './list';
+import TodoRouter from './todo';
+import SubtodoRouter from './subtodo';
 
 const MainRouter = Router();
 
@@ -19,5 +21,7 @@ MainRouter.get('/', (_, res) => {
 MainRouter.use('/auth', AuthRouter);
 MainRouter.use('/users', UserRouter);
 MainRouter.use('/lists', ListRouter);
+MainRouter.use('/todos', TodoRouter);
+MainRouter.use('/subtodos', SubtodoRouter);
 
 export default MainRouter;

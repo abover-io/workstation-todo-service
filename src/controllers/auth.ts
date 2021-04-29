@@ -1,18 +1,14 @@
 import { compareSync } from 'bcryptjs';
-import createError, { HttpError } from 'http-errors';
+import createError from 'http-errors';
 import { Request, Response, NextFunction } from 'express';
 import { OAuth2Client, LoginTicket, TokenPayload } from 'google-auth-library';
 import jwt from 'jsonwebtoken';
 
 // Types
-import {
-  ISignUpValidations,
-  CustomHttpError,
-  ISignInValidations,
-} from '@/types';
-import { IUserDocument } from '@/types/user';
+import { ICustomRequest } from '@/types';
+import { ISignUpValidations, ISignInValidations } from '@/types/auth';
+import { IUser, IUserDocument } from '@/types/user';
 import { ISocialDocument } from '@/types/social';
-import { ITodoDocument } from '@/types/todo';
 
 // Config
 import {
@@ -26,7 +22,8 @@ import {
 import { User, Social, Todo } from '@/models';
 
 // Utils
-import { CustomValidator, redis } from '@/utils';
+import { redisClient } from '@/utils';
+import { UserValidator } from '@/utils/validator';
 
 const googleClient: OAuth2Client = new OAuth2Client({
   clientId: GOOGLE_OAUTH_WEB_CLIENT_ID,
@@ -34,7 +31,7 @@ const googleClient: OAuth2Client = new OAuth2Client({
 });
 
 export default class AuthController {
-  public static async refreshToken(
+  public static async RefreshToken(
     req: Request,
     res: Response,
     next: NextFunction,
@@ -82,7 +79,7 @@ export default class AuthController {
       );
 
       await Promise.all([
-        redis.setexAsync(
+        redisClient.setexAsync(
           JSON.stringify({
             type: 'act',
             userId: foundUser._id,
@@ -90,7 +87,7 @@ export default class AuthController {
           60 * 60 * 24 * 7,
           newAct,
         ),
-        redis.setexAsync(
+        redisClient.setexAsync(
           JSON.stringify({
             type: 'rft',
             userId: foundUser._id,
@@ -121,6 +118,11 @@ export default class AuthController {
         sameSite: req.secure ? 'none' : false,
       });
 
+      res.cookie('_aed', true, {
+        secure: req.secure,
+        sameSite: req.secure ? 'none' : false,
+      });
+
       return res.status(200).json({
         csrf: req.csrfToken(),
         act: newAct,
@@ -131,88 +133,198 @@ export default class AuthController {
     }
   }
 
-  public static async signUp(
+  public static async SignUp(
     req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<void | Response<any>> {
     try {
-      const { name, username, email, password } = req.body;
-      const errorMessages: HttpError[] = [];
+      const { name, email, password } = req.body;
+
       const validations: ISignUpValidations = {
-        name: CustomValidator.Name(name),
-        email: CustomValidator.email(email),
-        password: CustomValidator.password(password),
+        name: UserValidator.Name(name),
+        email: UserValidator.Email(email),
+        password: UserValidator.Password(password),
       };
 
-      for (const validationKey in validations) {
-        if (validations[validationKey]) {
-          const currentError: HttpError = {
-            expose: false,
-            message: validations[validationKey],
-            statusCode: 400,
-            status: 400,
-            name: validationKey,
-          };
-          errorMessages.push(currentError);
-        }
+      if (Object.values(validations).some((v) => v.error === true)) {
+        throw createError(400, {
+          message: 'Please correct sign in information!',
+          validations,
+        });
       }
 
-      if (errorMessages.length) {
-        const httpErrorWithMultipleMessages: CustomHttpError = {
-          expose: false,
-          message: 'Failed to sign up, please correct user information!',
-          messages: errorMessages,
-          statusCode: 400,
-          status: 400,
-          name: 'ValidationError',
-        };
-
-        throw httpErrorWithMultipleMessages;
-      }
-
-      const existedUser: IUserDocument | any = await User.findOne({
-        $or: [
-          {
-            username,
-          },
-          {
-            email,
-          },
-        ],
+      const existingUser: IUserDocument | any = await User.findOne({
+        email,
       });
 
-      if (existedUser) {
-        if (existedUser.username == username) {
-          throw createError({
-            name: 'AlreadyExistsError',
-            message: `Username isn't available.`,
-            expose: false,
-          });
-        } else if (existedUser.email == email) {
-          throw createError({
-            name: 'AlreadyExistsError',
-            message: `Email isn't available.`,
-            expose: false,
-          });
-        }
-      } else {
-        const newUserTokens = await generateUserTokens(
-          {
-            name,
-            email,
-          },
-          'signUp',
-        );
+      if (existingUser) {
+        throw createError(400, 'Email is not available');
+      }
 
-        await User.create({
+      const createdUser: IUserDocument = await User.create({
+        name,
+        email,
+        password,
+        verified: false,
+      });
+
+      const newAct: string = jwt.sign(
+        {
+          email: createdUser.email,
+        },
+        JWT_ACCESS_SECRET,
+        {
+          expiresIn: '7d',
+        },
+      );
+
+      const newRft: string = jwt.sign(
+        {
+          email: createdUser.email,
+        },
+        JWT_REFRESH_SECRET,
+        {
+          expiresIn: '30d',
+        },
+      );
+
+      await Promise.all([
+        redisClient.setexAsync(
+          JSON.stringify({
+            type: 'act',
+            userId: createdUser._id,
+          }),
+          60 * 60 * 24 * 7,
+          newAct,
+        ),
+        redisClient.setexAsync(
+          JSON.stringify({
+            type: 'rft',
+            userId: createdUser._id,
+          }),
+          60 * 60 * 24 * 30,
+          newRft,
+        ),
+      ]);
+
+      res.cookie('act', newAct, {
+        httpOnly: true,
+        secure: req.secure,
+        path: '/',
+        signed: true,
+        sameSite: req.secure ? 'none' : false,
+      });
+
+      res.cookie('rft', newRft, {
+        httpOnly: true,
+        secure: req.secure,
+        path: '/',
+        signed: true,
+        sameSite: req.secure ? 'none' : false,
+      });
+
+      res.cookie('XSRF-TOKEN', req.csrfToken(), {
+        secure: req.secure,
+        sameSite: req.secure ? 'none' : false,
+      });
+
+      res.cookie('_aed', true, {
+        secure: req.secure,
+        sameSite: req.secure ? 'none' : false,
+      });
+
+      return res.status(201).json({
+        message: 'Successfully signed up!',
+        user: {
           name,
           email,
-          password,
           verified: false,
+        },
+        act: newAct,
+        rft: newRft,
+      });
+    } catch (err) {
+      return next(err);
+    }
+  }
+
+  public static async SignIn(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void | Response<any>> {
+    try {
+      const { email, password } = req.body;
+
+      const validations: ISignInValidations = {
+        email: UserValidator.Email(email),
+        password: UserValidator.Password(password),
+      };
+
+      if (Object.values(validations).some((v) => v.error === true)) {
+        throw createError(400, {
+          message: 'Please correct sign in information!',
+          validations,
+        });
+      }
+
+      const foundUser: IUserDocument | null = await User.findOne({
+        email,
+      });
+
+      if (!foundUser) {
+        throw createError(404, `User not found, please sign up!`);
+      }
+
+      if (compareSync(password, foundUser.password!)) {
+        const actCacheKey: string = JSON.stringify({
+          type: 'act',
+          userId: foundUser._id,
+        });
+        const rftCacheKey: string = JSON.stringify({
+          type: 'rft',
+          userId: foundUser._id,
         });
 
-        res.cookie('act', newUserTokens.accessToken, {
+        let [foundAct, foundRft] = await Promise.all([
+          redisClient.getAsync(actCacheKey),
+          redisClient.getAsync(rftCacheKey),
+        ]);
+
+        if (!foundAct) {
+          const newAct: string = jwt.sign(
+            {
+              email: foundUser.email,
+            },
+            JWT_ACCESS_SECRET,
+            {
+              expiresIn: '7d',
+            },
+          );
+
+          await redisClient.setexAsync(actCacheKey, 60 * 60 * 24 * 7, newAct);
+
+          foundAct = newAct;
+        }
+
+        if (!foundRft) {
+          const newRft: string = jwt.sign(
+            {
+              email: foundUser.email,
+            },
+            JWT_REFRESH_SECRET,
+            {
+              expiresIn: '30d',
+            },
+          );
+
+          redisClient.setexAsync(rftCacheKey, 60 * 60 * 24 * 30, newRft);
+
+          foundRft = newRft;
+        }
+
+        res.cookie('act', foundAct, {
           httpOnly: true,
           secure: req.secure,
           path: '/',
@@ -220,7 +332,7 @@ export default class AuthController {
           sameSite: req.secure ? 'none' : false,
         });
 
-        res.cookie('rft', newUserTokens.refreshToken, {
+        res.cookie('rft', foundAct, {
           httpOnly: true,
           secure: req.secure,
           path: '/',
@@ -233,137 +345,34 @@ export default class AuthController {
           sameSite: req.secure ? 'none' : false,
         });
 
-        return res.status(201).json({
-          user: {
-            name,
-            email,
-            verified: false,
-          },
-          tokens: {
-            ...newUserTokens,
-            csrfToken: req.csrfToken(),
-          },
-          message: 'Successfully signed up!',
+        res.cookie('_aed', true, {
+          secure: req.secure,
+          sameSite: req.secure ? 'none' : false,
         });
-      }
-    } catch (err) {
-      return next(err);
-    }
-  }
 
-  public static async signIn(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void | Response<any>> {
-    try {
-      const { userIdentifier, password } = req.body;
-      const errorMessages: HttpError[] = [];
-      const validations: ISignInValidations = {
-        userIdentifier: CustomValidator.userIdentifier(userIdentifier),
-        password: CustomValidator.password(password),
-      };
-
-      for (const validationKey in validations) {
-        if (validations[validationKey]) {
-          const currentError: HttpError = {
-            expose: false,
-            message: validations[validationKey],
-            statusCode: 400,
-            status: 400,
-            name: validationKey,
-          };
-          errorMessages.push(currentError);
-        }
-      }
-
-      if (errorMessages.length) {
-        const httpErrorWithMultipleMessages: CustomHttpError = {
-          expose: false,
-          message: 'Failed to sign in, please correct user information!',
-          messages: errorMessages,
-          statusCode: 400,
-          status: 400,
-          name: 'ValidationError',
-        };
-
-        throw httpErrorWithMultipleMessages;
-      }
-
-      const signInUser: any = await User.findOne({
-        $or: [
-          {
-            username: userIdentifier,
+        return res.status(200).json({
+          message: 'Successfully signed in!',
+          user: {
+            name: foundUser.name,
+            email: foundUser.email,
+            verified: foundUser.verified,
           },
-          {
-            email: userIdentifier,
-          },
-        ],
-      });
-
-      if (!signInUser) {
-        throw createError({
-          name: 'NotFoundError',
-          message: 'User not found, please sign up first!',
-          expose: false,
+          act: foundAct,
+          rft: foundRft,
         });
       } else {
-        const { firstName, lastName, username, email, apiKey } = signInUser;
-        const tokens = await generateUserTokens({
-          firstName,
-          lastName,
-          username,
-          email,
+        throw createError({
+          name: 'BadRequestError',
+          message: 'Wrong username or password!',
+          expose: false,
         });
-        if (compareSync(password, signInUser.password)) {
-          res.cookie('act', tokens.accessToken, {
-            httpOnly: true,
-            secure: req.secure,
-            path: '/',
-            signed: true,
-            sameSite: req.secure ? 'none' : false,
-          });
-          res.cookie('rft', tokens.refreshToken, {
-            httpOnly: true,
-            secure: req.secure,
-            path: '/',
-            signed: true,
-            sameSite: req.secure ? 'none' : false,
-          });
-
-          res.cookie('XSRF-TOKEN', req.csrfToken(), {
-            secure: req.secure,
-            sameSite: req.secure ? 'none' : false,
-          });
-
-          return res.status(200).json({
-            user: {
-              firstName,
-              lastName,
-              username,
-              email,
-              apiKey,
-            },
-            message: 'Successfully signed in!',
-            tokens: {
-              ...tokens,
-              csrfToken: req.csrfToken(),
-            },
-          });
-        } else {
-          throw createError({
-            name: 'BadRequestError',
-            message: 'Wrong username or password!',
-            expose: false,
-          });
-        }
       }
     } catch (err) {
       return next(err);
     }
   }
 
-  public static async googleSignIn(
+  public static async GoogleSignIn(
     req: Request,
     res: Response,
     next: NextFunction,
@@ -380,169 +389,147 @@ export default class AuthController {
 
       const googleAccountPayload:
         | TokenPayload
-        | any = verifyIdTokenResponse.getPayload();
+        | undefined = verifyIdTokenResponse.getPayload();
 
       let {
-        given_name: firstName,
-        family_name: lastName,
-        sub: username,
+        name,
         email,
         picture: profileImageURL,
       } = googleAccountPayload as TokenPayload;
 
-      firstName = firstName as string;
-      lastName = lastName as string;
-      username = username as string;
+      name = name as string;
       email = email as string;
+      profileImageURL = profileImageURL as string;
 
       const googleId: string = (googleAccountPayload as TokenPayload)
         .sub as string;
 
-      const existingUser: IUserDocument | null = await User.findOne({
-        email: (googleAccountPayload as TokenPayload).email,
+      let foundUser: IUserDocument | null = await User.findOne({
+        email,
       });
 
-      const existingSocial: ISocialDocument | null = await Social.findOne({
+      let foundSocial: ISocialDocument | null = await Social.findOne({
         name: 'google',
         socialId: googleId,
       });
 
-      if (!existingUser) {
-        const newUserTokens = await generateUserTokens(
-          {
-            firstName,
-            lastName,
-            username,
-            email,
-          },
-          'signUp',
-        );
-
-        const newApiKey = createToken('apiKey', {
-          username,
+      if (!foundUser) {
+        const createdUser: IUserDocument = await User.create({
+          name,
           email,
-        });
-
-        const newUser: IUserDocument | any = await User.create({
-          firstName,
-          lastName,
-          isUsernameSet: true,
-          username,
-          email,
-          isPasswordSet: false,
+          password: null,
           verified: false,
           profileImageURL,
-          refreshTokens: [newUserTokens.refreshToken],
-          apiKey: newApiKey,
         });
+
+        foundUser = createdUser;
 
         await Social.create({
           name: 'google',
           socialId: googleId,
-          userId: (newUser as IUserDocument)._id,
-        });
-
-        res.cookie('act', newUserTokens.accessToken, {
-          httpOnly: true,
-          secure: req.secure,
-          path: '/',
-          signed: true,
-          sameSite: req.secure ? 'none' : false,
-        });
-
-        res.cookie('rft', newUserTokens.refreshToken, {
-          httpOnly: true,
-          secure: req.secure,
-          path: '/',
-          signed: true,
-          sameSite: req.secure ? 'none' : false,
-        });
-
-        res.cookie('XSRF-TOKEN', req.csrfToken(), {
-          secure: req.secure,
-          sameSite: req.secure ? 'none' : false,
-        });
-
-        return res.status(201).json({
-          user: {
-            firstName,
-            lastName,
-            isUsernameSet: true,
-            username,
-            email,
-            isPasswordSet: false,
-            verified: false,
-            apiKey: newApiKey,
-            profileImageURL,
-          },
-          tokens: {
-            ...newUserTokens,
-            csrfToken: req.csrfToken(),
-          },
-          message: 'Successfully signed up!',
+          userId: createdUser._id,
         });
       } else {
-        if (!existingSocial) {
-          await Social.create({
+        if (!foundSocial) {
+          const createdSocial: ISocialDocument = await Social.create({
             name: 'google',
             socialId: googleId,
-            userId: (existingUser as IUserDocument)._id,
+            userId: foundUser!._id,
           });
+
+          foundSocial = createdSocial;
         }
-
-        const tokens = await generateUserTokens({
-          firstName,
-          lastName,
-          username,
-          email,
-        });
-
-        res.cookie('act', tokens.accessToken, {
-          httpOnly: true,
-          secure: req.secure,
-          path: '/',
-          signed: true,
-          sameSite: req.secure ? 'none' : false,
-        });
-
-        res.cookie('rft', tokens.refreshToken, {
-          httpOnly: true,
-          secure: req.secure,
-          path: '/',
-          signed: true,
-          sameSite: req.secure ? 'none' : false,
-        });
-
-        res.cookie('XSRF-TOKEN', req.csrfToken(), {
-          secure: req.secure,
-          sameSite: req.secure ? 'none' : false,
-        });
-
-        return res.status(200).json({
-          user: {
-            firstName,
-            lastName,
-            isUsernameSet: existingUser.isUsernameSet,
-            username,
-            email,
-            isPasswordSet: existingUser.isPasswordSet,
-            verified: existingUser.verified,
-            apiKey: existingUser.apiKey,
-            profileImageURL,
-          },
-          message: 'Successfully signed in!',
-          tokens: {
-            ...tokens,
-            csrfToken: req.csrfToken(),
-          },
-        });
       }
+
+      const actCacheKey: string = JSON.stringify({
+        type: 'act',
+        userId: foundUser._id,
+      });
+      const rftCacheKey: string = JSON.stringify({
+        type: 'rft',
+        userId: foundUser._id,
+      });
+
+      let [foundAct, foundRft] = await Promise.all([
+        redisClient.getAsync(actCacheKey),
+        redisClient.getAsync(rftCacheKey),
+      ]);
+
+      if (!foundAct) {
+        const newAct: string = jwt.sign(
+          {
+            email: foundUser.email,
+          },
+          JWT_ACCESS_SECRET,
+          {
+            expiresIn: '7d',
+          },
+        );
+
+        await redisClient.setexAsync(actCacheKey, 60 * 60 * 24 * 7, newAct);
+
+        foundAct = newAct;
+      }
+
+      if (!foundRft) {
+        const newRft: string = jwt.sign(
+          {
+            email: foundUser.email,
+          },
+          JWT_REFRESH_SECRET,
+          {
+            expiresIn: '30d',
+          },
+        );
+
+        redisClient.setexAsync(rftCacheKey, 60 * 60 * 24 * 30, newRft);
+
+        foundRft = newRft;
+      }
+
+      res.cookie('act', foundAct, {
+        httpOnly: true,
+        secure: req.secure,
+        path: '/',
+        signed: true,
+        sameSite: req.secure ? 'none' : false,
+      });
+
+      res.cookie('rft', foundRft, {
+        httpOnly: true,
+        secure: req.secure,
+        path: '/',
+        signed: true,
+        sameSite: req.secure ? 'none' : false,
+      });
+
+      res.cookie('XSRF-TOKEN', req.csrfToken(), {
+        secure: req.secure,
+        sameSite: req.secure ? 'none' : false,
+      });
+
+      res.cookie('_aed', true, {
+        secure: req.secure,
+        sameSite: req.secure ? 'none' : false,
+      });
+
+      return res.status(201).json({
+        message: 'Successfully signed up!',
+        user: {
+          name,
+          email,
+          verified: false,
+          profileImageURL,
+        },
+        act: foundAct,
+        rft: foundRft,
+      });
     } catch (err) {
       return next(err);
     }
   }
 
-  public static async signOut(
+  public static async SignOut(
     req: Request,
     res: Response,
     next: NextFunction,
@@ -560,25 +547,30 @@ export default class AuthController {
         res.clearCookie('act', { path: '/' });
         res.clearCookie('_csrf', { path: '/' });
         res.clearCookie('XSRF-TOKEN', { path: '/' });
+        res.clearCookie('_aed', { path: '/' });
         res.status(200).json({ message: 'Successfully signed out!' });
       } else {
-        const { username }: IUserDocument | any = jwt.verify(
+        const { email }: IUser = jwt.verify(
           receivedRefreshToken,
           JWT_REFRESH_SECRET,
-        );
+        ) as IUser;
 
-        const foundUser: IUserDocument | any = await User.findOne({
-          username,
+        const foundUser: IUserDocument | null = await User.findOne({
+          email,
         });
 
-        const updatedRefreshTokens: string[] = foundUser.refreshTokens.filter(
-          (refreshToken: string) => refreshToken != receivedRefreshToken,
-        );
-
-        await User.updateOne(
-          { username },
-          { refreshTokens: updatedRefreshTokens },
-        );
+        if (foundUser) {
+          await redisClient.delAsync(
+            JSON.stringify({
+              type: 'act',
+              userId: foundUser._id,
+            }),
+            JSON.stringify({
+              type: 'rft',
+              userId: foundUser._id,
+            }),
+          );
+        }
 
         res.clearCookie('act', { path: '/' });
         res.clearCookie('rft', { path: '/' });
@@ -591,42 +583,29 @@ export default class AuthController {
     }
   }
 
-  public static async sync(
+  public static async Sync(
     req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<void | Response<any>> {
     try {
-      const { username }: IUserDocument = (<any>req).user;
-      const {
-        firstName,
-        lastName,
-        isUsernameSet,
-        email,
-        isPasswordSet,
-        verified,
-        apiKey,
-      }: IUserDocument | any = await User.findOne({
-        username,
-      });
-      const todos: ITodoDocument[] = await Todo.find({
-        username: <string>username,
-        completed: false,
-      });
+      const { email } = (<ICustomRequest>req).user;
+
+      const foundUser: IUserDocument | null = await User.findOne(
+        {
+          email,
+        },
+        {
+          createdAt: 0,
+          updatedAt: 0,
+          __v: 0,
+          password: 0,
+        },
+      );
 
       return res.status(200).json({
-        user: {
-          firstName,
-          lastName,
-          isUsernameSet,
-          username,
-          email,
-          isPasswordSet,
-          verified,
-          apiKey,
-        },
-        todos,
         message: 'Successfully synced!',
+        user: foundUser,
       });
     } catch (err) {
       return next(err);

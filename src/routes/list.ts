@@ -4,16 +4,11 @@ import csurf from 'csurf';
 import Authorize from '@/middlewares/authorize';
 import authenticate from '@/middlewares/authenticate';
 import { ListController } from '@/controllers';
-import { decideCookieOptions } from '@/utils';
 
 const ListRouter: Router = Router();
 
 ListRouter.use(
   csurf({
-    cookie: {
-      secure: decideCookieOptions('secure'),
-      sameSite: decideCookieOptions('sameSite'),
-    },
     value: (req) => req.cookies['XSRF-TOKEN'],
   }),
 );

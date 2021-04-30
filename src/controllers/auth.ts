@@ -118,11 +118,6 @@ export default class AuthController {
         sameSite: req.secure ? 'none' : false,
       });
 
-      res.cookie('_aed', true, {
-        secure: req.secure,
-        sameSite: req.secure ? 'none' : false,
-      });
-
       return res.status(200).json({
         csrf: req.csrfToken(),
         act: newAct,
@@ -225,11 +220,6 @@ export default class AuthController {
       });
 
       res.cookie('XSRF-TOKEN', req.csrfToken(), {
-        secure: req.secure,
-        sameSite: req.secure ? 'none' : false,
-      });
-
-      res.cookie('_aed', true, {
         secure: req.secure,
         sameSite: req.secure ? 'none' : false,
       });
@@ -504,11 +494,6 @@ export default class AuthController {
       });
 
       res.cookie('XSRF-TOKEN', req.csrfToken(), {
-        secure: req.secure,
-        sameSite: req.secure ? 'none' : false,
-      });
-
-      res.cookie('_aed', true, {
         secure: req.secure,
         sameSite: req.secure ? 'none' : false,
       });

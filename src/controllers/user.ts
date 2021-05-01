@@ -108,7 +108,7 @@ export default class UserController {
         res.cookie('act', tokens.accessToken, {
           httpOnly: decideCookieOptions('httpOnly'),
           secure: decideCookieOptions('secure'),
-          path: '/',
+          path: '/todo',
           signed: true,
           sameSite: decideCookieOptions('sameSite'),
         });
@@ -116,7 +116,7 @@ export default class UserController {
         res.cookie('rft', tokens.refreshToken, {
           httpOnly: decideCookieOptions('httpOnly'),
           secure: decideCookieOptions('secure'),
-          path: '/',
+          path: '/todo',
           signed: true,
           sameSite: decideCookieOptions('sameSite'),
         });
@@ -220,9 +220,9 @@ export default class UserController {
         username: usernameFromAuth,
       });
 
-      res.clearCookie('rft', { path: '/' });
-      res.clearCookie('act', { path: '/' });
-      res.clearCookie('_csrf', { path: '/' });
+      res.clearCookie('rft', { path: '/todo' });
+      res.clearCookie('act', { path: '/todo' });
+      res.clearCookie('_csrf', { path: '/todo' });
 
       return res.status(200).json({
         message: 'Successfully deleted account!',

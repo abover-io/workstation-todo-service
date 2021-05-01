@@ -6,7 +6,12 @@ import jwt from 'jsonwebtoken';
 
 // Types
 import { ICustomRequest } from '@/types';
-import { ISignUpValidations, ISignInValidations } from '@/types/auth';
+import {
+  ISignUpFormValidations,
+  ISignUpFormData,
+  ISignInFormValidations,
+  ISignInFormData,
+} from '@/types/auth';
 import { IUser, IUserDocument } from '@/types/user';
 import { ISocialDocument } from '@/types/social';
 
@@ -129,23 +134,27 @@ export default class AuthController {
     next: NextFunction,
   ): Promise<void | Response<any>> {
     try {
-      const { name, email, password } = req.body;
+      const formData: ISignUpFormData = {
+        name: req.body.name,
+        email: req.body.email,
+        password: req.body.password,
+      };
 
-      const validations: ISignUpValidations = {
-        name: UserValidator.Name(name),
-        email: UserValidator.Email(email),
-        password: UserValidator.Password(password),
+      const validations: ISignUpFormValidations = {
+        name: UserValidator.Name(formData.name),
+        email: UserValidator.Email(formData.email),
+        password: UserValidator.Password(formData.password),
       };
 
       if (Object.values(validations).some((v) => v.error === true)) {
         throw createError(400, {
-          message: 'Please correct sign in information!',
+          message: 'Please correct sign up validations!',
           validations,
         });
       }
 
       const existingUser: IUserDocument | any = await User.findOne({
-        email,
+        email: formData.email,
       });
 
       if (existingUser) {
@@ -153,14 +162,14 @@ export default class AuthController {
       }
 
       const createdUser: IUserDocument = await User.create({
-        name,
-        email,
-        password,
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
         verified: false,
       });
 
       await List.create({
-        email,
+        email: formData.email,
         name: 'Reminders',
         color: '#2979ff',
       });
@@ -223,8 +232,8 @@ export default class AuthController {
       return res.status(201).json({
         message: 'Successfully signed up!',
         user: {
-          name,
-          email,
+          name: formData.name,
+          email: formData.email,
           verified: false,
         },
         act: newAct,
@@ -241,29 +250,32 @@ export default class AuthController {
     next: NextFunction,
   ): Promise<void | Response<any>> {
     try {
-      const { email, password } = req.body;
+      const formData: ISignInFormData = {
+        email: req.body.email,
+        password: req.body.password,
+      };
 
-      const validations: ISignInValidations = {
-        email: UserValidator.Email(email),
-        password: UserValidator.Password(password),
+      const validations: ISignInFormValidations = {
+        email: UserValidator.Email(formData.email),
+        password: UserValidator.Password(formData.password),
       };
 
       if (Object.values(validations).some((v) => v.error === true)) {
         throw createError(400, {
-          message: 'Please correct sign in information!',
+          message: 'Please correct sign in validations!',
           validations,
         });
       }
 
       const foundUser: IUserDocument | null = await User.findOne({
-        email,
+        email: formData.email,
       });
 
       if (!foundUser) {
         throw createError(404, `User not found, please sign up!`);
       }
 
-      if (compareSync(password, foundUser.password!)) {
+      if (compareSync(formData.password, foundUser.password!)) {
         const actCacheKey: string = JSON.stringify({
           type: 'act',
           userId: foundUser._id,
@@ -559,8 +571,6 @@ export default class AuthController {
           email,
         },
         {
-          createdAt: 0,
-          updatedAt: 0,
           __v: 0,
           password: 0,
         },

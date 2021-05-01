@@ -31,3 +31,13 @@ export interface IUserValidator {
   Email: (input: string) => Validation;
   Password: (input: string) => Validation;
 }
+
+export interface IUpdateUserFormValidations {
+  _id: Validation;
+  name: Validation;
+}
+
+export interface IUpdateUserFormData {
+  _id: string;
+  name: string;
+}

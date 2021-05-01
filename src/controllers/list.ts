@@ -89,7 +89,7 @@ export default class ListController {
     }
   }
 
-  public static async updateList(
+  public static async UpdateList(
     req: Request,
     res: Response,
     next: NextFunction,
@@ -145,7 +145,7 @@ export default class ListController {
     }
   }
 
-  public static async deleteList(
+  public static async DeleteList(
     req: Request,
     res: Response,
     next: NextFunction,

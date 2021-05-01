@@ -1,13 +1,24 @@
 // Types
 import { Validation } from '@/types';
 
-export interface ISignUpValidations {
+export interface ISignUpFormValidations {
   name: Validation;
   email: Validation;
   password: Validation;
 }
 
-export interface ISignInValidations {
+export interface ISignUpFormData {
+  name: string;
+  email: string;
+  password: string;
+}
+
+export interface ISignInFormValidations {
   email: Validation;
   password: Validation;
+}
+
+export interface ISignInFormData {
+  email: string;
+  password: string;
 }

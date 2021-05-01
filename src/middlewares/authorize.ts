@@ -17,7 +17,7 @@ import { User, List, Todo, Subtodo } from '@/models';
 import { JWT_ACCESS_SECRET } from '@/config';
 
 export default class Authorize {
-  static async authorizeUser(req: Request, res: Response, next: NextFunction) {
+  static async User(req: Request, res: Response, next: NextFunction) {
     try {
       const { email } = (<ICustomRequest>req).user;
 
@@ -35,11 +35,12 @@ export default class Authorize {
     }
   }
 
-  static async authorizeTodo(req: Request, res: Response, next: NextFunction) {
+  static async Todo(req: Request, res: Response, next: NextFunction) {
     try {
       const { email }: IUser = (<ICustomRequest>req).user;
-      const listId: string | any = req.query.listId;
-      const todoId: string | any = req.params.todoId || req.query.todoId;
+      const listId: string | any = req.body.listId || req.query.listId;
+      const todoId: string | any =
+        req.params.todoId || req.query.todoId || req.body._id;
 
       const foundList: IListDocument | null = await List.findOne({
         $and: [
@@ -86,7 +87,7 @@ export default class Authorize {
     }
   }
 
-  static async authorizeSubtodo(
+  static async Subtodo(
     req: Request,
     res: Response,
     next: NextFunction,
@@ -94,9 +95,9 @@ export default class Authorize {
     try {
       const { email }: IUser = (<ICustomRequest>req).user;
       const listId: string | any = req.query.listId;
-      const todoId: string | any = req.query.todoId;
+      const todoId: string | any = req.body.todoId || req.query.todoId;
       const subtodoId: string | any =
-        req.params.subtodoId || req.query.subtodoId;
+        req.params.subtodoId || req.body._id || req.query.subtodoId;
 
       const foundList: IListDocument | null = await List.findOne({
         $and: [

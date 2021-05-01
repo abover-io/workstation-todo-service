@@ -3,15 +3,23 @@ import { Types, QueryOptions, MongooseFilterQuery } from 'mongoose';
 import createError from 'http-errors';
 
 // Types
-import { ISubtodoDocument, ISubtodo } from '@/types/subtodo';
+import {
+  ISubtodoDocument,
+  ISubtodo,
+  ICreateSubtodoFormValidations,
+  ICreateSubtodoFormData,
+  IUpdateSubtodoFormValidations,
+  IUpdateSubtodoFormData,
+} from '@/types/subtodo';
 
 // Models
 import { Subtodo } from '@/models';
 
-const { ObjectId } = Types;
+// Utils
+import { SubtodoValidator } from '@/utils/validator';
 
 export default class SubtodoController {
-  public static async getAllSubtodos(
+  public static async GetAllSubtodos(
     req: Request,
     res: Response,
     next: NextFunction,
@@ -20,18 +28,24 @@ export default class SubtodoController {
       const options: QueryOptions = {
         limit: 100,
         skip: 0,
+        sort: {
+          _id: 1,
+        },
       };
 
-      const todoId: string | any = req.query.todoId;
+      const todoId: string | any = req.params.todoId || req.query.todoId;
+      const validation = SubtodoValidator.TodoId(todoId);
 
-      if (!todoId || !ObjectId.isValid(todoId)) {
-        throw createError(400, 'Invalid todo ID!');
+      if (validation.error) {
+        throw createError(400, {
+          message: validation.text,
+        });
       }
 
       const conditions: MongooseFilterQuery<
         Pick<ISubtodoDocument, keyof ISubtodoDocument>
       > = {
-        todoId: ObjectId(todoId),
+        todoId: Types.ObjectId(todoId),
       };
 
       const [subtodos, total] = await Promise.all([
@@ -48,25 +62,32 @@ export default class SubtodoController {
     }
   }
 
-  public static async createSubtodo(
+  public static async CreateSubtodo(
     req: Request,
     res: Response,
     next: NextFunction,
   ) {
     try {
-      const { name, todoId }: ISubtodo = <ISubtodo>req.body;
+      const formData: ICreateSubtodoFormData = {
+        name: req.body.name,
+        todoId: req.body.todoId,
+      };
 
-      if (!name) {
-        throw createError(400, 'Subtodo name cannot be empty!');
-      }
+      const validations: ICreateSubtodoFormValidations = {
+        name: SubtodoValidator.Name(formData.name),
+        todoId: SubtodoValidator.TodoId(formData.todoId),
+      };
 
-      if (!todoId || !ObjectId.isValid(todoId)) {
-        throw createError(400, 'Invalid todo ID!');
+      if (!Object.values(validations).every((v) => v.error === false)) {
+        throw createError(400, {
+          message: 'Please correct subtodo validations!',
+          validations,
+        });
       }
 
       const createdSubtodo: ISubtodoDocument = await Subtodo.create({
-        name,
-        todoId: ObjectId(todoId + ''),
+        name: formData.name,
+        todoId: Types.ObjectId(formData.todoId),
       });
 
       return res.status(201).json({ subtodo: createdSubtodo });
@@ -75,42 +96,44 @@ export default class SubtodoController {
     }
   }
 
-  public static async updateSubtodo(
+  public static async UpdateSubtodo(
     req: Request,
     res: Response,
     next: NextFunction,
   ) {
     try {
-      const subtodoId: string | any =
-        req.params.subtodoId || req.query.subtodoId;
+      const formData: IUpdateSubtodoFormData = {
+        _id: req.params.subtodoId || req.query.subtodoId || req.body._id,
+        name: req.body.name,
+        todoId: req.body.todoId,
+      };
 
-      if (!subtodoId || !ObjectId.isValid(subtodoId)) {
-        throw createError(400, 'Invalid subtodo ID!');
-      }
+      const validations: IUpdateSubtodoFormValidations = {
+        _id: SubtodoValidator.Id(formData._id),
+        name: SubtodoValidator.Name(formData.name),
+        todoId: SubtodoValidator.TodoId(formData.todoId),
+      };
 
-      const { name, todoId }: ISubtodoDocument = <ISubtodoDocument>req.body;
-
-      if (!name) {
-        throw createError(400, 'Subtodo name cannot be empty!');
-      }
-
-      if (!todoId || !ObjectId.isValid(todoId)) {
-        throw createError(400, 'Invalid todo ID!');
+      if (!Object.values(validations).every((v) => v.error === false)) {
+        throw createError(400, {
+          message: 'Plese correct subtodo validations!',
+          validations,
+        });
       }
 
       const updatedSubtodo: ISubtodoDocument | null = await Subtodo.findOneAndUpdate(
         {
-          _id: ObjectId(subtodoId),
+          _id: Types.ObjectId(formData._id),
         },
         {
-          name,
-          todoId: ObjectId(todoId + ''),
+          name: formData.name,
+          todoId: Types.ObjectId(formData.todoId),
         },
         { new: true },
       );
 
       if (!updatedSubtodo) {
-        throw createError(404, `Subtodo with ID ${subtodoId} is not found!`);
+        throw createError(404, `Subtodo with ID ${formData._id} is not found!`);
       }
 
       return res.status(200).json({ subtodo: updatedSubtodo });
@@ -119,29 +142,25 @@ export default class SubtodoController {
     }
   }
 
-  public static async completeSubtodo(
+  public static async CompleteSubtodo(
     req: Request,
     res: Response,
     next: NextFunction,
   ) {
-    const { username } = (<any>req).user;
-    const { todoId } = req.params;
-    const defaultError = createError({
-      name: 'NotFoundError',
-      message: `Cannot complete, no todo whose ID is ${todoId} found!`,
-    });
-
     try {
-      const todo: ISubtodoDocument | null = await Subtodo.findOneAndUpdate(
+      const _id: string | any =
+        req.params.subtodoId || req.query.subtodoId || req.body._id;
+      const validation = SubtodoValidator.Id(_id);
+
+      if (validation.error) {
+        throw createError(400, {
+          message: validation.text,
+        });
+      }
+
+      const completedSubtodo: ISubtodoDocument | null = await Subtodo.findOneAndUpdate(
         {
-          $and: [
-            {
-              _id: ObjectId(todoId),
-            },
-            {
-              username,
-            },
-          ],
+          _id: Types.ObjectId(_id),
         },
         {
           completed: true,
@@ -151,90 +170,85 @@ export default class SubtodoController {
         },
       );
 
-      if (!todo) {
-        throw defaultError;
+      if (!completedSubtodo) {
+        throw createError(404, `Subtodo with ID ${_id} is not found!`);
       }
 
-      return res
-        .status(200)
-        .json({ todo, message: 'Successfully completed todo!' });
+      return res.status(200).json({
+        message: 'Successfully completed subtodo!',
+        subtodo: completedSubtodo,
+      });
     } catch (err) {
-      return next(defaultError);
+      return next(err);
     }
   }
 
-  public static async uncompleteSubtodo(
+  public static async UncompleteSubtodo(
     req: Request,
     res: Response,
     next: NextFunction,
   ) {
-    const { username } = (<any>req).user;
-    const { todoId } = req.params;
-    const defaultError = createError({
-      name: 'NotFoundError',
-      message: `Cannot uncomplete, no subtodo with ID ${todoId}`,
-    });
-
     try {
-      const todo: ISubtodoDocument | null = await Subtodo.findOneAndUpdate(
+      const _id: string | any =
+        req.params.subtodoId || req.query.subtodoId || req.body._id;
+      const validation = SubtodoValidator.Id(_id);
+
+      if (validation.error) {
+        throw createError(400, {
+          message: validation.text,
+        });
+      }
+
+      const uncompletedSubtodo: ISubtodoDocument | null = await Subtodo.findOneAndUpdate(
         {
-          $and: [
-            {
-              _id: ObjectId(todoId),
-            },
-            {
-              username,
-            },
-          ],
+          _id: Types.ObjectId(_id),
         },
         { completed: false },
         { new: true },
       );
 
-      if (!todo) {
-        throw createError({
-          name: 'NotFoundError',
-          message: `Cannot uncomplete, no todo whose ID is ${todoId} found!`,
-        });
+      if (!uncompletedSubtodo) {
+        throw createError(404, `Subtodo with ID ${_id} is not found!`);
       }
 
-      return res
-        .status(200)
-        .json({ todo, message: 'Successfully uncompleted subtodo!' });
+      return res.status(200).json({
+        message: 'Successfully uncompleted subtodo!',
+        subtodo: uncompletedSubtodo,
+      });
     } catch (err) {
-      return next(defaultError);
+      return next(err);
     }
   }
 
-  public static async deleteSubtodo(
+  public static async DeleteSubtodo(
     req: Request,
     res: Response,
     next: NextFunction,
   ) {
     try {
-      const { username } = (<any>req).user;
-      const { todoId } = req.params;
-      const todo: ISubtodoDocument | any = await Subtodo.findOneAndDelete({
-        $and: [
-          {
-            _id: ObjectId(todoId),
-          },
-          {
-            username,
-          },
-        ],
-      });
+      const _id: string | any = req.params.subtodoId || req.query.subtodoId;
+      const validation = SubtodoValidator.Id(_id);
 
-      if (!todo) {
-        throw createError({
-          name: 'NotFoundError',
-          message: `Cannot delete, no todo whose ID is ${todoId} found!`,
+      if (validation.error) {
+        throw createError(400, {
+          message: validation.text,
         });
       }
 
-      return res
-        .status(200)
-        .json({ todo, message: 'Successfully deleted todo!' });
+      const deletedSubtodo: ISubtodoDocument | null = await Subtodo.findOneAndDelete(
+        {
+          _id: Types.ObjectId(_id),
+        },
+      );
+
+      if (!deletedSubtodo) {
+        throw createError(404, `Subtodo with ID ${_id} is not found!`);
+      }
+
+      return res.status(200).json({
+        message: 'Successfully deleted subtodo!',
+        subtodo: deletedSubtodo,
+      });
     } catch (err) {
       return next(err);
     }

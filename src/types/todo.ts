@@ -47,3 +47,49 @@ export interface ITodoValidator {
   Due: (input: string | null) => Validation;
   Priority: (input: string) => Validation;
 }
+
+export interface ICreateTodoFormValidations {
+  listId: Validation;
+  name: Validation;
+  notes: Validation;
+  url: Validation;
+  isDateSet: Validation;
+  isTimeSet: Validation;
+  due: Validation;
+  priority: Validation;
+}
+
+export interface ICreateTodoFormData {
+  listId: string;
+  name: string;
+  notes: string | null;
+  url: string | null;
+  isDateSet: boolean;
+  isTimeSet: boolean;
+  due: string | null;
+  priority: string;
+}
+
+export interface IUpdateTodoFormValidations {
+  _id: Validation;
+  listId: Validation;
+  name: Validation;
+  notes: Validation;
+  url: Validation;
+  isDateSet: Validation;
+  isTimeSet: Validation;
+  due: Validation;
+  priority: Validation;
+}
+
+export interface IUpdateTodoFormData {
+  _id: string;
+  listId: string;
+  name: string;
+  notes: string | null;
+  url: string | null;
+  isDateSet: boolean;
+  isTimeSet: boolean;
+  due: string | null;
+  priority: string;
+}

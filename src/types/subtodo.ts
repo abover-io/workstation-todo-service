@@ -25,3 +25,25 @@ export interface ISubtodoValidator {
   Name: (input: string) => Validation;
   TodoId: (input: string) => Validation;
 }
+
+export interface ICreateSubtodoFormValidations {
+  name: Validation;
+  todoId: Validation;
+}
+
+export interface ICreateSubtodoFormData {
+  name: string;
+  todoId: string;
+}
+
+export interface IUpdateSubtodoFormValidations {
+  _id: Validation;
+  name: Validation;
+  todoId: Validation;
+}
+
+export interface IUpdateSubtodoFormData {
+  _id: string;
+  name: string;
+  todoId: string;
+}

@@ -10,21 +10,17 @@ TodoRouter.use(authenticate);
 TodoRouter.get('/', TodoController.getTodos);
 TodoRouter.get('/:todoId', TodoController.getTodo);
 TodoRouter.post('/', TodoController.addTodo);
-TodoRouter.put('/:todoId', Authorize.authorizeTodo, TodoController.updateTodo);
+TodoRouter.put('/:todoId', Authorize.Todo, TodoController.updateTodo);
 TodoRouter.patch(
   '/complete/:todoId',
-  Authorize.authorizeTodo,
+  Authorize.Todo,
   TodoController.completeTodo,
 );
 TodoRouter.patch(
   '/uncomplete/:todoId',
-  Authorize.authorizeTodo,
+  Authorize.Todo,
   TodoController.uncompleteTodo,
 );
-TodoRouter.delete(
-  '/:todoId',
-  Authorize.authorizeTodo,
-  TodoController.deleteTodo,
-);
+TodoRouter.delete('/:todoId', Authorize.Todo, TodoController.deleteTodo);
 
 export default TodoRouter;

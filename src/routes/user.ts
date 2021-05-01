@@ -7,23 +7,11 @@ const UserRouter = Router();
 
 UserRouter.use(authenticate);
 
-UserRouter.put(
-  '/:username',
-  Authorize.authorizeUser,
-  UserController.updateUser,
-);
+UserRouter.put('/', Authorize.User, UserController.updateUser);
 
 // UserRouter.patch('/verify')
 
-UserRouter.patch(
-  '/:username',
-  Authorize.authorizeUser,
-  UserController.updatePassword,
-);
-UserRouter.delete(
-  '/:username',
-  Authorize.authorizeUser,
-  UserController.deleteUser,
-);
+UserRouter.patch('/', Authorize.User, UserController.updatePassword);
+UserRouter.delete('/', Authorize.User, UserController.deleteUser);
 
 export default UserRouter;

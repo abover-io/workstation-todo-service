@@ -7,27 +7,27 @@ import { SubtodoController } from '@/controllers';
 const SubtodoRouter: Router = Router();
 
 SubtodoRouter.use(authenticate);
-SubtodoRouter.get('/', SubtodoController.getAllSubtodos);
-SubtodoRouter.post('/', SubtodoController.createSubtodo);
+SubtodoRouter.get('/', SubtodoController.GetAllSubtodos);
+SubtodoRouter.post('/', SubtodoController.CreateSubtodo);
 SubtodoRouter.put(
   '/:subtodoId',
-  Authorize.authorizeSubtodo,
-  SubtodoController.updateSubtodo,
+  Authorize.Subtodo,
+  SubtodoController.UpdateSubtodo,
 );
 SubtodoRouter.patch(
-  '/complete/:todoId',
-  Authorize.authorizeSubtodo,
-  SubtodoController.completeSubtodo,
+  '/complete/:subtodoId',
+  Authorize.Subtodo,
+  SubtodoController.CompleteSubtodo,
 );
 SubtodoRouter.patch(
-  '/uncomplete/:todoId',
-  Authorize.authorizeSubtodo,
-  SubtodoController.uncompleteSubtodo,
+  '/uncomplete/:subtodoId',
+  Authorize.Subtodo,
+  SubtodoController.UncompleteSubtodo,
 );
 SubtodoRouter.delete(
   '/:subtodoId',
-  Authorize.authorizeSubtodo,
-  SubtodoController.deleteSubtodo,
+  Authorize.Subtodo,
+  SubtodoController.DeleteSubtodo,
 );
 
 export default SubtodoRouter;

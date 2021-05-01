@@ -7,13 +7,9 @@ import { ListController } from '@/controllers';
 const ListRouter: Router = Router();
 
 ListRouter.use(authenticate);
-ListRouter.get('/', ListController.getAllLists);
-ListRouter.post('/', ListController.createList);
-ListRouter.put('/:listId', Authorize.authorizeTodo, ListController.updateList);
-ListRouter.delete(
-  '/:listId',
-  Authorize.authorizeTodo,
-  ListController.deleteList,
-);
+ListRouter.get('/', ListController.GetAllLists);
+ListRouter.post('/', ListController.CreateList);
+ListRouter.put('/:listId', Authorize.List, ListController.UpdateList);
+ListRouter.delete('/:listId', Authorize.List, ListController.DeleteList);
 
 export default ListRouter;

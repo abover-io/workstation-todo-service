@@ -1,51 +1,52 @@
 import { Request, Response, NextFunction } from 'express';
-import { Types, QueryOptions, MongooseFilterQuery } from 'mongoose';
+import { Types, FilterQuery } from 'mongoose';
 import createError from 'http-errors';
 
 // Typings
-import { ITodoDocument } from '@/types/todo';
+import {
+  ITodoDocument,
+  ICreateTodoFormValidations,
+  ICreateTodoFormData,
+  IUpdateTodoFormValidations,
+  IUpdateTodoFormData,
+  TodoPriority,
+} from '@/types/todo';
 
 // Models
 import { Todo } from '@/models';
 
-const { ObjectId } = Types;
+// Utils
+import { TodoValidator } from '@/utils/validator';
 
 export default class TodoController {
-  public static async getTodos(
+  public static async GetAllTodos(
     req: Request,
     res: Response,
     next: NextFunction,
   ) {
     try {
-      const { username } = (<any>req).user;
+      const listId: string | any = req.params.listId || req.query.listId;
 
-      const options: QueryOptions = {
-        limit: 100,
-        skip: 0,
+      const validation = TodoValidator.ListId(listId);
+
+      if (validation.error) {
+        throw createError(400, {
+          message: validation.text,
+        });
+      }
+
+      const conditions: FilterQuery<ITodoDocument> = {
+        listId: Types.ObjectId(listId),
       };
 
-      const conditions: MongooseFilterQuery<
-        Pick<ITodoDocument, keyof ITodoDocument>
-      > = {
-        username,
-        completed: false,
-      };
-
-      const todos: ITodoDocument[] | any = await Todo.find(
-        {
-          username,
-          completed: false,
-        },
-        null,
-        options,
-      );
-
-      const totalTodos: number = await Todo.countDocuments({ username });
+      const [todos, total] = await Promise.all([
+        Todo.find(conditions),
+        Todo.countDocuments(conditions),
+      ]);
 
       return res.status(200).json({
-        message: `Successfully fetched all todos with ${todos.length} in total!`,
-        count: todos.length,
-        total: totalTodos,
+        message: `Successfully fetched all todos!`,
+        total,
         todos,
       });
     } catch (err) {
@@ -53,136 +54,147 @@ export default class TodoController {
     }
   }
 
-  public static async getTodo(req: Request, res: Response, next: NextFunction) {
+  public static async CreateTodo(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
     try {
-      const { username } = (<any>req).user;
-      const { todoId } = req.params;
-      const todo: ITodoDocument | any = await Todo.findOne({
-        $and: [
-          {
-            _id: ObjectId(todoId),
-          },
-          {
-            username,
-          },
-        ],
-      });
+      const formData: ICreateTodoFormData = {
+        listId: req.params.listId || req.query.listId || req.body.listId,
+        name: req.body.name,
+        notes: req.body.notes || null,
+        url: req.body.url || null,
+        isDateSet: req.body.isDateSet || false,
+        isTimeSet: req.body.isTimeSet || false,
+        due: req.body.due || null,
+        priority: req.body.priority || 'none',
+      };
 
-      if (!todo) {
-        throw createError({
-          name: 'NotFoundError',
-          message: `Cannot get, no todo whose ID is ${todoId} found!`,
+      const validations: ICreateTodoFormValidations = {
+        listId: TodoValidator.ListId(formData.listId),
+        name: TodoValidator.Name(formData.name),
+        notes: TodoValidator.Notes(formData.notes),
+        url: TodoValidator.URL(formData.url),
+        isDateSet: TodoValidator.IsDateSet(formData.isDateSet),
+        isTimeSet: TodoValidator.IsTimeSet(formData.isTimeSet),
+        due: TodoValidator.Due(formData.due),
+        priority: TodoValidator.Priority(formData.priority),
+      };
+
+      if (!Object.values(validations).every((v) => v.error === false)) {
+        throw createError(400, {
+          message: 'Please correct todo validations!',
+          validations,
         });
       }
 
-      return res.status(200).json({
-        todo,
-        message: `Successfully fetched todo whose ID is ${todoId}!`,
-      });
-    } catch (err) {
-      return next(err);
-    }
-  }
-
-  public static async addTodo(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { username } = (<any>req).user;
-      const {
-        name,
-        due,
-        isTimeSet = false,
-        priority = 'none',
-      }: ITodoDocument = req.body;
-      const todo: ITodoDocument | any = await Todo.create({
-        username,
-        name,
-        due,
-        isTimeSet,
-        priority,
+      const createdTodo: ITodoDocument = await Todo.create({
+        listId: formData.listId,
+        name: formData.name,
+        notes: formData.notes,
+        url: formData.url,
+        isDateSet: formData.isDateSet,
+        isTimeSet: formData.isTimeSet,
+        due: formData.due,
+        priority: formData.priority,
       });
 
       return res
         .status(201)
-        .json({ todo, message: 'Successfully added todo!' });
+        .json({ message: 'Successfully created todo!', todo: createdTodo });
     } catch (err) {
       return next(err);
     }
   }
 
-  public static async updateTodo(
+  public static async UpdateTodo(
     req: Request,
     res: Response,
     next: NextFunction,
   ) {
-    const { username } = (<any>req).user;
-    const { todoId } = req.params;
-    const {
-      name,
-      due,
-      isTimeSet = false,
-      priority = 'none',
-    }: ITodoDocument = req.body;
-    const defaultError = createError({
-      name: 'NotFoundError',
-      message: `Cannot update, no todo whose ID is ${todoId} found!`,
-    });
-
     try {
-      const todo: ITodoDocument | any = await Todo.findOneAndUpdate(
+      const formData: IUpdateTodoFormData = {
+        _id: req.params.todoId || req.query.todoId || req.body._id,
+        listId: req.body.listId,
+        name: req.body.name,
+        notes: req.body.notes || null,
+        url: req.body.url || null,
+        isDateSet: req.body.isDateSet || false,
+        isTimeSet: req.body.isTimeSet || false,
+        due: req.body.due || null,
+        priority: req.body.priority || 'none',
+      };
+
+      const validations: IUpdateTodoFormValidations = {
+        _id: TodoValidator.Id(formData._id),
+        listId: TodoValidator.ListId(formData.listId),
+        name: TodoValidator.Name(formData.name),
+        notes: TodoValidator.Notes(formData.notes),
+        url: TodoValidator.URL(formData.url),
+        isDateSet: TodoValidator.IsDateSet(formData.isDateSet),
+        isTimeSet: TodoValidator.IsTimeSet(formData.isTimeSet),
+        due: TodoValidator.Due(formData.due),
+        priority: TodoValidator.Priority(formData.priority),
+      };
+
+      if (!Object.values(validations).every((v) => v.error === false)) {
+        throw createError(400, {
+          message: 'Please correct todo validations!',
+          validations,
+        });
+      }
+
+      const updatedTodo: ITodoDocument | null = await Todo.findOneAndUpdate(
         {
-          $and: [
-            {
-              _id: ObjectId(todoId),
-            },
-            {
-              username,
-            },
-          ],
+          _id: Types.ObjectId(formData._id),
         },
         {
-          name,
-          due,
-          isTimeSet,
-          priority,
+          listId: formData.listId,
+          name: formData.name,
+          notes: formData.notes,
+          url: formData.url,
+          isDateSet: formData.isDateSet,
+          isTimeSet: formData.isTimeSet,
+          due: formData.due,
+          priority: formData.priority as TodoPriority,
         },
         { new: true },
       );
 
-      if (!todo) {
-        throw defaultError;
+      if (!updatedTodo) {
+        throw createError(404, {
+          message: `Todo with ID ${formData._id} is not found!`,
+        });
       }
 
       return res
         .status(200)
-        .json({ todo, message: 'Successfully updated todo!' });
+        .json({ message: 'Successfully updated todo!', todo: updatedTodo });
     } catch (err) {
-      return next(defaultError);
+      return next(err);
     }
   }
 
-  public static async completeTodo(
+  public static async CompleteTodo(
     req: Request,
     res: Response,
     next: NextFunction,
   ) {
-    const { username } = (<any>req).user;
-    const { todoId } = req.params;
-    const defaultError = createError({
-      name: 'NotFoundError',
-      message: `Cannot complete, no todo whose ID is ${todoId} found!`,
-    });
-
     try {
-      const todo: ITodoDocument | any = await Todo.findOneAndUpdate(
+      const _id: string | any =
+        req.params.todoId || req.query.todoId || req.body._id;
+      const validation = TodoValidator.Id(_id);
+
+      if (validation.error) {
+        throw createError(400, {
+          message: validation.text,
+        });
+      }
+
+      const completedTodo: ITodoDocument | null = await Todo.findOneAndUpdate(
         {
-          $and: [
-            {
-              _id: ObjectId(todoId),
-            },
-            {
-              username,
-            },
-          ],
+          _id: Types.ObjectId(_id),
         },
         {
           completed: true,
@@ -192,90 +204,81 @@ export default class TodoController {
         },
       );
 
-      if (!todo) {
-        throw defaultError;
+      if (!completedTodo) {
+        throw createError(404, `Todo with ID ${_id} is not found!`);
       }
 
       return res
         .status(200)
-        .json({ todo, message: 'Successfully completed todo!' });
+        .json({ message: 'Successfully completed todo!', todo: completedTodo });
     } catch (err) {
-      return next(defaultError);
+      return next(err);
     }
   }
 
-  public static async uncompleteTodo(
+  public static async UncompleteTodo(
     req: Request,
     res: Response,
     next: NextFunction,
   ) {
-    const { username } = (<any>req).user;
-    const { todoId } = req.params;
-    const defaultError = createError({
-      name: 'NotFoundError',
-      message: `Cannot uncomplete, no todo whose ID is ${todoId} found!`,
-    });
-
     try {
-      const todo: ITodoDocument | any = await Todo.findOneAndUpdate(
+      const _id: string | any =
+        req.params.todoId || req.query.todoId || req.body._id;
+      const validation = TodoValidator.Id(_id);
+
+      if (validation.error) {
+        throw createError(400, {
+          message: validation.text,
+        });
+      }
+
+      const uncompletedTodo: ITodoDocument | any = await Todo.findOneAndUpdate(
         {
-          $and: [
-            {
-              _id: ObjectId(todoId),
-            },
-            {
-              username,
-            },
-          ],
+          _id: Types.ObjectId(_id),
         },
         { completed: false },
         { new: true },
       );
 
-      if (!todo) {
-        throw createError({
-          name: 'NotFoundError',
-          message: `Cannot uncomplete, no todo whose ID is ${todoId} found!`,
-        });
+      if (!uncompletedTodo) {
+        throw createError(404, `Todo with ID ${_id} is not found!`);
       }
 
-      return res
-        .status(200)
-        .json({ todo, message: 'Successfully uncompleted todo!' });
+      return res.status(200).json({
+        message: 'Successfully uncompleted todo!',
+        todo: uncompletedTodo,
+      });
     } catch (err) {
-      return next(defaultError);
+      return next(err);
     }
   }
 
-  public static async deleteTodo(
+  public static async DeleteTodo(
     req: Request,
     res: Response,
     next: NextFunction,
   ) {
     try {
-      const { username } = (<any>req).user;
-      const { todoId } = req.params;
-      const todo: ITodoDocument | any = await Todo.findOneAndDelete({
-        $and: [
-          {
-            _id: ObjectId(todoId),
-          },
-          {
-            username,
-          },
-        ],
+      const _id: string | any = req.params.todoId || req.query.todoId;
+      const validation = TodoValidator.Id(_id);
+
+      if (validation.error) {
+        throw createError(400, {
+          message: validation.text,
+        });
+      }
+
+      const deletedTodo: ITodoDocument | null = await Todo.findOneAndDelete({
+        _id: Types.ObjectId(_id),
       });
 
-      if (!todo) {
-        throw createError({
-          name: 'NotFoundError',
-          message: `Cannot delete, no todo whose ID is ${todoId} found!`,
-        });
+      if (!deletedTodo) {
+        throw createError(404, `Todo with ID ${_id} is not found!`);
       }
 
       return res
         .status(200)
-        .json({ todo, message: 'Successfully deleted todo!' });
+        .json({ message: 'Successfully deleted todo!', todo: deletedTodo });
     } catch (err) {
       return next(err);
     }

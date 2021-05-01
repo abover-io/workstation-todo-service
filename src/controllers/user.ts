@@ -2,7 +2,6 @@ import { Types } from 'mongoose';
 import { hashSync } from 'bcryptjs';
 import createError from 'http-errors';
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
 
 // Typings
 import { ICustomRequest } from '@/types';

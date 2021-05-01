@@ -1,17 +1,23 @@
 import { Router } from 'express';
 
 import { UserController } from '@/controllers';
-import { authenticate, Authorize } from '@/middlewares';
+import { Authorize } from '@/middlewares';
 
 const UserRouter = Router();
 
-UserRouter.use(authenticate);
-
-UserRouter.put('/', Authorize.User, UserController.updateUser);
+UserRouter.put('/:userId', Authorize.User, UserController.UpdateUser);
+UserRouter.put('/', Authorize.User, UserController.UpdateUser);
 
 // UserRouter.patch('/verify')
 
-UserRouter.patch('/', Authorize.User, UserController.updatePassword);
-UserRouter.delete('/', Authorize.User, UserController.deleteUser);
+UserRouter.patch(
+  '/password/:userId',
+  Authorize.User,
+  UserController.UpdatePassword,
+);
+UserRouter.patch('/password', Authorize.User, UserController.UpdatePassword);
+
+UserRouter.delete('/:userId', Authorize.User, UserController.DeleteUser);
+UserRouter.delete('/', Authorize.User, UserController.DeleteUser);
 
 export default UserRouter;

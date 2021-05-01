@@ -1,33 +1,28 @@
 import { Router } from 'express';
 
-import Authorize from '@/middlewares/authorize';
-import authenticate from '@/middlewares/authenticate';
+import { Authorize } from '@/middlewares';
 import { SubtodoController } from '@/controllers';
 
 const SubtodoRouter: Router = Router();
 
-SubtodoRouter.use(authenticate);
 SubtodoRouter.get('/', SubtodoController.GetAllSubtodos);
+
 SubtodoRouter.post('/', SubtodoController.CreateSubtodo);
-SubtodoRouter.put(
-  '/:subtodoId',
-  Authorize.Subtodo,
-  SubtodoController.UpdateSubtodo,
-);
-SubtodoRouter.patch(
-  '/complete/:subtodoId',
-  Authorize.Subtodo,
-  SubtodoController.CompleteSubtodo,
-);
+
+SubtodoRouter.use(Authorize.Subtodo);
+
+SubtodoRouter.put('/:subtodoId', SubtodoController.UpdateSubtodo);
+SubtodoRouter.put('/', SubtodoController.UpdateSubtodo);
+
+SubtodoRouter.patch('/complete/:subtodoId', SubtodoController.CompleteSubtodo);
+SubtodoRouter.patch('/complete', SubtodoController.CompleteSubtodo);
 SubtodoRouter.patch(
   '/uncomplete/:subtodoId',
-  Authorize.Subtodo,
   SubtodoController.UncompleteSubtodo,
 );
-SubtodoRouter.delete(
-  '/:subtodoId',
-  Authorize.Subtodo,
-  SubtodoController.DeleteSubtodo,
-);
+SubtodoRouter.patch('/uncomplete', SubtodoController.UncompleteSubtodo);
+
+SubtodoRouter.delete('/:subtodoId', SubtodoController.DeleteSubtodo);
+SubtodoRouter.delete('/', SubtodoController.DeleteSubtodo);
 
 export default SubtodoRouter;

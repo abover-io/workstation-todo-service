@@ -1,26 +1,25 @@
 import { Router } from 'express';
 
-import Authorize from '@/middlewares/authorize';
-import authenticate from '@/middlewares/authenticate';
+import { Authorize } from '@/middlewares';
 import { TodoController } from '@/controllers';
 
 const TodoRouter = Router();
 
-TodoRouter.use(authenticate);
 TodoRouter.get('/', TodoController.getTodos);
-TodoRouter.get('/:todoId', TodoController.getTodo);
+
 TodoRouter.post('/', TodoController.addTodo);
-TodoRouter.put('/:todoId', Authorize.Todo, TodoController.updateTodo);
-TodoRouter.patch(
-  '/complete/:todoId',
-  Authorize.Todo,
-  TodoController.completeTodo,
-);
-TodoRouter.patch(
-  '/uncomplete/:todoId',
-  Authorize.Todo,
-  TodoController.uncompleteTodo,
-);
-TodoRouter.delete('/:todoId', Authorize.Todo, TodoController.deleteTodo);
+
+TodoRouter.use(Authorize.Todo);
+
+TodoRouter.put('/:todoId', TodoController.updateTodo);
+TodoRouter.put('/', TodoController.updateTodo);
+
+TodoRouter.patch('/complete/:todoId', TodoController.completeTodo);
+TodoRouter.patch('/complete', TodoController.completeTodo);
+TodoRouter.patch('/uncomplete/:todoId', TodoController.uncompleteTodo);
+TodoRouter.patch('/uncomplete', TodoController.uncompleteTodo);
+
+TodoRouter.delete('/:todoId', TodoController.deleteTodo);
+TodoRouter.delete('/', TodoController.deleteTodo);
 
 export default TodoRouter;

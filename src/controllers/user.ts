@@ -22,7 +22,6 @@ import { User, Social, List, Todo, Subtodo } from '@/models';
 
 // Utils
 import { UserValidator } from '@/utils/validator';
-import list from '@/utils/validator/list';
 
 export default class UserController {
   public static async UpdateUser(

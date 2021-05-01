@@ -1,231 +1,251 @@
+import { Types } from 'mongoose';
 import { hashSync } from 'bcryptjs';
-import createError, { HttpError } from 'http-errors';
+import createError from 'http-errors';
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 // Typings
-import { CustomHttpError, IUpdateUserValidations } from '@/types';
-import { IUserDocument } from '@/types/user';
+import { ICustomRequest } from '@/types';
+import {
+  IUserDocument,
+  IUpdateUserFormValidations,
+  IUpdateUserFormData,
+  IUpdateUserPasswordFormValidations,
+  IUpdateUserPasswordFormData,
+} from '@/types/user';
+import { ISocialDocument } from '@/types/social';
+import { IListDocument } from '@/types/list';
 import { ITodoDocument } from '@/types/todo';
-
-// Config
-import { JWT_REFRESH_SECRET } from '@/config';
+import { ISubtodoDocument } from '@/types/subtodo';
 
 // Models
-import { User, Todo } from '@/models';
+import { User, Social, List, Todo, Subtodo } from '@/models';
 
 // Utils
-import {
-  generateUserTokens,
-  decideCookieOptions,
-  CustomValidator,
-  createToken,
-} from '@/utils';
+import { UserValidator } from '@/utils/validator';
+import list from '@/utils/validator/list';
 
 export default class UserController {
-  public static async updateUser(
+  public static async UpdateUser(
     req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<void | Response<any>> {
     try {
-      const { username: usernameFromAuth } = (<any>req).user;
-      const { username: usernameFromParams } = req.params;
-      const { firstName, lastName = '', email } = req.body;
-      const validations: IUpdateUserValidations = {
-        name: CustomValidator.Name(firstName),
-        email: CustomValidator.email(email),
+      const { email } = (<ICustomRequest>req).user;
+
+      const formData: IUpdateUserFormData = {
+        _id: req.params.userId || req.query.userId || req.body._id,
+        name: req.body.name,
       };
-      const validationErrors: HttpError[] = [];
 
-      if (usernameFromAuth != usernameFromParams) {
-        const usernameAuthError: HttpError = {
-          expose: false,
-          name: 'AuthorizationError',
-          status: 401,
-          statusCode: 401,
-          message: 'Cannot update user, invalid credentials!',
-        };
-        throw usernameAuthError;
+      const validations: IUpdateUserFormValidations = {
+        _id: UserValidator.Id(formData._id),
+        name: UserValidator.Name(formData.name),
+      };
+
+      if (!Object.values(validations).every((v) => v.error === false)) {
+        throw createError(400, {
+          message: 'Please correct user validations!',
+          validations,
+        });
       }
 
-      for (const validationKey in validations) {
-        if (validations[validationKey]) {
-          const currentValidationError: HttpError = {
-            expose: false,
-            status: 400,
-            statusCode: 400,
-            name: validationKey,
-            message: validations[validationKey],
-          };
-          validationErrors.push(currentValidationError);
-        }
-      }
-
-      if (validationErrors.length) {
-        const httpErrorWithMultipleMessages: CustomHttpError = {
-          expose: false,
-          message: 'Cannot update, please correct user information!',
-          messages: validationErrors,
-          statusCode: 400,
-          status: 400,
-          name: 'ValidationError',
-        };
-        throw httpErrorWithMultipleMessages;
-      }
-
-      const existedUser: IUserDocument | any = await User.findOne({ email });
-
-      if (existedUser) {
-        throw createError({
-          name: 'AlreadyExistsError',
-          message: `Email isn't available.`,
-          expose: false,
-        });
-      } else {
-        const updatedApiKey = createToken('apiKey', {
-          username: usernameFromAuth,
-          email,
-        });
-
-        const {
-          isUsernameSet,
-          isPasswordSet,
-          verified,
-        }: IUserDocument | any = await User.findOneAndUpdate(
-          { username: usernameFromAuth },
-          { firstName, lastName, email, apiKey: updatedApiKey },
-          { new: true },
-        );
-
-        const tokens = await generateUserTokens({
-          firstName,
-          lastName,
-          username: usernameFromAuth,
-          email,
-        });
-
-        res.cookie('act', tokens.accessToken, {
-          httpOnly: decideCookieOptions('httpOnly'),
-          secure: decideCookieOptions('secure'),
-          path: '/todo',
-          signed: true,
-          sameSite: decideCookieOptions('sameSite'),
-        });
-
-        res.cookie('rft', tokens.refreshToken, {
-          httpOnly: decideCookieOptions('httpOnly'),
-          secure: decideCookieOptions('secure'),
-          path: '/todo',
-          signed: true,
-          sameSite: decideCookieOptions('sameSite'),
-        });
-
-        return res.status(200).json({
-          user: {
-            firstName,
-            lastName,
-            isUsernameSet,
-            username: usernameFromAuth,
-            email,
-            isPasswordSet,
-            verified,
-            apiKey: updatedApiKey,
+      const updatedUser: IUserDocument | null = await User.findOneAndUpdate(
+        {
+          $and: [
+            {
+              _id: Types.ObjectId(formData._id),
+            },
+            {
+              email,
+            },
+          ],
+        },
+        {
+          name: formData.name,
+        },
+        {
+          projection: {
+            __v: 0,
+            password: 0,
           },
-          tokens: {
-            ...tokens,
-            csrfToken: req.csrfToken(),
-          },
-          message: 'Successfully updated user!',
+        },
+      );
+
+      if (!updatedUser) {
+        throw createError(404, {
+          message: `User with ID ${formData._id} is not found!`,
         });
       }
+
+      return res.status(200).json({
+        message: 'Successfully updated user!',
+        user: updatedUser,
+      });
     } catch (err) {
       return next(err);
     }
   }
 
-  public static async updatePassword(
+  public static async UpdatePassword(
     req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<void | Response<any>> {
     try {
-      const { username: usernameFromAuth } = (<any>req).user;
-      const { username: usernameFromParams } = req.params;
-      const { password } = req.body;
-      const passwordValidation = CustomValidator.password(password);
+      const { email } = (<ICustomRequest>req).user;
 
-      if (usernameFromAuth != usernameFromParams) {
-        const usernameAuthError: HttpError = {
-          expose: false,
-          name: 'AuthorizationError',
-          status: 401,
-          statusCode: 401,
-          message: 'Cannot update user, invalid credentials!',
-        };
-        throw usernameAuthError;
+      const formData: IUpdateUserPasswordFormData = {
+        _id: req.params.userId || req.query.userId || req.body._id,
+        password: req.body.password,
+      };
+
+      const validations: IUpdateUserPasswordFormValidations = {
+        _id: UserValidator.Id(formData._id),
+        password: UserValidator.Password(formData.password),
+      };
+
+      if (!Object.values(validations).every((v) => v.error === false)) {
+        throw createError(400, {
+          message: 'Please correct user validations!',
+          validations,
+        });
       }
 
-      if (passwordValidation?.length) {
-        const passwordValidationError: HttpError = {
-          expose: false,
-          status: 400,
-          statusCode: 400,
-          name: 'ValidationError',
-          message: passwordValidation,
-        };
-        throw passwordValidationError;
-      }
+      const hashedPassword = hashSync(formData.password, 10);
 
-      const hashedPassword = hashSync(password, 10);
-
-      await User.updateOne(
-        { username: usernameFromAuth },
-        { isPasswordSet: true, password: hashedPassword },
+      const updatedUser: IUserDocument | null = await User.findOneAndUpdate(
+        {
+          $and: [
+            {
+              _id: Types.ObjectId(formData._id),
+            },
+            {
+              email,
+            },
+          ],
+        },
+        {
+          password: hashedPassword,
+        },
+        {
+          projection: {
+            __v: 0,
+            password: 0,
+          },
+        },
       );
 
       return res.status(200).json({
-        message: 'Successfully updated password!',
+        message: 'Successfully updated user password!',
+        user: updatedUser,
       });
     } catch (err) {
       next(err);
     }
   }
 
-  public static async deleteUser(
+  public static async DeleteUser(
     req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<void | Response<any>> {
     try {
-      const { username: usernameFromAuth } = (<any>req).user;
-      const { username: usernameFromParams } = req.params;
+      const { email } = (<ICustomRequest>req).user;
 
-      if (usernameFromAuth != usernameFromParams) {
-        const usernameAuthError: HttpError = {
-          expose: false,
-          name: 'AuthorizationError',
-          status: 401,
-          statusCode: 401,
-          message: 'Cannot delete user, invalid credentials!',
-        };
-        throw usernameAuthError;
+      const _id: string | any = req.params.userId || req.query.subtodoId;
+      const validation = UserValidator.Id(_id);
+
+      if (validation.error) {
+        throw createError(400, {
+          message: validation.text,
+        });
       }
 
-      await Todo.deleteMany({
-        username: usernameFromAuth,
+      const deletedUser: IUserDocument | null = await User.findOne(
+        {
+          $and: [
+            {
+              _id: Types.ObjectId(_id),
+            },
+            {
+              email,
+            },
+          ],
+        },
+        {
+          projection: {
+            __v: 0,
+            password: 0,
+          },
+        },
+      );
+
+      if (!deletedUser) {
+        throw createError(404, {
+          message: `User with ID ${_id} is not found!`,
+        });
+      }
+
+      const deletedSocial: ISocialDocument | null = await Social.findOne({
+        userId: deletedUser._id,
       });
 
-      await User.deleteOne({
-        username: usernameFromAuth,
+      const deletedLists: IListDocument[] = await List.find({
+        email,
       });
 
-      res.clearCookie('rft', { path: '/todo' });
+      const deletedTodos: ITodoDocument[] = await Todo.find({
+        listId: {
+          $in: deletedLists.map((list) => list._id),
+        },
+      });
+
+      const deletedSubtodos: ISubtodoDocument[] = await Subtodo.find({
+        todoId: {
+          $in: deletedTodos.map((todo) => todo._id),
+        },
+      });
+
+      // Delete Process
+      await Promise.all([
+        Subtodo.deleteMany({
+          _id: {
+            $in: deletedSubtodos.map((subtodo) => subtodo._id),
+          },
+        }),
+        Todo.deleteMany({
+          _id: {
+            $in: deletedTodos.map((todo) => todo._id),
+          },
+        }),
+        List.deleteMany({
+          _id: {
+            $in: deletedLists.map((list) => list._id),
+          },
+        }),
+        Social.deleteOne({
+          _id: deletedSocial?._id,
+        }),
+        User.deleteOne({
+          $and: [
+            {
+              _id: deletedUser._id,
+            },
+            {
+              email,
+            },
+          ],
+        }),
+      ]);
+
       res.clearCookie('act', { path: '/todo' });
+      res.clearCookie('rft', { path: '/todo' });
       res.clearCookie('_csrf', { path: '/todo' });
 
       return res.status(200).json({
-        message: 'Successfully deleted account!',
+        message: 'Successfully deleted user!',
       });
     } catch (err) {
       return next(err);

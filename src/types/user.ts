@@ -41,3 +41,13 @@ export interface IUpdateUserFormData {
   _id: string;
   name: string;
 }
+
+export interface IUpdateUserPasswordFormValidations {
+  _id: Validation;
+  password: Validation;
+}
+
+export interface IUpdateUserPasswordFormData {
+  _id: string;
+  password: string;
+}

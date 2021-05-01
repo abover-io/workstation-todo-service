@@ -2,9 +2,9 @@ import { Types } from 'mongoose';
 
 // Types
 import { Validation } from '@/types';
-import { IUserValidator } from '@/types/user';
+import { ISubtodoValidator } from '@/types/subtodo';
 
-class UserValidator implements IUserValidator {
+class SubtodoValidator implements ISubtodoValidator {
   public Id(input: string): Validation {
     if (!input) {
       return {
@@ -38,35 +38,16 @@ class UserValidator implements IUserValidator {
     };
   }
 
-  public Email(input: string): Validation {
+  public TodoId(input: string): Validation {
     if (!input) {
       return {
         error: true,
-        text: 'Email cannot be empty!',
+        text: 'Todo ID cannot be empty!',
       };
-    } else if (input && !/.+@.+\..+/.test(input)) {
+    } else if (!Types.ObjectId.isValid(input)) {
       return {
         error: true,
-        text: 'Invalid email address!',
-      };
-    }
-
-    return {
-      error: false,
-      text: '',
-    };
-  }
-
-  public Password(input: string): Validation {
-    if (!input) {
-      return {
-        error: true,
-        text: 'Password is required!',
-      };
-    } else if (input.length < 6) {
-      return {
-        error: true,
-        text: 'Password must be at least 6 characters!',
+        text: 'Invalid list ID!',
       };
     }
 
@@ -77,4 +58,4 @@ class UserValidator implements IUserValidator {
   }
 }
 
-export default new UserValidator();
+export default new SubtodoValidator();

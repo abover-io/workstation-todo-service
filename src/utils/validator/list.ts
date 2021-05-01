@@ -2,9 +2,9 @@ import { Types } from 'mongoose';
 
 // Types
 import { Validation } from '@/types';
-import { IUserValidator } from '@/types/user';
+import { IListValidator } from '@/types/list';
 
-class UserValidator implements IUserValidator {
+class ListValidator implements IListValidator {
   public Id(input: string): Validation {
     if (!input) {
       return {
@@ -15,20 +15,6 @@ class UserValidator implements IUserValidator {
       return {
         error: true,
         text: 'Invalid ID!',
-      };
-    }
-
-    return {
-      error: false,
-      text: '',
-    };
-  }
-
-  public Name(input: string): Validation {
-    if (!input) {
-      return {
-        error: true,
-        text: 'Name cannot be empty!',
       };
     }
 
@@ -57,16 +43,30 @@ class UserValidator implements IUserValidator {
     };
   }
 
-  public Password(input: string): Validation {
+  public Name(input: string): Validation {
     if (!input) {
       return {
         error: true,
-        text: 'Password is required!',
+        text: 'Name cannot be empty!',
       };
-    } else if (input.length < 6) {
+    }
+
+    return {
+      error: false,
+      text: '',
+    };
+  }
+
+  public Color(input: string): Validation {
+    if (!input) {
       return {
         error: true,
-        text: 'Password must be at least 6 characters!',
+        text: 'Color cannot be empty!',
+      };
+    } else if (!/^#[0-9A-F]{6}$/i.test('input')) {
+      return {
+        error: true,
+        text: 'Invalid color hex!',
       };
     }
 
@@ -77,4 +77,4 @@ class UserValidator implements IUserValidator {
   }
 }
 
-export default new UserValidator();
+export default new ListValidator();

@@ -12,9 +12,6 @@ import { ISubtodoDocument } from '@/types/subtodo';
 // Models
 import { User, List, Todo, Subtodo } from '@/models';
 
-// Config
-import { JWT_ACCESS_SECRET } from '@/config';
-
 export default class Authorize {
   static async User(req: Request, res: Response, next: NextFunction) {
     try {
@@ -31,6 +28,28 @@ export default class Authorize {
       return next();
     } catch (err) {
       next(err);
+    }
+  }
+
+  static async List(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email }: IUser = (<ICustomRequest>req).user;
+      const _id: string | any =
+        req.params.listId || req.body._id || req.query.listId;
+
+      const foundList: IListDocument | null = await List.findOne({
+        _id: Types.ObjectId(_id),
+      });
+
+      if (!foundList) {
+        throw createError(404, `Todo with ID ${_id} is not found!`);
+      } else if (foundList.email !== email) {
+        throw createError(401, `You are not authorized!`);
+      }
+
+      return next();
+    } catch (err) {
+      return next(err);
     }
   }
 
@@ -54,9 +73,9 @@ export default class Authorize {
         throw createError(404, `Todo with ID ${_id} is not found!`);
       } else if (!listIds.includes(foundTodo._id)) {
         throw createError(401, `You are not authorized!`);
-      } else {
-        return next();
       }
+
+      return next();
     } catch (err) {
       return next(err);
     }
@@ -92,9 +111,9 @@ export default class Authorize {
         throw createError(404, `Subtodo with ID ${_id} is not found!`);
       } else if (!todoIds.includes(foundSubtodo._id)) {
         throw createError(401, 'You are not authorized!');
-      } else {
-        return next();
       }
+
+      return next();
     } catch (err) {
       return next(err);
     }

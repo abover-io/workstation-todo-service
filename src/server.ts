@@ -33,7 +33,7 @@ const port = API_PORT || 3000;
 
 app.set('trust proxy', true);
 
-app.use(morgan('common'));
+app.use(morgan('combined'));
 app.use(helmet());
 app.use(
   cors({

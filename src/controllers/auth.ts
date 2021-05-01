@@ -19,7 +19,7 @@ import {
 } from '@/config';
 
 // Models
-import { User, Social, Todo } from '@/models';
+import { User, Social, List } from '@/models';
 
 // Utils
 import { redisClient } from '@/utils';
@@ -113,11 +113,6 @@ export default class AuthController {
         sameSite: req.secure ? 'none' : false,
       });
 
-      res.cookie('XSRF-TOKEN', req.csrfToken(), {
-        secure: req.secure,
-        sameSite: req.secure ? 'none' : false,
-      });
-
       return res.status(200).json({
         csrf: req.csrfToken(),
         act: newAct,
@@ -162,6 +157,12 @@ export default class AuthController {
         email,
         password,
         verified: false,
+      });
+
+      await List.create({
+        email,
+        name: 'Reminders',
+        color: '#2979ff',
       });
 
       const newAct: string = jwt.sign(
@@ -216,11 +217,6 @@ export default class AuthController {
         secure: req.secure,
         path: '/',
         signed: true,
-        sameSite: req.secure ? 'none' : false,
-      });
-
-      res.cookie('XSRF-TOKEN', req.csrfToken(), {
-        secure: req.secure,
         sameSite: req.secure ? 'none' : false,
       });
 
@@ -327,16 +323,6 @@ export default class AuthController {
           secure: req.secure,
           path: '/',
           signed: true,
-          sameSite: req.secure ? 'none' : false,
-        });
-
-        res.cookie('XSRF-TOKEN', req.csrfToken(), {
-          secure: req.secure,
-          sameSite: req.secure ? 'none' : false,
-        });
-
-        res.cookie('_aed', true, {
-          secure: req.secure,
           sameSite: req.secure ? 'none' : false,
         });
 
@@ -493,11 +479,6 @@ export default class AuthController {
         sameSite: req.secure ? 'none' : false,
       });
 
-      res.cookie('XSRF-TOKEN', req.csrfToken(), {
-        secure: req.secure,
-        sameSite: req.secure ? 'none' : false,
-      });
-
       return res.status(201).json({
         message: 'Successfully signed up!',
         user: {
@@ -531,8 +512,6 @@ export default class AuthController {
         res.clearCookie('rft', { path: '/' });
         res.clearCookie('act', { path: '/' });
         res.clearCookie('_csrf', { path: '/' });
-        res.clearCookie('XSRF-TOKEN', { path: '/' });
-        res.clearCookie('_aed', { path: '/' });
         res.status(200).json({ message: 'Successfully signed out!' });
       } else {
         const { email }: IUser = jwt.verify(
@@ -560,7 +539,6 @@ export default class AuthController {
         res.clearCookie('act', { path: '/' });
         res.clearCookie('rft', { path: '/' });
         res.clearCookie('_csrf', { path: '/' });
-        res.clearCookie('XSRF-TOKEN', { path: '/' });
         return res.status(200).json({ message: 'Successfully signed out!' });
       }
     } catch (err) {

@@ -12,6 +12,7 @@ const AuthRouter = Router();
 AuthRouter.post(
   '/refresh',
   csurf({
+    cookie: true,
     ignoreMethods: ['POST'],
   }),
   AuthController.RefreshToken,
@@ -20,6 +21,7 @@ AuthRouter.post(
 AuthRouter.post(
   '/signup',
   csurf({
+    cookie: true,
     ignoreMethods: ['POST'],
   }),
   AuthController.SignUp,
@@ -28,6 +30,7 @@ AuthRouter.post(
 AuthRouter.post(
   '/signin',
   csurf({
+    cookie: true,
     ignoreMethods: ['POST'],
   }),
   AuthController.SignIn,
@@ -36,16 +39,24 @@ AuthRouter.post(
 AuthRouter.post(
   '/auth/google',
   csurf({
+    cookie: true,
     ignoreMethods: ['POST'],
   }),
   AuthController.GoogleSignIn,
 );
 
-AuthRouter.post('/signout', AuthController.SignOut);
+AuthRouter.post(
+  '/signout',
+  csurf({
+    cookie: true,
+    ignoreMethods: ['POST'],
+  }),
+  AuthController.SignOut,
+);
 
 AuthRouter.use(
   csurf({
-    value: (req) => req.cookies['XSRF-TOKEN'],
+    cookie: true,
   }),
 );
 

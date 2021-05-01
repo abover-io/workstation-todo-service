@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import moment from 'moment';
+import csurf from 'csurf';
 
 // Routers
 import AuthRouter from './auth';
@@ -19,6 +20,13 @@ MainRouter.get('/', (_, res) => {
 });
 
 MainRouter.use('/auth', AuthRouter);
+
+UserRouter.use(
+  csurf({
+    cookie: true,
+  }),
+);
+
 MainRouter.use('/users', UserRouter);
 MainRouter.use('/lists', ListRouter);
 MainRouter.use('/todos', TodoRouter);

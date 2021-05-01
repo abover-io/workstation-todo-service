@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import csurf from 'csurf';
 
 import Authorize from '@/middlewares/authorize';
 import authenticate from '@/middlewares/authenticate';
@@ -7,11 +6,6 @@ import { ListController } from '@/controllers';
 
 const ListRouter: Router = Router();
 
-ListRouter.use(
-  csurf({
-    value: (req) => req.cookies['XSRF-TOKEN'],
-  }),
-);
 ListRouter.use(authenticate);
 ListRouter.get('/', ListController.getAllLists);
 ListRouter.post('/', ListController.createList);

@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import csurf from 'csurf';
 
 import Authorize from '@/middlewares/authorize';
 import authenticate from '@/middlewares/authenticate';
@@ -7,11 +6,6 @@ import { SubtodoController } from '@/controllers';
 
 const SubtodoRouter: Router = Router();
 
-SubtodoRouter.use(
-  csurf({
-    value: (req) => req.cookies['XSRF-TOKEN'],
-  }),
-);
 SubtodoRouter.use(authenticate);
 SubtodoRouter.get('/', SubtodoController.getAllSubtodos);
 SubtodoRouter.post('/', SubtodoController.createSubtodo);

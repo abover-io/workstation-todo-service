@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import csurf from 'csurf';
 
 import Authorize from '@/middlewares/authorize';
 import authenticate from '@/middlewares/authenticate';
@@ -7,11 +6,6 @@ import { TodoController } from '@/controllers';
 
 const TodoRouter = Router();
 
-TodoRouter.use(
-  csurf({
-    value: (req) => req.cookies['XSRF-TOKEN'],
-  }),
-);
 TodoRouter.use(authenticate);
 TodoRouter.get('/', TodoController.getTodos);
 TodoRouter.get('/:todoId', TodoController.getTodo);

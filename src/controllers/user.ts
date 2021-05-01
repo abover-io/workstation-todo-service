@@ -223,7 +223,6 @@ export default class UserController {
       res.clearCookie('rft', { path: '/' });
       res.clearCookie('act', { path: '/' });
       res.clearCookie('_csrf', { path: '/' });
-      res.clearCookie('XSRF-TOKEN', { path: '/' });
 
       return res.status(200).json({
         message: 'Successfully deleted account!',

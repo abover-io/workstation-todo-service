@@ -238,9 +238,9 @@ export default class UserController {
         }),
       ]);
 
-      res.clearCookie('act', { path: '/todo' });
-      res.clearCookie('rft', { path: '/todo' });
-      res.clearCookie('_csrf', { path: '/todo' });
+      res.clearCookie('act', { path: '/' });
+      res.clearCookie('rft', { path: '/' });
+      res.clearCookie('_csrf', { path: '/' });
 
       return res.status(200).json({
         message: 'Successfully deleted user!',

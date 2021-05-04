@@ -37,7 +37,7 @@ AuthRouter.post(
 );
 
 AuthRouter.post(
-  '/auth/google',
+  '/google',
   csurf({
     cookie: true,
     ignoreMethods: ['POST'],

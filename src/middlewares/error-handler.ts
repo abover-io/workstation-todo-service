@@ -19,6 +19,16 @@ export default function (
         message: err.message,
       });
 
+    case 401:
+      return res.status(401).json({
+        message: err.message,
+      });
+
+    case 403:
+      return res.status(403).json({
+        message: err.message,
+      });
+
     case 404:
       return res.status(404).json({
         message: err.message,

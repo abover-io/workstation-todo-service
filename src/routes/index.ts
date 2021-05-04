@@ -2,6 +2,9 @@ import { Router } from 'express';
 import moment from 'moment';
 import csurf from 'csurf';
 
+// Middlewares
+import { authenticate } from '@/middlewares';
+
 // Routers
 import AuthRouter from './auth';
 import UserRouter from './user';
@@ -26,6 +29,8 @@ UserRouter.use(
     cookie: true,
   }),
 );
+
+MainRouter.use(authenticate);
 
 MainRouter.use('/users', UserRouter);
 MainRouter.use('/lists', ListRouter);

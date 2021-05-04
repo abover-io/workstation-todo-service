@@ -105,7 +105,7 @@ export default class AuthController {
       res.cookie('act', newAct, {
         httpOnly: true,
         secure: req.secure,
-        path: '/todo',
+        path: '/',
         signed: true,
         sameSite: req.secure ? 'none' : false,
       });
@@ -113,7 +113,7 @@ export default class AuthController {
       res.cookie('rft', newRft, {
         httpOnly: true,
         secure: req.secure,
-        path: '/todo',
+        path: '/',
         signed: true,
         sameSite: req.secure ? 'none' : false,
       });
@@ -216,7 +216,7 @@ export default class AuthController {
       res.cookie('act', newAct, {
         httpOnly: true,
         secure: req.secure,
-        path: '/todo',
+        path: '/',
         signed: true,
         sameSite: req.secure ? 'none' : false,
       });
@@ -224,7 +224,7 @@ export default class AuthController {
       res.cookie('rft', newRft, {
         httpOnly: true,
         secure: req.secure,
-        path: '/todo',
+        path: '/',
         signed: true,
         sameSite: req.secure ? 'none' : false,
       });
@@ -325,7 +325,7 @@ export default class AuthController {
         res.cookie('act', foundAct, {
           httpOnly: true,
           secure: req.secure,
-          path: '/todo',
+          path: '/',
           signed: true,
           sameSite: req.secure ? 'none' : false,
         });
@@ -333,7 +333,7 @@ export default class AuthController {
         res.cookie('rft', foundAct, {
           httpOnly: true,
           secure: req.secure,
-          path: '/todo',
+          path: '/',
           signed: true,
           sameSite: req.secure ? 'none' : false,
         });
@@ -412,11 +412,18 @@ export default class AuthController {
 
         foundUser = createdUser;
 
-        await Social.create({
-          name: 'google',
-          socialId: googleId,
-          userId: createdUser._id,
-        });
+        await Promise.all([
+          Social.create({
+            name: 'google',
+            socialId: googleId,
+            userId: createdUser._id,
+          }),
+          List.create({
+            email,
+            name: 'Reminders',
+            color: '#2979ff',
+          }),
+        ]);
       } else {
         if (!foundSocial) {
           const createdSocial: ISocialDocument = await Social.create({
@@ -478,7 +485,7 @@ export default class AuthController {
       res.cookie('act', foundAct, {
         httpOnly: true,
         secure: req.secure,
-        path: '/todo',
+        path: '/',
         signed: true,
         sameSite: req.secure ? 'none' : false,
       });
@@ -486,7 +493,7 @@ export default class AuthController {
       res.cookie('rft', foundRft, {
         httpOnly: true,
         secure: req.secure,
-        path: '/todo',
+        path: '/',
         signed: true,
         sameSite: req.secure ? 'none' : false,
       });
@@ -521,9 +528,9 @@ export default class AuthController {
 
     try {
       if (!receivedRefreshToken) {
-        res.clearCookie('rft', { path: '/todo' });
-        res.clearCookie('act', { path: '/todo' });
-        res.clearCookie('_csrf', { path: '/todo' });
+        res.clearCookie('rft', { path: '/' });
+        res.clearCookie('act', { path: '/' });
+        res.clearCookie('_csrf', { path: '/' });
         res.status(200).json({ message: 'Successfully signed out!' });
       } else {
         const { email }: IUser = jwt.verify(
@@ -548,9 +555,9 @@ export default class AuthController {
           );
         }
 
-        res.clearCookie('act', { path: '/todo' });
-        res.clearCookie('rft', { path: '/todo' });
-        res.clearCookie('_csrf', { path: '/todo' });
+        res.clearCookie('act', { path: '/' });
+        res.clearCookie('rft', { path: '/' });
+        res.clearCookie('_csrf', { path: '/' });
         return res.status(200).json({ message: 'Successfully signed out!' });
       }
     } catch (err) {

@@ -1,14 +1,20 @@
 import { Request, Response, NextFunction } from 'express';
-import { verify as verifyJWT } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import createError from 'http-errors';
 
-import { IUser } from '@/types';
-import { User } from '@/models';
+// Config
 import { JWT_ACCESS_SECRET } from '@/config';
+
+// Types
+import { ICustomRequest } from '@/types';
+import { IUser } from '@/types/user';
+
+// Models
+import { User } from '@/models';
 
 export default async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const accessToken: string =
+    const act: string =
       req.signedCookies.act ||
       req.cookies.act ||
       req.headers.authorization?.split(' ')[1] ||
@@ -16,17 +22,16 @@ export default async (req: Request, res: Response, next: NextFunction) => {
       req.headers['x-act'] ||
       req.body.act;
 
-    if (!accessToken) {
-      throw createError({
-        name: 'AuthorizationError',
-        message: 'No access token provided.',
+    if (!act) {
+      throw createError(401, {
+        message: 'No access token provided!',
       });
     }
 
-    const user: IUser | any = verifyJWT(accessToken, JWT_ACCESS_SECRET);
+    const user: IUser | any = jwt.verify(act, JWT_ACCESS_SECRET);
 
     if (user) {
-      const foundUser: IUser | any = await User.findOne({
+      const foundUser: IUser | null = await User.findOne({
         $or: [
           {
             username: user.username,
@@ -38,12 +43,11 @@ export default async (req: Request, res: Response, next: NextFunction) => {
       });
 
       if (!foundUser) {
-        throw createError({
-          name: 'AuthorizationError',
-          message: 'Not Authorized.',
+        throw createError(401, {
+          message: 'Please sign in to continue!',
         });
       } else {
-        (<any>req)['user'] = user;
+        (<ICustomRequest>req).user = user;
         return next();
       }
     }

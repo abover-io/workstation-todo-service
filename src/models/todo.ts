@@ -1,6 +1,7 @@
 import { Schema, model, Model } from 'mongoose';
 
-import { ITodoDocument } from '@/types/todo';
+// Types
+import { ITodoDocument, TodoPriority } from '@/types/todo';
 
 const TodoSchema: Schema<ITodoDocument> = new Schema<ITodoDocument>(
   {
@@ -38,7 +39,13 @@ const TodoSchema: Schema<ITodoDocument> = new Schema<ITodoDocument>(
     },
     priority: {
       type: Schema.Types.String,
-      default: 'none',
+      enum: [
+        TodoPriority.NONE,
+        TodoPriority.LOW,
+        TodoPriority.MEDIUM,
+        TodoPriority.HIGH,
+      ],
+      default: TodoPriority.NONE,
     },
   },
   { timestamps: true },

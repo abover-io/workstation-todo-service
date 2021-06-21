@@ -3,7 +3,7 @@ import { hashSync } from 'bcryptjs';
 import createError from 'http-errors';
 import { Request, Response, NextFunction } from 'express';
 
-// Typings
+// Types
 import { ICustomRequest } from '@/types';
 import {
   IUserDocument,

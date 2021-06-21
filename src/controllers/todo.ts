@@ -1,14 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
 import { Types, FilterQuery } from 'mongoose';
 import createError from 'http-errors';
+import moment from 'moment';
 
-// Typings
+// Types
 import {
   ITodoDocument,
   ICreateTodoFormValidations,
   ICreateTodoFormData,
   IUpdateTodoFormValidations,
   IUpdateTodoFormData,
+  IGetAllTodosOptions,
   TodoPriority,
 } from '@/types/todo';
 
@@ -20,6 +22,59 @@ import { TodoValidator } from '@/utils/validator';
 
 export default class TodoController {
   public static async GetAllTodos(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      let conditions: FilterQuery<ITodoDocument> = {
+        $or: [
+          {
+            due: moment(),
+          },
+          {
+            due: null,
+          },
+        ],
+      };
+
+      const options: IGetAllTodosOptions = {
+        due: (req.query.due as string) || null,
+      };
+
+      if (options.due === 'all') {
+        conditions = {};
+      } else if (
+        options.due !== null &&
+        moment(options.due, 'MM-DD-YYYY').isValid()
+      ) {
+        conditions = {
+          $or: [
+            {
+              due: moment(options.due, 'MM-DD-YYYY'),
+            },
+            {
+              due: null,
+            },
+          ],
+        };
+      }
+
+      const [todos, total] = await Promise.all([
+        Todo.find(conditions),
+        Todo.countDocuments(conditions),
+      ]);
+
+      return res.status(200).json({
+        total,
+        todos,
+      });
+    } catch (err) {
+      return next(err);
+    }
+  }
+
+  public static async GetTodosByListID(
     req: Request,
     res: Response,
     next: NextFunction,
@@ -45,7 +100,6 @@ export default class TodoController {
       ]);
 
       return res.status(200).json({
-        message: `Successfully fetched all todos!`,
         total,
         todos,
       });
@@ -61,14 +115,15 @@ export default class TodoController {
   ) {
     try {
       const formData: ICreateTodoFormData = {
-        listId: req.params.listId || req.query.listId || req.body.listId,
+        listId:
+          req.params.listId || req.query.listId || req.body.listId || null,
         name: req.body.name,
         notes: req.body.notes || null,
         url: req.body.url || null,
         isDateSet: req.body.isDateSet || false,
         isTimeSet: req.body.isTimeSet || false,
         due: req.body.due || null,
-        priority: req.body.priority || 'none',
+        priority: req.body.priority || TodoPriority.NONE,
       };
 
       const validations: ICreateTodoFormValidations = {
@@ -84,7 +139,6 @@ export default class TodoController {
 
       if (!Object.values(validations).every((v) => v.error === false)) {
         throw createError(400, {
-          message: 'Please correct todo validations!',
           validations,
         });
       }
@@ -100,9 +154,7 @@ export default class TodoController {
         priority: formData.priority,
       });
 
-      return res
-        .status(201)
-        .json({ message: 'Successfully created todo!', todo: createdTodo });
+      return res.status(201).json({ todo: createdTodo });
     } catch (err) {
       return next(err);
     }
@@ -123,7 +175,7 @@ export default class TodoController {
         isDateSet: req.body.isDateSet || false,
         isTimeSet: req.body.isTimeSet || false,
         due: req.body.due || null,
-        priority: req.body.priority || 'none',
+        priority: req.body.priority || TodoPriority.NONE,
       };
 
       const validations: IUpdateTodoFormValidations = {
@@ -140,7 +192,6 @@ export default class TodoController {
 
       if (!Object.values(validations).every((v) => v.error === false)) {
         throw createError(400, {
-          message: 'Please correct todo validations!',
           validations,
         });
       }
@@ -168,9 +219,7 @@ export default class TodoController {
         });
       }
 
-      return res
-        .status(200)
-        .json({ message: 'Successfully updated todo!', todo: updatedTodo });
+      return res.status(200).json({ todo: updatedTodo });
     } catch (err) {
       return next(err);
     }

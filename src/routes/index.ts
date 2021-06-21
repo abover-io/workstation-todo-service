@@ -27,6 +27,7 @@ MainRouter.use('/auth', AuthRouter);
 UserRouter.use(
   csurf({
     cookie: true,
+    value: (req) => req.signedCookies['_xsrf'],
   }),
 );
 

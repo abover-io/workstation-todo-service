@@ -118,6 +118,13 @@ export default class AuthController {
         sameSite: req.secure ? 'none' : false,
       });
 
+      res.cookie('_xsrf', req.csrfToken(), {
+        secure: req.secure,
+        path: '/',
+        signed: true,
+        sameSite: req.secure ? 'none' : false,
+      });
+
       return res.status(200).json({
         csrf: req.csrfToken(),
         act: newAct,
@@ -223,6 +230,13 @@ export default class AuthController {
 
       res.cookie('rft', newRft, {
         httpOnly: true,
+        secure: req.secure,
+        path: '/',
+        signed: true,
+        sameSite: req.secure ? 'none' : false,
+      });
+
+      res.cookie('_xsrf', req.csrfToken(), {
         secure: req.secure,
         path: '/',
         signed: true,
@@ -338,6 +352,13 @@ export default class AuthController {
           sameSite: req.secure ? 'none' : false,
         });
 
+        res.cookie('_xsrf', req.csrfToken(), {
+          secure: req.secure,
+          path: '/',
+          signed: true,
+          sameSite: req.secure ? 'none' : false,
+        });
+
         return res.status(200).json({
           message: 'Successfully signed in!',
           user: {
@@ -368,16 +389,14 @@ export default class AuthController {
     try {
       const googleIdToken: string = req.body.googleIdToken;
 
-      const verifyIdTokenResponse: LoginTicket = await googleClient.verifyIdToken(
-        {
+      const verifyIdTokenResponse: LoginTicket =
+        await googleClient.verifyIdToken({
           idToken: googleIdToken,
           audience: GOOGLE_OAUTH_WEB_CLIENT_ID,
-        },
-      );
+        });
 
-      const googleAccountPayload:
-        | TokenPayload
-        | undefined = verifyIdTokenResponse.getPayload();
+      const googleAccountPayload: TokenPayload | undefined =
+        verifyIdTokenResponse.getPayload();
 
       let {
         name,
@@ -498,6 +517,13 @@ export default class AuthController {
         sameSite: req.secure ? 'none' : false,
       });
 
+      res.cookie('_xsrf', req.csrfToken(), {
+        secure: req.secure,
+        path: '/',
+        signed: true,
+        sameSite: req.secure ? 'none' : false,
+      });
+
       return res.status(201).json({
         message: 'Successfully signed up!',
         user: {
@@ -530,7 +556,7 @@ export default class AuthController {
       if (!receivedRefreshToken) {
         res.clearCookie('rft', { path: '/' });
         res.clearCookie('act', { path: '/' });
-        res.clearCookie('_csrf', { path: '/' });
+        res.clearCookie('_xsrf', { path: '/' });
         res.status(200).json({ message: 'Successfully signed out!' });
       } else {
         const { email }: IUser = jwt.verify(

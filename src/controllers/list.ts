@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { Types, QueryOptions, MongooseFilterQuery } from 'mongoose';
 import createError from 'http-errors';
 
-// Typings
+// Types
 import { ICustomRequest } from '@/types';
 import {
   IListDocument,

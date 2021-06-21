@@ -6,7 +6,7 @@ const TodoSchema: Schema<ITodoDocument> = new Schema<ITodoDocument>(
   {
     listId: {
       type: Schema.Types.ObjectId,
-      required: true,
+      default: null,
     },
     name: {
       type: Schema.Types.String,

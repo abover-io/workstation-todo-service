@@ -5,6 +5,7 @@ import { TodoController } from '@/controllers';
 
 const TodoRouter = Router();
 
+TodoRouter.get('/:listId', TodoController.GetTodosByListID);
 TodoRouter.get('/', TodoController.GetAllTodos);
 
 TodoRouter.post('/:listId', TodoController.CreateTodo);

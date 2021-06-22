@@ -12,7 +12,7 @@
 
 ## Environment Variables
 
-Available in .env.template
+Available in .env.example
 
 ## Run Locally
 

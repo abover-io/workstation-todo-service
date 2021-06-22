@@ -3,7 +3,7 @@ import moment from 'moment';
 
 // Types
 import { Validation } from '@/types';
-import { ITodoValidator, TodoPriority } from '@/types/todo';
+import { ITodo, ITodoValidator, TodoPriority } from '@/types/todo';
 
 class TodoValidator implements ITodoValidator {
   public Id(input: string): Validation {
@@ -25,17 +25,14 @@ class TodoValidator implements ITodoValidator {
     };
   }
 
-  public ListId(input: string): Validation {
-    if (!input) {
-      return {
-        error: true,
-        text: 'List ID cannot be empty!',
-      };
-    } else if (!Types.ObjectId.isValid(input)) {
-      return {
-        error: true,
-        text: 'Invalid list ID!',
-      };
+  public ListId(input: string | null): Validation {
+    if (input) {
+      if (!Types.ObjectId.isValid(input)) {
+        return {
+          error: true,
+          text: 'Invalid list ID!',
+        };
+      }
     }
 
     return {
@@ -153,17 +150,17 @@ class TodoValidator implements ITodoValidator {
   }
 
   public Priority(input: string): Validation {
-    switch (input as TodoPriority) {
-      case 'none':
+    switch (input) {
+      case TodoPriority.NONE:
         break;
 
-      case 'low':
+      case TodoPriority.LOW:
         break;
 
-      case 'medium':
+      case TodoPriority.MEDIUM:
         break;
 
-      case 'high':
+      case TodoPriority.HIGH:
         break;
 
       default:

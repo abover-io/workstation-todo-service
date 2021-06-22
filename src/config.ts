@@ -4,8 +4,8 @@ import { getEnv } from './utils';
 export const NODE_ENV: string = getEnv('NODE_ENV');
 
 // API Config
-export const API_PORT: number = getEnv('API_PORT');
-export const BASE_PATH: string = '/api/todo/v1';
+export const API_PORT: number = getEnv('API_PORT') || 3010;
+export const BASE_PATH: string = '/api/v1';
 
 // DB Config
 export const MONGODB_URI: string = getEnv('MONGODB_URI');

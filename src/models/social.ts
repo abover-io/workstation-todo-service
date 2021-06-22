@@ -1,6 +1,6 @@
 import { Schema, model, Model } from 'mongoose';
 
-// Typings
+// Types
 import { ISocialDocument } from '@/types/social';
 
 const SocialSchema: Schema<ISocialDocument> = new Schema<ISocialDocument>(
@@ -23,6 +23,10 @@ const SocialSchema: Schema<ISocialDocument> = new Schema<ISocialDocument>(
   },
 );
 
-const Social: Model<ISocialDocument> = model<ISocialDocument>('Social', SocialSchema, 'socials');
+const Social: Model<ISocialDocument> = model<ISocialDocument>(
+  'Social',
+  SocialSchema,
+  'socials',
+);
 
 export default Social;

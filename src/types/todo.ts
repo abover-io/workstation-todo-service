@@ -6,7 +6,7 @@ import { Validation } from '@/types';
 
 export interface ITodo {
   _id?: Types.ObjectId;
-  listId: Types.ObjectId;
+  listId: Types.ObjectId | null;
   name: string;
   notes: string | null;
   url: string | null;
@@ -21,7 +21,7 @@ export interface ITodo {
 
 export interface ITodoDocument extends Document {
   _id: Types.ObjectId;
-  listId: Types.ObjectId;
+  listId: Types.ObjectId | null;
   name: string;
   notes: string | null;
   url: string | null;
@@ -34,7 +34,12 @@ export interface ITodoDocument extends Document {
   updatedAt?: Date | Moment | string;
 }
 
-export type TodoPriority = 'none' | 'low' | 'medium' | 'high';
+export enum TodoPriority {
+  NONE = 'none',
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
+}
 
 export interface ITodoValidator {
   Id: (input: string) => Validation;
@@ -60,7 +65,7 @@ export interface ICreateTodoFormValidations {
 }
 
 export interface ICreateTodoFormData {
-  listId: string;
+  listId: string | null;
   name: string;
   notes: string | null;
   url: string | null;
@@ -92,4 +97,8 @@ export interface IUpdateTodoFormData {
   isTimeSet: boolean;
   due: string | null;
   priority: string;
+}
+
+export interface IGetAllTodosOptions {
+  due: string | 'all' | null;
 }

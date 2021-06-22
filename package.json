@@ -1,7 +1,7 @@
 {
   "name": "fancy-todo-api",
-  "version": "1.0.0",
-  "description": "Sunday's Fancy Todo API",
+  "version": "0.0.1",
+  "description": "Fancy Todo API",
   "main": "server.js",
   "scripts": {
     "start": "npm run prod",

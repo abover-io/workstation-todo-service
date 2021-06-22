@@ -16,7 +16,7 @@ import {
   DB_USER,
   DB_PASSWORD,
   DB_NAME,
-} from '@/config';
+} from './config';
 
 // Middlewares
 import { errorHandler } from '@/middlewares';
@@ -29,7 +29,7 @@ import MainRouter from './routes';
 
 const app = express();
 const server = createServer(app);
-const port = API_PORT || 3000;
+const port = API_PORT;
 
 app.set('trust proxy', true);
 
@@ -39,11 +39,11 @@ app.use(
   cors({
     credentials: true,
     origin: [
-      'http://127.0.0.1:8000',
-      'http://localhost:8000',
-      'https://127.0.0.1:8000',
-      'https://localhost:8000',
-      'https://sundayx.tech',
+      'http://127.0.0.1:8010',
+      'http://localhost:8010',
+      'https://127.0.0.1:8010',
+      'https://localhost:8010',
+      'https://todo.sundayx.tech',
     ],
   }),
 );

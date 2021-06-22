@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { Types, QueryOptions, MongooseFilterQuery } from 'mongoose';
+import { Types, QueryOptions, FilterQuery } from 'mongoose';
 import createError from 'http-errors';
 
 // Types
@@ -35,15 +35,18 @@ export default class ListController {
         },
       };
 
-      const conditions: MongooseFilterQuery<
-        Pick<IListDocument, keyof IListDocument>
-      > = {
-        email,
-      };
+      const conditions: FilterQuery<Pick<IListDocument, keyof IListDocument>> =
+        {
+          email,
+        };
 
-      const lists = await List.find(conditions, null, options);
+      const [total, lists] = await Promise.all([
+        List.countDocuments(conditions),
+        List.find(conditions, null, options),
+      ]);
 
       return res.status(200).json({
+        total,
         lists,
       });
     } catch (err) {

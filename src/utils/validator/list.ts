@@ -24,16 +24,16 @@ class ListValidator implements IListValidator {
     };
   }
 
-  public Email(input: string): Validation {
+  public UserId(input: string): Validation {
     if (!input) {
       return {
         error: true,
-        text: 'Email cannot be empty!',
+        text: 'User ID cannot be empty!',
       };
-    } else if (input && !/.+@.+\..+/.test(input)) {
+    } else if (!Types.ObjectId.isValid(input)) {
       return {
         error: true,
-        text: 'Invalid email address!',
+        text: 'Invalid user ID!',
       };
     }
 

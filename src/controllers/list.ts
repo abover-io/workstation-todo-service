@@ -6,8 +6,8 @@ import createError from 'http-errors';
 import { ICustomRequest } from '@/types';
 import {
   IListDocument,
-  ICreateListFormValidations,
-  ICreateListFormData,
+  IAddListFormValidations,
+  IAddListFormData,
   IUpdateListFormValidations,
   IUpdateListFormData,
 } from '@/types/list';
@@ -25,7 +25,7 @@ export default class ListController {
     next: NextFunction,
   ) {
     try {
-      const { email } = (<ICustomRequest>req).user;
+      const { _id: userId } = (<ICustomRequest>req).user;
 
       const options: QueryOptions = {
         limit: 100,
@@ -37,7 +37,7 @@ export default class ListController {
 
       const conditions: FilterQuery<Pick<IListDocument, keyof IListDocument>> =
         {
-          email,
+          userId,
         };
 
       const [total, lists] = await Promise.all([
@@ -54,21 +54,17 @@ export default class ListController {
     }
   }
 
-  public static async CreateList(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) {
+  public static async AddList(req: Request, res: Response, next: NextFunction) {
     try {
-      const { email } = (<ICustomRequest>req).user;
-      const formData: ICreateListFormData = {
-        email,
+      const { _id: userId } = (<ICustomRequest>req).user;
+      const formData: IAddListFormData = {
+        userId: userId!.toHexString(),
         name: req.body.name,
         color: req.body.color,
       };
 
-      const validations: ICreateListFormValidations = {
-        email: ListValidator.Email(formData.email),
+      const validations: IAddListFormValidations = {
+        userId: ListValidator.UserId(formData.userId),
         name: ListValidator.Name(formData.name),
         color: ListValidator.Color(formData.color),
       };
@@ -81,7 +77,7 @@ export default class ListController {
       }
 
       const createdList: IListDocument = await List.create({
-        email,
+        userId: Types.ObjectId(formData.userId),
         name: formData.name,
         color: formData.color,
       });
@@ -98,24 +94,24 @@ export default class ListController {
     next: NextFunction,
   ) {
     try {
-      const { email } = (<ICustomRequest>req).user;
+      const { _id: userId } = (<ICustomRequest>req).user;
       const formData: IUpdateListFormData = {
         _id: req.params.listId || req.query.listId || req.body._id,
-        email,
+        userId: userId.toHexString(),
         name: req.body.name,
         color: req.body.color,
       };
 
       const validations: IUpdateListFormValidations = {
         _id: ListValidator.Id(formData._id),
-        email: ListValidator.Email(formData.email),
+        userId: ListValidator.UserId(formData.userId),
         name: ListValidator.Name(formData.name),
         color: ListValidator.Color(formData.color),
       };
 
       if (!Object.values(validations).every((v) => v.error === false)) {
         throw createError(400, {
-          message: 'Plese correct list validations!',
+          message: 'Please correct list validations!',
           validations,
         });
       }
@@ -127,7 +123,7 @@ export default class ListController {
               _id: Types.ObjectId(formData._id),
             },
             {
-              email,
+              userId: Types.ObjectId(formData.userId),
             },
           ],
         },
@@ -154,7 +150,7 @@ export default class ListController {
     next: NextFunction,
   ) {
     try {
-      const { email } = (<ICustomRequest>req).user;
+      const { _id: userId } = (<ICustomRequest>req).user;
       const _id: string | any = req.params.listId || req.query.listId;
       const validation = ListValidator.Id(_id);
 
@@ -170,7 +166,7 @@ export default class ListController {
             _id: Types.ObjectId(_id),
           },
           {
-            email,
+            userId,
           },
         ],
       });

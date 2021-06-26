@@ -63,25 +63,18 @@ export default class AuthController {
         throw createError(401, 'Please sign in to continue!');
       }
 
-      const newAct: string = jwt.sign(
-        {
-          email: foundUser.email,
-        },
-        JWT_ACCESS_SECRET,
-        {
-          expiresIn: '7d',
-        },
-      );
+      const user: Partial<IUser> = {
+        ...foundUser.toObject(),
+      };
+      delete user.password;
 
-      const newRft: string = jwt.sign(
-        {
-          email: foundUser.email,
-        },
-        JWT_REFRESH_SECRET,
-        {
-          expiresIn: '30d',
-        },
-      );
+      const newAct: string = jwt.sign(user, JWT_ACCESS_SECRET, {
+        expiresIn: '7d',
+      });
+
+      const newRft: string = jwt.sign(user, JWT_REFRESH_SECRET, {
+        expiresIn: '30d',
+      });
 
       await Promise.all([
         redisClient.setexAsync(
@@ -126,6 +119,7 @@ export default class AuthController {
       });
 
       return res.status(200).json({
+        user,
         csrf: req.csrfToken(),
         act: newAct,
         rft: newRft,
@@ -160,12 +154,15 @@ export default class AuthController {
         });
       }
 
-      const existingUser: IUserDocument | any = await User.findOne({
+      const existingUser: IUserDocument | null = await User.findOne({
         email: formData.email,
       });
 
       if (existingUser) {
-        throw createError(400, 'Email is not available');
+        throw createError(
+          400,
+          `User with email ${existingUser.email} already exists!`,
+        );
       }
 
       const createdUser: IUserDocument = await User.create({
@@ -175,31 +172,24 @@ export default class AuthController {
         verified: false,
       });
 
+      const user: Partial<IUser> = {
+        ...createdUser.toObject(),
+      };
+      delete user.password;
+
       await List.create({
-        email: formData.email,
+        userId: createdUser._id,
         name: 'Reminders',
         color: '#2979ff',
       });
 
-      const newAct: string = jwt.sign(
-        {
-          email: createdUser.email,
-        },
-        JWT_ACCESS_SECRET,
-        {
-          expiresIn: '7d',
-        },
-      );
+      const newAct: string = jwt.sign(user, JWT_ACCESS_SECRET, {
+        expiresIn: '7d',
+      });
 
-      const newRft: string = jwt.sign(
-        {
-          email: createdUser.email,
-        },
-        JWT_REFRESH_SECRET,
-        {
-          expiresIn: '30d',
-        },
-      );
+      const newRft: string = jwt.sign(user, JWT_REFRESH_SECRET, {
+        expiresIn: '30d',
+      });
 
       await Promise.all([
         redisClient.setexAsync(
@@ -245,11 +235,7 @@ export default class AuthController {
 
       return res.status(201).json({
         message: 'Successfully signed up!',
-        user: {
-          name: formData.name,
-          email: formData.email,
-          verified: false,
-        },
+        user,
         act: newAct,
         rft: newRft,
       });
@@ -304,16 +290,15 @@ export default class AuthController {
           redisClient.getAsync(rftCacheKey),
         ]);
 
+        const user: Partial<IUser> = {
+          ...foundUser.toObject(),
+        };
+        delete user.password;
+
         if (!foundAct) {
-          const newAct: string = jwt.sign(
-            {
-              email: foundUser.email,
-            },
-            JWT_ACCESS_SECRET,
-            {
-              expiresIn: '7d',
-            },
-          );
+          const newAct: string = jwt.sign(user, JWT_ACCESS_SECRET, {
+            expiresIn: '7d',
+          });
 
           await redisClient.setexAsync(actCacheKey, 60 * 60 * 24 * 7, newAct);
 
@@ -321,15 +306,9 @@ export default class AuthController {
         }
 
         if (!foundRft) {
-          const newRft: string = jwt.sign(
-            {
-              email: foundUser.email,
-            },
-            JWT_REFRESH_SECRET,
-            {
-              expiresIn: '30d',
-            },
-          );
+          const newRft: string = jwt.sign(user, JWT_REFRESH_SECRET, {
+            expiresIn: '30d',
+          });
 
           redisClient.setexAsync(rftCacheKey, 60 * 60 * 24 * 30, newRft);
 
@@ -361,11 +340,7 @@ export default class AuthController {
 
         return res.status(200).json({
           message: 'Successfully signed in!',
-          user: {
-            name: foundUser.name,
-            email: foundUser.email,
-            verified: foundUser.verified,
-          },
+          user,
           act: foundAct,
           rft: foundRft,
         });
@@ -438,21 +413,19 @@ export default class AuthController {
             userId: createdUser._id,
           }),
           List.create({
-            email,
+            userId: createdUser._id,
             name: 'Reminders',
             color: '#2979ff',
           }),
         ]);
-      } else {
-        if (!foundSocial) {
-          const createdSocial: ISocialDocument = await Social.create({
-            name: 'google',
-            socialId: googleId,
-            userId: foundUser!._id,
-          });
+      } else if (!foundSocial) {
+        const createdSocial: ISocialDocument = await Social.create({
+          name: 'google',
+          socialId: googleId,
+          userId: foundUser!._id,
+        });
 
-          foundSocial = createdSocial;
-        }
+        foundSocial = createdSocial;
       }
 
       const actCacheKey: string = JSON.stringify({
@@ -469,16 +442,15 @@ export default class AuthController {
         redisClient.getAsync(rftCacheKey),
       ]);
 
+      const user: Partial<IUser> = {
+        ...foundUser.toObject(),
+      };
+      delete user.password;
+
       if (!foundAct) {
-        const newAct: string = jwt.sign(
-          {
-            email: foundUser.email,
-          },
-          JWT_ACCESS_SECRET,
-          {
-            expiresIn: '7d',
-          },
-        );
+        const newAct: string = jwt.sign(user, JWT_ACCESS_SECRET, {
+          expiresIn: '7d',
+        });
 
         await redisClient.setexAsync(actCacheKey, 60 * 60 * 24 * 7, newAct);
 
@@ -486,15 +458,9 @@ export default class AuthController {
       }
 
       if (!foundRft) {
-        const newRft: string = jwt.sign(
-          {
-            email: foundUser.email,
-          },
-          JWT_REFRESH_SECRET,
-          {
-            expiresIn: '30d',
-          },
-        );
+        const newRft: string = jwt.sign(user, JWT_REFRESH_SECRET, {
+          expiresIn: '30d',
+        });
 
         redisClient.setexAsync(rftCacheKey, 60 * 60 * 24 * 30, newRft);
 
@@ -526,12 +492,7 @@ export default class AuthController {
 
       return res.status(201).json({
         message: 'Successfully signed up!',
-        user: {
-          name,
-          email,
-          verified: false,
-          profileImageURL,
-        },
+        user,
         act: foundAct,
         rft: foundRft,
       });
@@ -583,7 +544,7 @@ export default class AuthController {
 
         res.clearCookie('act', { path: '/' });
         res.clearCookie('rft', { path: '/' });
-        res.clearCookie('_csrf', { path: '/' });
+        res.clearCookie('_xsrf', { path: '/' });
         return res.status(200).json({ message: 'Successfully signed out!' });
       }
     } catch (err) {

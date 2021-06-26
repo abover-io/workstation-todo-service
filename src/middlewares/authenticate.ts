@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { Types } from 'mongoose';
 import jwt from 'jsonwebtoken';
 import createError from 'http-errors';
 
@@ -9,10 +10,7 @@ import { JWT_ACCESS_SECRET } from '@/config';
 import { ICustomRequest } from '@/types';
 import { IUser } from '@/types/user';
 
-// Models
-import { User } from '@/models';
-
-export default async (req: Request, res: Response, next: NextFunction) => {
+export default async (req: Request, _: Response, next: NextFunction) => {
   try {
     const act: string =
       req.signedCookies.act ||
@@ -28,29 +26,21 @@ export default async (req: Request, res: Response, next: NextFunction) => {
       });
     }
 
-    const user: IUser | any = jwt.verify(act, JWT_ACCESS_SECRET);
+    let user: IUser | any = jwt.verify(act, JWT_ACCESS_SECRET);
 
     if (user) {
-      const foundUser: IUser | null = await User.findOne({
-        $or: [
-          {
-            username: user.username,
-          },
-          {
-            email: user.email,
-          },
-        ],
-      });
+      user = {
+        ...user,
+        _id: Types.ObjectId(user._id),
+      } as IUser;
 
-      if (!foundUser) {
-        throw createError(401, {
-          message: 'Please sign in to continue!',
-        });
-      } else {
-        (<ICustomRequest>req).user = user;
-        return next();
-      }
+      (<ICustomRequest>req).user = user;
+      return next();
     }
+
+    throw createError(401, {
+      message: 'Please sign in to continue!',
+    });
   } catch (err) {
     return next(err);
   }

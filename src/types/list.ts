@@ -5,8 +5,8 @@ import { Moment } from 'moment';
 import { Validation } from '@/types';
 
 export interface IList {
-  _id?: Types.ObjectId;
-  email: string;
+  _id: Types.ObjectId;
+  userId: Types.ObjectId;
   name: string;
   color: string;
   createdAt?: Date | Moment | string;
@@ -15,7 +15,7 @@ export interface IList {
 
 export interface IListDocument extends Document {
   _id: Types.ObjectId;
-  email: string;
+  userId: Types.ObjectId;
   name: string;
   color: string;
   createdAt?: Date | Moment | string;
@@ -24,33 +24,33 @@ export interface IListDocument extends Document {
 
 export interface IListValidator {
   Id: (input: string) => Validation;
-  Email: (input: string) => Validation;
+  UserId: (input: string) => Validation;
   Name: (input: string) => Validation;
   Color: (input: string) => Validation;
 }
 
-export interface ICreateListFormValidations {
-  email: Validation;
+export interface IAddListFormValidations {
+  userId: Validation;
   name: Validation;
   color: Validation;
 }
 
-export interface ICreateListFormData {
-  email: string;
+export interface IAddListFormData {
+  userId: string;
   name: string;
   color: string;
 }
 
 export interface IUpdateListFormValidations {
   _id: Validation;
-  email: Validation;
+  userId: Validation;
   name: Validation;
   color: Validation;
 }
 
 export interface IUpdateListFormData {
   _id: string;
-  email: string;
+  userId: string;
   name: string;
   color: string;
 }

@@ -26,6 +26,16 @@ TodoRouter.patch(
   TodoController.UncompleteTodo,
 );
 TodoRouter.patch('/uncomplete', Authorize.Todo, TodoController.UncompleteTodo);
+TodoRouter.patch(
+  '/priority/:todoId',
+  Authorize.Todo,
+  TodoController.UpdateTodoPriority,
+);
+TodoRouter.patch(
+  '/priority',
+  Authorize.Todo,
+  TodoController.UpdateTodoPriority,
+);
 
 TodoRouter.delete('/:todoId', Authorize.Todo, TodoController.DeleteTodo);
 TodoRouter.delete('/', Authorize.Todo, TodoController.DeleteTodo);

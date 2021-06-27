@@ -8,20 +8,26 @@ const TodoRouter = Router();
 TodoRouter.get('/:listId', TodoController.GetTodosByListID);
 TodoRouter.get('/', TodoController.GetAllTodos);
 
-TodoRouter.post('/:listId', TodoController.CreateTodo);
-TodoRouter.post('/', TodoController.CreateTodo);
+TodoRouter.post('/:listId', TodoController.AddTodo);
+TodoRouter.post('/', TodoController.AddTodo);
 
-TodoRouter.use(Authorize.Todo);
+TodoRouter.put('/:todoId', Authorize.Todo, TodoController.UpdateTodo);
+TodoRouter.put('/', Authorize.Todo, TodoController.UpdateTodo);
 
-TodoRouter.put('/:todoId', TodoController.UpdateTodo);
-TodoRouter.put('/', TodoController.UpdateTodo);
+TodoRouter.patch(
+  '/complete/:todoId',
+  Authorize.Todo,
+  TodoController.CompleteTodo,
+);
+TodoRouter.patch('/complete', Authorize.Todo, TodoController.CompleteTodo);
+TodoRouter.patch(
+  '/uncomplete/:todoId',
+  Authorize.Todo,
+  TodoController.UncompleteTodo,
+);
+TodoRouter.patch('/uncomplete', Authorize.Todo, TodoController.UncompleteTodo);
 
-TodoRouter.patch('/complete/:todoId', TodoController.CompleteTodo);
-TodoRouter.patch('/complete', TodoController.CompleteTodo);
-TodoRouter.patch('/uncomplete/:todoId', TodoController.UncompleteTodo);
-TodoRouter.patch('/uncomplete', TodoController.UncompleteTodo);
-
-TodoRouter.delete('/:todoId', TodoController.DeleteTodo);
-TodoRouter.delete('/', TodoController.DeleteTodo);
+TodoRouter.delete('/:todoId', Authorize.Todo, TodoController.DeleteTodo);
+TodoRouter.delete('/', Authorize.Todo, TodoController.DeleteTodo);
 
 export default TodoRouter;

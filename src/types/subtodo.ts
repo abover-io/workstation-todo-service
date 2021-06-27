@@ -5,7 +5,7 @@ import { Moment } from 'moment';
 import { Validation } from '@/types';
 
 export interface ISubtodo {
-  _id?: Types.ObjectId;
+  _id: Types.ObjectId;
   name: string;
   todoId: Types.ObjectId;
   createdAt?: Date | Moment | string;
@@ -26,12 +26,12 @@ export interface ISubtodoValidator {
   TodoId: (input: string) => Validation;
 }
 
-export interface ICreateSubtodoFormValidations {
+export interface IAddSubtodoFormValidations {
   name: Validation;
   todoId: Validation;
 }
 
-export interface ICreateSubtodoFormData {
+export interface IAddSubtodoFormData {
   name: string;
   todoId: string;
 }

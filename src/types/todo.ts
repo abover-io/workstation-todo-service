@@ -5,7 +5,8 @@ import { Moment } from 'moment';
 import { Validation } from '@/types';
 
 export interface ITodo {
-  _id?: Types.ObjectId;
+  _id: Types.ObjectId;
+  userId: Types.ObjectId;
   listId: Types.ObjectId | null;
   name: string;
   notes: string | null;
@@ -21,6 +22,7 @@ export interface ITodo {
 
 export interface ITodoDocument extends Document {
   _id: Types.ObjectId;
+  userId: Types.ObjectId;
   listId: Types.ObjectId | null;
   name: string;
   notes: string | null;
@@ -43,6 +45,7 @@ export enum TodoPriority {
 
 export interface ITodoValidator {
   Id: (input: string) => Validation;
+  UserId: (input: string) => Validation;
   ListId: (input: string) => Validation;
   Name: (input: string) => Validation;
   Notes: (input: string | null) => Validation;
@@ -53,7 +56,8 @@ export interface ITodoValidator {
   Priority: (input: string) => Validation;
 }
 
-export interface ICreateTodoFormValidations {
+export interface IAddTodoFormValidations {
+  userId: Validation;
   listId: Validation;
   name: Validation;
   notes: Validation;
@@ -64,7 +68,8 @@ export interface ICreateTodoFormValidations {
   priority: Validation;
 }
 
-export interface ICreateTodoFormData {
+export interface IAddTodoFormData {
+  userId: string;
   listId: string | null;
   name: string;
   notes: string | null;
@@ -77,6 +82,7 @@ export interface ICreateTodoFormData {
 
 export interface IUpdateTodoFormValidations {
   _id: Validation;
+  userId: Validation;
   listId: Validation;
   name: Validation;
   notes: Validation;
@@ -89,6 +95,7 @@ export interface IUpdateTodoFormValidations {
 
 export interface IUpdateTodoFormData {
   _id: string;
+  userId: string;
   listId: string;
   name: string;
   notes: string | null;

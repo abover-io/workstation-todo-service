@@ -7,7 +7,7 @@ const ListRouter: Router = Router();
 
 ListRouter.get('/', ListController.GetAllLists);
 
-ListRouter.post('/', ListController.CreateList);
+ListRouter.post('/', ListController.AddList);
 
 ListRouter.use(Authorize.List);
 

@@ -1,13 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
-import { Types, QueryOptions, MongooseFilterQuery } from 'mongoose';
+import { Types, QueryOptions, FilterQuery } from 'mongoose';
 import createError from 'http-errors';
 
 // Types
 import {
   ISubtodoDocument,
   ISubtodo,
-  ICreateSubtodoFormValidations,
-  ICreateSubtodoFormData,
+  IAddSubtodoFormValidations,
+  IAddSubtodoFormData,
   IUpdateSubtodoFormValidations,
   IUpdateSubtodoFormData,
 } from '@/types/subtodo';
@@ -42,7 +42,7 @@ export default class SubtodoController {
         });
       }
 
-      const conditions: MongooseFilterQuery<
+      const conditions: FilterQuery<
         Pick<ISubtodoDocument, keyof ISubtodoDocument>
       > = {
         todoId: Types.ObjectId(todoId),
@@ -62,18 +62,18 @@ export default class SubtodoController {
     }
   }
 
-  public static async CreateSubtodo(
+  public static async AddSubtodo(
     req: Request,
     res: Response,
     next: NextFunction,
   ) {
     try {
-      const formData: ICreateSubtodoFormData = {
+      const formData: IAddSubtodoFormData = {
         name: req.body.name,
         todoId: req.body.todoId,
       };
 
-      const validations: ICreateSubtodoFormValidations = {
+      const validations: IAddSubtodoFormValidations = {
         name: SubtodoValidator.Name(formData.name),
         todoId: SubtodoValidator.TodoId(formData.todoId),
       };
@@ -121,16 +121,17 @@ export default class SubtodoController {
         });
       }
 
-      const updatedSubtodo: ISubtodoDocument | null = await Subtodo.findOneAndUpdate(
-        {
-          _id: Types.ObjectId(formData._id),
-        },
-        {
-          name: formData.name,
-          todoId: Types.ObjectId(formData.todoId),
-        },
-        { new: true },
-      );
+      const updatedSubtodo: ISubtodoDocument | null =
+        await Subtodo.findOneAndUpdate(
+          {
+            _id: Types.ObjectId(formData._id),
+          },
+          {
+            name: formData.name,
+            todoId: Types.ObjectId(formData.todoId),
+          },
+          { new: true },
+        );
 
       if (!updatedSubtodo) {
         throw createError(404, `Subtodo with ID ${formData._id} is not found!`);
@@ -158,17 +159,18 @@ export default class SubtodoController {
         });
       }
 
-      const completedSubtodo: ISubtodoDocument | null = await Subtodo.findOneAndUpdate(
-        {
-          _id: Types.ObjectId(_id),
-        },
-        {
-          completed: true,
-        },
-        {
-          new: true,
-        },
-      );
+      const completedSubtodo: ISubtodoDocument | null =
+        await Subtodo.findOneAndUpdate(
+          {
+            _id: Types.ObjectId(_id),
+          },
+          {
+            completed: true,
+          },
+          {
+            new: true,
+          },
+        );
 
       if (!completedSubtodo) {
         throw createError(404, `Subtodo with ID ${_id} is not found!`);
@@ -199,13 +201,14 @@ export default class SubtodoController {
         });
       }
 
-      const uncompletedSubtodo: ISubtodoDocument | null = await Subtodo.findOneAndUpdate(
-        {
-          _id: Types.ObjectId(_id),
-        },
-        { completed: false },
-        { new: true },
-      );
+      const uncompletedSubtodo: ISubtodoDocument | null =
+        await Subtodo.findOneAndUpdate(
+          {
+            _id: Types.ObjectId(_id),
+          },
+          { completed: false },
+          { new: true },
+        );
 
       if (!uncompletedSubtodo) {
         throw createError(404, `Subtodo with ID ${_id} is not found!`);
@@ -235,11 +238,10 @@ export default class SubtodoController {
         });
       }
 
-      const deletedSubtodo: ISubtodoDocument | null = await Subtodo.findOneAndDelete(
-        {
+      const deletedSubtodo: ISubtodoDocument | null =
+        await Subtodo.findOneAndDelete({
           _id: Types.ObjectId(_id),
-        },
-      );
+        });
 
       if (!deletedSubtodo) {
         throw createError(404, `Subtodo with ID ${_id} is not found!`);

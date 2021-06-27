@@ -4,8 +4,8 @@ import { IListDocument } from '@/types/list';
 
 const ListSchema: Schema<IListDocument> = new Schema<IListDocument>(
   {
-    email: {
-      type: Schema.Types.String,
+    userId: {
+      type: Schema.Types.ObjectId,
       required: true,
     },
     name: {

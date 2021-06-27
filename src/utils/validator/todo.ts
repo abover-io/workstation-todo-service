@@ -25,6 +25,25 @@ class TodoValidator implements ITodoValidator {
     };
   }
 
+  public UserId(input: string): Validation {
+    if (!input) {
+      return {
+        error: true,
+        text: 'User ID cannot be empty!',
+      };
+    } else if (!Types.ObjectId.isValid(input)) {
+      return {
+        error: true,
+        text: 'Invalid user ID!',
+      };
+    }
+
+    return {
+      error: false,
+      text: '',
+    };
+  }
+
   public ListId(input: string | null): Validation {
     if (input) {
       if (!Types.ObjectId.isValid(input)) {

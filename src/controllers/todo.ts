@@ -2,12 +2,14 @@ import { Request, Response, NextFunction } from 'express';
 import { Types, FilterQuery } from 'mongoose';
 import createError from 'http-errors';
 import moment from 'moment';
+import update from 'immutability-helper';
 
 // Types
+import { ICustomRequest } from '@/types';
 import {
   ITodoDocument,
-  ICreateTodoFormValidations,
-  ICreateTodoFormData,
+  IAddTodoFormValidations,
+  IAddTodoFormData,
   IUpdateTodoFormValidations,
   IUpdateTodoFormData,
   IGetAllTodosOptions,
@@ -28,9 +30,10 @@ export default class TodoController {
   ) {
     try {
       let conditions: FilterQuery<ITodoDocument> = {
+        completed: false,
         $or: [
           {
-            due: moment(),
+            due: null,
           },
           {
             due: null,
@@ -43,21 +46,36 @@ export default class TodoController {
       };
 
       if (options.due === 'all') {
-        conditions = {};
+        conditions = update(conditions, {
+          due: {
+            $set: undefined,
+          },
+        });
       } else if (
         options.due !== null &&
         moment(options.due, 'MM-DD-YYYY').isValid()
       ) {
-        conditions = {
-          $or: [
-            {
-              due: moment(options.due, 'MM-DD-YYYY'),
-            },
-            {
-              due: null,
-            },
-          ],
-        };
+        const due = moment(options.due, 'MM-DD-YYYY').set({
+          h: 0,
+          m: 0,
+          s: 0,
+        });
+
+        conditions = update(conditions, {
+          $or: {
+            $set: [
+              {
+                due: {
+                  $gte: due.toDate(),
+                  $lte: due.add(1, 'd').toDate(),
+                },
+              },
+              {
+                due: null,
+              },
+            ],
+          },
+        });
       }
 
       const [todos, total] = await Promise.all([
@@ -108,13 +126,12 @@ export default class TodoController {
     }
   }
 
-  public static async CreateTodo(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) {
+  public static async AddTodo(req: Request, res: Response, next: NextFunction) {
     try {
-      const formData: ICreateTodoFormData = {
+      const { _id: userId } = (<ICustomRequest>req).user;
+
+      const formData: IAddTodoFormData = {
+        userId: userId.toHexString(),
         listId:
           req.params.listId || req.query.listId || req.body.listId || null,
         name: req.body.name,
@@ -126,7 +143,8 @@ export default class TodoController {
         priority: req.body.priority || TodoPriority.NONE,
       };
 
-      const validations: ICreateTodoFormValidations = {
+      const validations: IAddTodoFormValidations = {
+        userId: TodoValidator.UserId(formData.userId),
         listId: TodoValidator.ListId(formData.listId),
         name: TodoValidator.Name(formData.name),
         notes: TodoValidator.Notes(formData.notes),
@@ -143,18 +161,34 @@ export default class TodoController {
         });
       }
 
+      // Due Factory
+      if (formData.due !== null && !formData.isTimeSet) {
+        formData.due = moment(formData.due)
+          .set({
+            h: 0,
+            m: 0,
+            s: 0,
+          })
+          .toISOString();
+      } else if (formData.due !== null && formData.isTimeSet) {
+        formData.due = moment(formData.due).toISOString();
+      }
+
       const createdTodo: ITodoDocument = await Todo.create({
+        userId: Types.ObjectId(formData.userId),
         listId: formData.listId,
         name: formData.name,
         notes: formData.notes,
         url: formData.url,
         isDateSet: formData.isDateSet,
         isTimeSet: formData.isTimeSet,
-        due: formData.due,
+        due: formData.due !== null ? moment(formData.due).toDate() : null,
         priority: formData.priority,
       });
 
-      return res.status(201).json({ todo: createdTodo });
+      return res
+        .status(201)
+        .json({ message: `Added "${createdTodo.name}"`, todo: createdTodo });
     } catch (err) {
       return next(err);
     }
@@ -166,8 +200,11 @@ export default class TodoController {
     next: NextFunction,
   ) {
     try {
+      const { _id: userId } = (<ICustomRequest>req).user;
+
       const formData: IUpdateTodoFormData = {
         _id: req.params.todoId || req.query.todoId || req.body._id,
+        userId: userId.toHexString(),
         listId: req.body.listId,
         name: req.body.name,
         notes: req.body.notes || null,
@@ -180,6 +217,7 @@ export default class TodoController {
 
       const validations: IUpdateTodoFormValidations = {
         _id: TodoValidator.Id(formData._id),
+        userId: TodoValidator.UserId(formData.userId),
         listId: TodoValidator.ListId(formData.listId),
         name: TodoValidator.Name(formData.name),
         notes: TodoValidator.Notes(formData.notes),
@@ -202,6 +240,7 @@ export default class TodoController {
         },
         {
           listId: formData.listId,
+          userId: Types.ObjectId(formData.userId),
           name: formData.name,
           notes: formData.notes,
           url: formData.url,
@@ -219,7 +258,9 @@ export default class TodoController {
         });
       }
 
-      return res.status(200).json({ todo: updatedTodo });
+      return res
+        .status(200)
+        .json({ message: `Updated "${updatedTodo.name}"`, todo: updatedTodo });
     } catch (err) {
       return next(err);
     }
@@ -257,9 +298,10 @@ export default class TodoController {
         throw createError(404, `Todo with ID ${_id} is not found!`);
       }
 
-      return res
-        .status(200)
-        .json({ message: 'Successfully completed todo!', todo: completedTodo });
+      return res.status(200).json({
+        message: `Completed "${completedTodo.name}"`,
+        todo: completedTodo,
+      });
     } catch (err) {
       return next(err);
     }
@@ -281,7 +323,7 @@ export default class TodoController {
         });
       }
 
-      const uncompletedTodo: ITodoDocument | any = await Todo.findOneAndUpdate(
+      const uncompletedTodo: ITodoDocument | null = await Todo.findOneAndUpdate(
         {
           _id: Types.ObjectId(_id),
         },
@@ -294,7 +336,7 @@ export default class TodoController {
       }
 
       return res.status(200).json({
-        message: 'Successfully uncompleted todo!',
+        message: `Uncompleted "${uncompletedTodo.name}"`,
         todo: uncompletedTodo,
       });
     } catch (err) {
@@ -327,7 +369,7 @@ export default class TodoController {
 
       return res
         .status(200)
-        .json({ message: 'Successfully deleted todo!', todo: deletedTodo });
+        .json({ message: `Deleted "${deletedTodo.name}"`, todo: deletedTodo });
     } catch (err) {
       return next(err);
     }

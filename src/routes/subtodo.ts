@@ -7,7 +7,7 @@ const SubtodoRouter: Router = Router();
 
 SubtodoRouter.get('/', SubtodoController.GetAllSubtodos);
 
-SubtodoRouter.post('/', SubtodoController.CreateSubtodo);
+SubtodoRouter.post('/', SubtodoController.AddSubtodo);
 
 SubtodoRouter.use(Authorize.Subtodo);
 

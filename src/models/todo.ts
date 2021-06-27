@@ -5,6 +5,10 @@ import { ITodoDocument, TodoPriority } from '@/types/todo';
 
 const TodoSchema: Schema<ITodoDocument> = new Schema<ITodoDocument>(
   {
+    userId: {
+      type: Schema.Types.ObjectId,
+      required: true,
+    },
     listId: {
       type: Schema.Types.ObjectId,
       default: null,

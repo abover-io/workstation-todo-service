@@ -43,12 +43,7 @@ const TodoSchema: Schema<ITodoDocument> = new Schema<ITodoDocument>(
     },
     priority: {
       type: Schema.Types.String,
-      enum: [
-        TodoPriority.NONE,
-        TodoPriority.LOW,
-        TodoPriority.MEDIUM,
-        TodoPriority.HIGH,
-      ],
+      enum: Object.values(TodoPriority),
       default: TodoPriority.NONE,
     },
   },

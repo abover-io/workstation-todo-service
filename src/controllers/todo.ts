@@ -7,6 +7,7 @@ import update from 'immutability-helper';
 // Types
 import { ICustomRequest } from '@/types';
 import {
+  ITodo,
   ITodoDocument,
   IAddTodoFormValidations,
   IAddTodoFormData,
@@ -338,6 +339,59 @@ export default class TodoController {
       return res.status(200).json({
         message: `Uncompleted "${uncompletedTodo.name}"`,
         todo: uncompletedTodo,
+      });
+    } catch (err) {
+      return next(err);
+    }
+  }
+
+  public static async UpdateTodoPriority(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const _id: string | any =
+        req.params.todoId || req.query.todoId || req.body._id;
+      const validation = TodoValidator.Id(_id);
+
+      if (validation.error) {
+        throw createError(400, {
+          message: validation.text,
+        });
+      }
+
+      const { priority }: Partial<ITodo> = req.body;
+
+      if (!priority) {
+        throw createError(400, {
+          message: 'Priority cannot be empty!',
+        });
+      }
+
+      if (!Object.values(TodoPriority).includes(priority)) {
+        throw createError(400, {
+          message: 'Invalid priority option!',
+        });
+      }
+
+      const foundTodo: ITodoDocument | null = await Todo.findOneAndUpdate(
+        {
+          _id: Types.ObjectId(_id),
+        },
+        {
+          priority,
+        },
+        { new: true },
+      );
+
+      if (!foundTodo) {
+        throw createError(404, `Todo with ID ${_id} is not found!`);
+      }
+
+      return res.status(200).json({
+        message: `Updated "${foundTodo.name}" priority!`,
+        todo: foundTodo,
       });
     } catch (err) {
       return next(err);

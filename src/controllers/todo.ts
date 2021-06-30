@@ -398,6 +398,55 @@ export default class TodoController {
     }
   }
 
+  public static async UpdateTodoList(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const _id: string | any =
+        req.params.todoId || req.query.todoId || req.body._id;
+      const validation = TodoValidator.Id(_id);
+
+      if (validation.error) {
+        throw createError(400, {
+          message: validation.text,
+        });
+      }
+
+      const { listId }: IUpdateTodoFormData = req.body;
+
+      const listIdValidation = TodoValidator.ListId(listId);
+
+      if (listIdValidation.error) {
+        throw createError(400, {
+          message: listIdValidation.text,
+        });
+      }
+
+      const foundTodo: ITodoDocument | null = await Todo.findOneAndUpdate(
+        {
+          _id: Types.ObjectId(_id),
+        },
+        {
+          listId: listId !== null ? Types.ObjectId(listId) : null,
+        },
+        { new: true },
+      );
+
+      if (!foundTodo) {
+        throw createError(404, `Todo with ID ${_id} is not found!`);
+      }
+
+      return res.status(200).json({
+        message: `Updated "${foundTodo.name}" list!`,
+        todo: foundTodo,
+      });
+    } catch (err) {
+      return next(err);
+    }
+  }
+
   public static async DeleteTodo(
     req: Request,
     res: Response,

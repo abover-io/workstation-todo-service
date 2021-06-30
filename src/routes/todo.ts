@@ -36,6 +36,12 @@ TodoRouter.patch(
   Authorize.Todo,
   TodoController.UpdateTodoPriority,
 );
+TodoRouter.patch(
+  '/list/:todoId',
+  Authorize.Todo,
+  TodoController.UpdateTodoList,
+);
+TodoRouter.patch('/list', Authorize.Todo, TodoController.UpdateTodoList);
 
 TodoRouter.delete('/:todoId', Authorize.Todo, TodoController.DeleteTodo);
 TodoRouter.delete('/', Authorize.Todo, TodoController.DeleteTodo);

@@ -32,30 +32,35 @@ export default class TodoController {
     try {
       let conditions: FilterQuery<ITodoDocument> = {
         completed: false,
-        $or: [
-          {
-            due: null,
-          },
-          {
-            due: null,
-          },
-        ],
+        due: moment().toDate(),
       };
 
       const options: IGetAllTodosOptions = {
-        due: (req.query.due as string) || null,
+        listId: (req.query.listId as string) || null,
+        due: (req.query.due as string) || 'all',
       };
 
+      // List ID Options
+      if (options.listId) {
+        if (Types.ObjectId.isValid(options.listId)) {
+          conditions = update(conditions, {
+            listId: {
+              $set: Types.ObjectId(options.listId),
+            },
+          });
+        } else {
+          throw createError(400, {
+            message: 'Invalid list ID!',
+          });
+        }
+      }
+
+      // Due Option
       if (options.due === 'all') {
         conditions = update(conditions, {
-          due: {
-            $set: undefined,
-          },
+          $unset: ['due'],
         });
-      } else if (
-        options.due !== null &&
-        moment(options.due, 'MM-DD-YYYY').isValid()
-      ) {
+      } else if (moment(options.due, 'MM-DD-YYYY').isValid()) {
         const due = moment(options.due, 'MM-DD-YYYY').set({
           h: 0,
           m: 0,
@@ -63,55 +68,18 @@ export default class TodoController {
         });
 
         conditions = update(conditions, {
-          $or: {
-            $set: [
-              {
-                due: {
-                  $gte: due.toDate(),
-                  $lte: due.add(1, 'd').toDate(),
-                },
-              },
-              {
-                due: null,
-              },
-            ],
+          due: {
+            $set: {
+              $gte: due.toDate(),
+              $lte: due.add(1, 'd').toDate(),
+            },
           },
         });
-      }
-
-      const [todos, total] = await Promise.all([
-        Todo.find(conditions),
-        Todo.countDocuments(conditions),
-      ]);
-
-      return res.status(200).json({
-        total,
-        todos,
-      });
-    } catch (err) {
-      return next(err);
-    }
-  }
-
-  public static async GetTodosByListID(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) {
-    try {
-      const listId: string | any = req.params.listId || req.query.listId;
-
-      const validation = TodoValidator.ListId(listId);
-
-      if (validation.error) {
+      } else {
         throw createError(400, {
-          message: validation.text,
+          message: 'Invalid due option!',
         });
       }
-
-      const conditions: FilterQuery<ITodoDocument> = {
-        listId: Types.ObjectId(listId),
-      };
 
       const [todos, total] = await Promise.all([
         Todo.find(conditions),
@@ -133,14 +101,11 @@ export default class TodoController {
 
       const formData: IAddTodoFormData = {
         userId: userId.toHexString(),
-        listId:
-          req.params.listId || req.query.listId || req.body.listId || null,
+        listId: req.body.listId || null,
         name: req.body.name,
         notes: req.body.notes || null,
         url: req.body.url || null,
-        isDateSet: req.body.isDateSet || false,
-        isTimeSet: req.body.isTimeSet || false,
-        due: req.body.due || null,
+        due: req.body.due,
         priority: req.body.priority || TodoPriority.NONE,
       };
 
@@ -150,8 +115,6 @@ export default class TodoController {
         name: TodoValidator.Name(formData.name),
         notes: TodoValidator.Notes(formData.notes),
         url: TodoValidator.URL(formData.url),
-        isDateSet: TodoValidator.IsDateSet(formData.isDateSet),
-        isTimeSet: TodoValidator.IsTimeSet(formData.isTimeSet),
         due: TodoValidator.Due(formData.due),
         priority: TodoValidator.Priority(formData.priority),
       };
@@ -162,28 +125,13 @@ export default class TodoController {
         });
       }
 
-      // Due Factory
-      if (formData.due !== null && !formData.isTimeSet) {
-        formData.due = moment(formData.due)
-          .set({
-            h: 0,
-            m: 0,
-            s: 0,
-          })
-          .toISOString();
-      } else if (formData.due !== null && formData.isTimeSet) {
-        formData.due = moment(formData.due).toISOString();
-      }
-
       const createdTodo: ITodoDocument = await Todo.create({
         userId: Types.ObjectId(formData.userId),
         listId: formData.listId,
         name: formData.name,
         notes: formData.notes,
         url: formData.url,
-        isDateSet: formData.isDateSet,
-        isTimeSet: formData.isTimeSet,
-        due: formData.due !== null ? moment(formData.due).toDate() : null,
+        due: moment(formData.due).toDate(),
         priority: formData.priority,
       });
 
@@ -210,9 +158,7 @@ export default class TodoController {
         name: req.body.name,
         notes: req.body.notes || null,
         url: req.body.url || null,
-        isDateSet: req.body.isDateSet || false,
-        isTimeSet: req.body.isTimeSet || false,
-        due: req.body.due || null,
+        due: req.body.due,
         priority: req.body.priority || TodoPriority.NONE,
       };
 
@@ -223,8 +169,6 @@ export default class TodoController {
         name: TodoValidator.Name(formData.name),
         notes: TodoValidator.Notes(formData.notes),
         url: TodoValidator.URL(formData.url),
-        isDateSet: TodoValidator.IsDateSet(formData.isDateSet),
-        isTimeSet: TodoValidator.IsTimeSet(formData.isTimeSet),
         due: TodoValidator.Due(formData.due),
         priority: TodoValidator.Priority(formData.priority),
       };
@@ -245,9 +189,7 @@ export default class TodoController {
           name: formData.name,
           notes: formData.notes,
           url: formData.url,
-          isDateSet: formData.isDateSet,
-          isTimeSet: formData.isTimeSet,
-          due: formData.due,
+          due: moment(formData.due).toDate(),
           priority: formData.priority as TodoPriority,
         },
         { new: true },

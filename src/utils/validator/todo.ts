@@ -114,57 +114,24 @@ class TodoValidator implements ITodoValidator {
     };
   }
 
-  public IsDateSet(input: boolean): Validation {
-    if (input === true) {
-      return {
-        error: false,
-        text: '',
-      };
-    } else if (input === false) {
-      return {
-        error: false,
-        text: '',
-      };
-    }
-
-    return {
-      error: true,
-      text: 'Invalid isDateSet attribute!',
-    };
-  }
-
-  public IsTimeSet(input: boolean): Validation {
-    if (input === true) {
-      return {
-        error: false,
-        text: '',
-      };
-    } else if (input === false) {
-      return {
-        error: false,
-        text: '',
-      };
-    }
-
-    return {
-      error: true,
-      text: 'Invalid isTimeSet attribute!',
-    };
-  }
-
   public Due(input: string | null): Validation {
     if (input) {
       if (!moment(input).isValid()) {
         return {
           error: true,
-          text: 'Invalid due attribute!',
+          text: 'Invalid due!',
+        };
+      } else {
+        return {
+          error: false,
+          text: '',
         };
       }
     }
 
     return {
-      error: false,
-      text: '',
+      error: true,
+      text: 'Due cannot be empty!',
     };
   }
 

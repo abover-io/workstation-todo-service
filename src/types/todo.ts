@@ -11,9 +11,7 @@ export interface ITodo {
   name: string;
   notes: string | null;
   url: string | null;
-  isDateSet: boolean;
-  isTimeSet: boolean;
-  due: Date | Moment | string | null;
+  due: Date;
   completed: boolean;
   priority: TodoPriority;
   createdAt?: Date | Moment | string;
@@ -27,9 +25,7 @@ export interface ITodoDocument extends Document {
   name: string;
   notes: string | null;
   url: string | null;
-  isDateSet: boolean;
-  isTimeSet: boolean;
-  due: Date | Moment | string | null;
+  due: Date;
   completed: boolean;
   priority: TodoPriority;
   createdAt?: Date | Moment | string;
@@ -50,9 +46,7 @@ export interface ITodoValidator {
   Name: (input: string) => Validation;
   Notes: (input: string | null) => Validation;
   URL: (input: string | null) => Validation;
-  IsDateSet: (input: boolean) => Validation;
-  IsTimeSet: (input: boolean) => Validation;
-  Due: (input: string | null) => Validation;
+  Due: (input: string) => Validation;
   Priority: (input: string) => Validation;
 }
 
@@ -62,8 +56,6 @@ export interface IAddTodoFormValidations {
   name: Validation;
   notes: Validation;
   url: Validation;
-  isDateSet: Validation;
-  isTimeSet: Validation;
   due: Validation;
   priority: Validation;
 }
@@ -74,9 +66,7 @@ export interface IAddTodoFormData {
   name: string;
   notes: string | null;
   url: string | null;
-  isDateSet: boolean;
-  isTimeSet: boolean;
-  due: string | null;
+  due: string;
   priority: string;
 }
 
@@ -87,8 +77,6 @@ export interface IUpdateTodoFormValidations {
   name: Validation;
   notes: Validation;
   url: Validation;
-  isDateSet: Validation;
-  isTimeSet: Validation;
   due: Validation;
   priority: Validation;
 }
@@ -100,12 +88,11 @@ export interface IUpdateTodoFormData {
   name: string;
   notes: string | null;
   url: string | null;
-  isDateSet: boolean;
-  isTimeSet: boolean;
-  due: string | null;
+  due: string;
   priority: string;
 }
 
 export interface IGetAllTodosOptions {
-  due: string | 'all' | null;
+  listId: string | null;
+  due: string | 'all';
 }

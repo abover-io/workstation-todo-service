@@ -25,17 +25,9 @@ const TodoSchema: Schema<ITodoDocument> = new Schema<ITodoDocument>(
       type: Schema.Types.String,
       default: null,
     },
-    isDateSet: {
-      type: Schema.Types.Boolean,
-      default: false,
-    },
-    isTimeSet: {
-      type: Schema.Types.Boolean,
-      default: false,
-    },
     due: {
       type: Schema.Types.Date,
-      default: null,
+      required: true,
     },
     completed: {
       type: Schema.Types.Boolean,

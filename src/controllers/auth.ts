@@ -362,6 +362,7 @@ export default class AuthController {
     next: NextFunction,
   ): Promise<void | Response<any>> {
     try {
+      let isNew: boolean = false;
       const googleIdToken: string = req.body.googleIdToken;
 
       const verifyIdTokenResponse: LoginTicket =
@@ -396,6 +397,8 @@ export default class AuthController {
       });
 
       if (!foundUser) {
+        isNew = true;
+
         const createdUser: IUserDocument = await User.create({
           name,
           email,
@@ -491,7 +494,7 @@ export default class AuthController {
       });
 
       return res.status(201).json({
-        message: 'Successfully signed up!',
+        message: isNew ? 'Successfully signed up!' : 'Successfully signed in!',
         user,
         act: foundAct,
         rft: foundRft,

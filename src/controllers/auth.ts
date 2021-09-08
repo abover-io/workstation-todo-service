@@ -169,7 +169,6 @@ export default class AuthController {
         name: formData.name,
         email: formData.email,
         password: formData.password,
-        verified: false,
       });
 
       const user: Partial<IUser> = {
@@ -377,12 +376,12 @@ export default class AuthController {
       let {
         name,
         email,
-        picture: profileImageURL,
+        picture: photo,
       } = googleAccountPayload as TokenPayload;
 
       name = name as string;
       email = email as string;
-      profileImageURL = profileImageURL as string;
+      photo = photo as string;
 
       const googleId: string = (googleAccountPayload as TokenPayload)
         .sub as string;
@@ -403,8 +402,7 @@ export default class AuthController {
           name,
           email,
           password: null,
-          verified: false,
-          profileImageURL,
+          photo,
         });
 
         foundUser = createdUser;

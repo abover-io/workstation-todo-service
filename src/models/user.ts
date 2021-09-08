@@ -18,11 +18,7 @@ const UserSchema: Schema<IUserDocument> = new Schema<IUserDocument>(
       type: Schema.Types.String,
       default: null,
     },
-    verified: {
-      type: Schema.Types.Boolean,
-      default: false,
-    },
-    profileImageURL: {
+    photo: {
       type: Schema.Types.String,
       default: null,
     },

@@ -45,7 +45,7 @@ export default class TodoController {
         if (Types.ObjectId.isValid(options.listId)) {
           conditions = update(conditions, {
             listId: {
-              $set: Types.ObjectId(options.listId),
+              $set: new Types.ObjectId(options.listId),
             },
           });
         } else {
@@ -126,7 +126,7 @@ export default class TodoController {
       }
 
       const createdTodo: ITodoDocument = await Todo.create({
-        userId: Types.ObjectId(formData.userId),
+        userId: new Types.ObjectId(formData.userId),
         listId: formData.listId,
         name: formData.name,
         notes: formData.notes,
@@ -181,11 +181,11 @@ export default class TodoController {
 
       const updatedTodo: ITodoDocument | null = await Todo.findOneAndUpdate(
         {
-          _id: Types.ObjectId(formData._id),
+          _id: new Types.ObjectId(formData._id),
         },
         {
           listId: formData.listId,
-          userId: Types.ObjectId(formData.userId),
+          userId: new Types.ObjectId(formData.userId),
           name: formData.name,
           notes: formData.notes,
           url: formData.url,
@@ -227,7 +227,7 @@ export default class TodoController {
 
       const completedTodo: ITodoDocument | null = await Todo.findOneAndUpdate(
         {
-          _id: Types.ObjectId(_id),
+          _id: new Types.ObjectId(_id),
         },
         {
           completed: true,
@@ -268,7 +268,7 @@ export default class TodoController {
 
       const uncompletedTodo: ITodoDocument | null = await Todo.findOneAndUpdate(
         {
-          _id: Types.ObjectId(_id),
+          _id: new Types.ObjectId(_id),
         },
         { completed: false },
         { new: true },
@@ -319,7 +319,7 @@ export default class TodoController {
 
       const foundTodo: ITodoDocument | null = await Todo.findOneAndUpdate(
         {
-          _id: Types.ObjectId(_id),
+          _id: new Types.ObjectId(_id),
         },
         {
           priority,
@@ -368,10 +368,10 @@ export default class TodoController {
 
       const foundTodo: ITodoDocument | null = await Todo.findOneAndUpdate(
         {
-          _id: Types.ObjectId(_id),
+          _id: new Types.ObjectId(_id),
         },
         {
-          listId: listId !== null ? Types.ObjectId(listId) : null,
+          listId: listId !== null ? new Types.ObjectId(listId) : null,
         },
         { new: true },
       );
@@ -405,7 +405,7 @@ export default class TodoController {
       }
 
       const deletedTodo: ITodoDocument | null = await Todo.findOneAndDelete({
-        _id: Types.ObjectId(_id),
+        _id: new Types.ObjectId(_id),
       });
 
       if (!deletedTodo) {

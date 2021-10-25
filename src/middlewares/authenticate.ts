@@ -31,17 +31,23 @@ export default async (req: Request, _: Response, next: NextFunction) => {
     if (user) {
       user = {
         ...user,
-        _id: Types.ObjectId(user._id),
+        _id: new Types.ObjectId(user._id),
       } as IUser;
 
       (<ICustomRequest>req).user = user;
       return next();
     }
-
-    throw createError(401, {
-      message: 'Please sign in to continue!',
-    });
   } catch (err) {
-    return next(err);
+    switch ((err as Error).name) {
+      case 'TokenExpiredError':
+        return next(
+          createError(401, {
+            message: 'Please sign in to continue!',
+          }),
+        );
+
+      default:
+        return next(err);
+    }
   }
 };

@@ -77,7 +77,7 @@ export default class ListController {
       }
 
       const createdList: IListDocument = await List.create({
-        userId: Types.ObjectId(formData.userId),
+        userId: new Types.ObjectId(formData.userId),
         name: formData.name,
         color: formData.color,
       });
@@ -120,10 +120,10 @@ export default class ListController {
         {
           $and: [
             {
-              _id: Types.ObjectId(formData._id),
+              _id: new Types.ObjectId(formData._id),
             },
             {
-              userId: Types.ObjectId(formData.userId),
+              userId: new Types.ObjectId(formData.userId),
             },
           ],
         },
@@ -163,7 +163,7 @@ export default class ListController {
       const deletedList: IListDocument | null = await List.findOneAndDelete({
         $and: [
           {
-            _id: Types.ObjectId(_id),
+            _id: new Types.ObjectId(_id),
           },
           {
             userId,

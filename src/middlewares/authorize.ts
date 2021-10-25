@@ -38,7 +38,7 @@ export default class Authorize {
         req.params.listId || req.body._id || req.query.listId;
 
       const foundList: IListDocument | null = await List.findOne({
-        _id: Types.ObjectId(_id),
+        _id: new Types.ObjectId(_id),
       });
 
       if (!foundList) {
@@ -62,7 +62,7 @@ export default class Authorize {
       const foundTodo: ITodoDocument | null = await Todo.findOne({
         $and: [
           {
-            _id: Types.ObjectId(todoId),
+            _id: new Types.ObjectId(todoId),
           },
           {
             userId,
@@ -103,7 +103,7 @@ export default class Authorize {
       const todoIds: Types.ObjectId[] = foundTodos.map((todo) => todo._id);
 
       const foundSubtodo: ISubtodoDocument | null = await Subtodo.findOne({
-        _id: Types.ObjectId(_id),
+        _id: new Types.ObjectId(_id),
       });
 
       if (!foundSubtodo) {

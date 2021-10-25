@@ -45,7 +45,7 @@ export default class SubtodoController {
       const conditions: FilterQuery<
         Pick<ISubtodoDocument, keyof ISubtodoDocument>
       > = {
-        todoId: Types.ObjectId(todoId),
+        todoId: new Types.ObjectId(todoId),
       };
 
       const [subtodos, total] = await Promise.all([
@@ -87,7 +87,7 @@ export default class SubtodoController {
 
       const createdSubtodo: ISubtodoDocument = await Subtodo.create({
         name: formData.name,
-        todoId: Types.ObjectId(formData.todoId),
+        todoId: new Types.ObjectId(formData.todoId),
       });
 
       return res.status(201).json({ subtodo: createdSubtodo });
@@ -124,11 +124,11 @@ export default class SubtodoController {
       const updatedSubtodo: ISubtodoDocument | null =
         await Subtodo.findOneAndUpdate(
           {
-            _id: Types.ObjectId(formData._id),
+            _id: new Types.ObjectId(formData._id),
           },
           {
             name: formData.name,
-            todoId: Types.ObjectId(formData.todoId),
+            todoId: new Types.ObjectId(formData.todoId),
           },
           { new: true },
         );
@@ -162,7 +162,7 @@ export default class SubtodoController {
       const completedSubtodo: ISubtodoDocument | null =
         await Subtodo.findOneAndUpdate(
           {
-            _id: Types.ObjectId(_id),
+            _id: new Types.ObjectId(_id),
           },
           {
             completed: true,
@@ -204,7 +204,7 @@ export default class SubtodoController {
       const uncompletedSubtodo: ISubtodoDocument | null =
         await Subtodo.findOneAndUpdate(
           {
-            _id: Types.ObjectId(_id),
+            _id: new Types.ObjectId(_id),
           },
           { completed: false },
           { new: true },
@@ -240,7 +240,7 @@ export default class SubtodoController {
 
       const deletedSubtodo: ISubtodoDocument | null =
         await Subtodo.findOneAndDelete({
-          _id: Types.ObjectId(_id),
+          _id: new Types.ObjectId(_id),
         });
 
       if (!deletedSubtodo) {

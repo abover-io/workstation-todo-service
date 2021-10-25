@@ -29,6 +29,7 @@ import { User, Social, List } from '@/models';
 // Utils
 import { redisClient } from '@/utils';
 import { UserValidator } from '@/utils/validator';
+import { handleToken } from '@/utils/user';
 
 const googleClient: OAuth2Client = new OAuth2Client({
   clientId: GOOGLE_OAUTH_WEB_CLIENT_ID,
@@ -68,64 +69,14 @@ export default class AuthController {
       };
       delete user.password;
 
-      const newAct: string = jwt.sign(user, JWT_ACCESS_SECRET, {
-        expiresIn: '7d',
-      });
-
-      const newRft: string = jwt.sign(user, JWT_REFRESH_SECRET, {
-        expiresIn: '30d',
-      });
-
-      await Promise.all([
-        redisClient.setexAsync(
-          JSON.stringify({
-            type: 'act',
-            userId: foundUser._id,
-          }),
-          60 * 60 * 24 * 7,
-          newAct,
-        ),
-        redisClient.setexAsync(
-          JSON.stringify({
-            type: 'rft',
-            userId: foundUser._id,
-          }),
-          60 * 60 * 24 * 30,
-          newRft,
-        ),
-      ]);
-
-      res.cookie('act', newAct, {
-        httpOnly: true,
-        secure: req.secure,
-        path: '/',
-        signed: true,
-        sameSite: req.secure ? 'none' : false,
-      });
-
-      res.cookie('rft', newRft, {
-        httpOnly: true,
-        secure: req.secure,
-        path: '/',
-        signed: true,
-        sameSite: req.secure ? 'none' : false,
-      });
-
-      res.cookie('_xsrf', req.csrfToken(), {
-        secure: req.secure,
-        path: '/',
-        signed: true,
-        sameSite: req.secure ? 'none' : false,
-      });
+      const tokens = await handleToken(user, req, res);
 
       return res.status(200).json({
         user,
-        csrf: req.csrfToken(),
-        act: newAct,
-        rft: newRft,
+        ...tokens,
       });
     } catch (err) {
-      return err;
+      return next(err);
     }
   }
 
@@ -182,61 +133,12 @@ export default class AuthController {
         color: '#2979ff',
       });
 
-      const newAct: string = jwt.sign(user, JWT_ACCESS_SECRET, {
-        expiresIn: '7d',
-      });
-
-      const newRft: string = jwt.sign(user, JWT_REFRESH_SECRET, {
-        expiresIn: '30d',
-      });
-
-      await Promise.all([
-        redisClient.setexAsync(
-          JSON.stringify({
-            type: 'act',
-            userId: createdUser._id,
-          }),
-          60 * 60 * 24 * 7,
-          newAct,
-        ),
-        redisClient.setexAsync(
-          JSON.stringify({
-            type: 'rft',
-            userId: createdUser._id,
-          }),
-          60 * 60 * 24 * 30,
-          newRft,
-        ),
-      ]);
-
-      res.cookie('act', newAct, {
-        httpOnly: true,
-        secure: req.secure,
-        path: '/',
-        signed: true,
-        sameSite: req.secure ? 'none' : false,
-      });
-
-      res.cookie('rft', newRft, {
-        httpOnly: true,
-        secure: req.secure,
-        path: '/',
-        signed: true,
-        sameSite: req.secure ? 'none' : false,
-      });
-
-      res.cookie('_xsrf', req.csrfToken(), {
-        secure: req.secure,
-        path: '/',
-        signed: true,
-        sameSite: req.secure ? 'none' : false,
-      });
+      const tokens = await handleToken(user, req, res);
 
       return res.status(201).json({
         message: 'Successfully signed up!',
         user,
-        act: newAct,
-        rft: newRft,
+        ...tokens,
       });
     } catch (err) {
       return next(err);
@@ -429,73 +331,17 @@ export default class AuthController {
         foundSocial = createdSocial;
       }
 
-      const actCacheKey: string = JSON.stringify({
-        type: 'act',
-        userId: foundUser._id,
-      });
-      const rftCacheKey: string = JSON.stringify({
-        type: 'rft',
-        userId: foundUser._id,
-      });
-
-      let [foundAct, foundRft] = await Promise.all([
-        redisClient.getAsync(actCacheKey),
-        redisClient.getAsync(rftCacheKey),
-      ]);
-
       const user: Partial<IUser> = {
         ...foundUser.toObject(),
       };
       delete user.password;
 
-      if (!foundAct) {
-        const newAct: string = jwt.sign(user, JWT_ACCESS_SECRET, {
-          expiresIn: '7d',
-        });
-
-        await redisClient.setexAsync(actCacheKey, 60 * 60 * 24 * 7, newAct);
-
-        foundAct = newAct;
-      }
-
-      if (!foundRft) {
-        const newRft: string = jwt.sign(user, JWT_REFRESH_SECRET, {
-          expiresIn: '30d',
-        });
-
-        redisClient.setexAsync(rftCacheKey, 60 * 60 * 24 * 30, newRft);
-
-        foundRft = newRft;
-      }
-
-      res.cookie('act', foundAct, {
-        httpOnly: true,
-        secure: req.secure,
-        path: '/',
-        signed: true,
-        sameSite: req.secure ? 'none' : false,
-      });
-
-      res.cookie('rft', foundRft, {
-        httpOnly: true,
-        secure: req.secure,
-        path: '/',
-        signed: true,
-        sameSite: req.secure ? 'none' : false,
-      });
-
-      res.cookie('_xsrf', req.csrfToken(), {
-        secure: req.secure,
-        path: '/',
-        signed: true,
-        sameSite: req.secure ? 'none' : false,
-      });
+      const tokens = await handleToken(user, req, res);
 
       return res.status(201).json({
         message: isNew ? 'Successfully signed up!' : 'Successfully signed in!',
         user,
-        act: foundAct,
-        rft: foundRft,
+        ...tokens,
       });
     } catch (err) {
       return next(err);

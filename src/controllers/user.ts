@@ -1,5 +1,3 @@
-import { Types } from 'mongoose';
-import { hashSync } from 'bcryptjs';
 import createError from 'http-errors';
 import { Request, Response, NextFunction } from 'express';
 
@@ -31,6 +29,7 @@ export default class UserController {
           name: req.body.name,
         },
         {
+          new: true,
           projection: {
             __v: 0,
             password: 0,
@@ -61,7 +60,7 @@ export default class UserController {
     try {
       const { email } = (<ICustomRequest>req).user;
 
-      const updatedUser: IUserDocument | null = await User.findOneAndUpdate(
+      const updatedUser = await User.updateOne(
         {
           email,
         },
@@ -69,6 +68,7 @@ export default class UserController {
           email: req.body.email,
         },
         {
+          new: true,
           projection: {
             __v: 0,
             password: 0,
@@ -87,7 +87,7 @@ export default class UserController {
         user: updatedUser,
       });
     } catch (err) {
-      next(err);
+      return next(err);
     }
   }
 

@@ -66,10 +66,6 @@ app.use(errorHandler);
 if (require.main === module) {
   (async function () {
     await mongoose.connect(MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useCreateIndex: true,
-      useFindAndModify: true,
       dbName: DB_NAME,
       user: DB_USER,
       pass: DB_PASSWORD,

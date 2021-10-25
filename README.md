@@ -6,10 +6,6 @@
 [![GitHub Stars](https://img.shields.io/github/stars/sundayexplore/fancy-todo-api?style=flat)](https://github.com/sundayexplore/fancy-todo-api/stargazers)
 [![GitHub License](https://img.shields.io/github/license/sundayexplore/fancy-todo-api?style=flat)](https://github.com/sundayexplore/fancy-todo-api/blob/master/LICENSE)
 
-## Documentation
-
-[Fancy Todo API Docs on Postman](https://documenter.getpostman.com/view/8807216/Szf52okU)
-
 ## Environment Variables
 
 Available in .env.example

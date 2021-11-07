@@ -14,7 +14,7 @@ jobs:
     docker:
       - image: docker:19.03.13
     environment:
-      IMAGE_NAME: sundayx/fancy-todo-api
+      IMAGE_NAME: sundayx/todo-api
       IMAGE_TAG: latest
     resource_class: small
     steps:

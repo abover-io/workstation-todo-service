@@ -12,14 +12,10 @@ function importTest(name: string, path: string) {
   });
 }
 
-describe('Fancy Todo API Tests', () => {
+describe('Sunday Todo API Tests', () => {
   beforeAll(async () => {
     await mongoose.connect(MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useCreateIndex: true,
-      useFindAndModify: true,
-      dbName: 'fancy-todo-test',
+      dbName: 'todo-test',
       user: DB_USER,
       pass: DB_PASSWORD,
     });

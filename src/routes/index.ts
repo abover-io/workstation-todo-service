@@ -16,7 +16,7 @@ const MainRouter = Router();
 
 MainRouter.get('/', (_, res) => {
   return res.status(200).json({
-    service: 'Sunday Todo API',
+    name: 'Sunday Todo API',
     date: moment().format('YYYY-MM-DD'),
     time: moment().format('HH:mm:ss'),
   });

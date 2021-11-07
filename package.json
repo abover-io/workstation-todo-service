@@ -1,7 +1,7 @@
 {
-  "name": "fancy-todo-api",
+  "name": "sunday-todo-api",
   "version": "0.0.1",
-  "description": "Fancy Todo API",
+  "description": "Sunday Todo API",
   "main": "server.js",
   "scripts": {
     "start": "npm run prod",
@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sundayexplore/fancy-todo-api.git"
+    "url": "git+https://github.com/sundayexplore/todo-api.git"
   },
   "keywords": [
     "express",
@@ -31,9 +31,9 @@
   "author": "Adam Rafiandri",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/sundayexplore/fancy-todo/issues"
+    "url": "https://github.com/sundayexplore/todo-api/issues"
   },
-  "homepage": "https://github.com/sundayexplore/fancy-todo#readme",
+  "homepage": "https://github.com/sundayexplore/todo-api#readme",
   "dependencies": {
     "@babel/runtime": "^7.16.0",
     "bcryptjs": "^2.4.3",

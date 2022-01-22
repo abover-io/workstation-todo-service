@@ -73,9 +73,9 @@ if (require.main === module) {
 
     server.listen(port, () => {
       console.log(
-        `SundayX API is running\nPORT\t=>\t${port}\nSERVICE\t=>\tTODO\nENV\t=>\t${getEnv(
+        `Name\t=>\tSunday Todo API\nPort\t=>\t${port}\nEnv\t=>\t${getEnv(
           'NODE_ENV',
-        ).toUpperCase()}`,
+        )}`,
       );
     });
   })();

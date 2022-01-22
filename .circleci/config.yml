@@ -24,13 +24,5 @@ jobs:
           version: 19.03.13
 
       - run:
-          name: Sign In to Docker Hub
-          command: docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
-
-      - run:
           name: Build Docker Image
           command: docker build -t $IMAGE_NAME:$IMAGE_TAG .
-
-      - run:
-          name: Push Docker Image to Docker Hub
-          command: docker push $IMAGE_NAME:$IMAGE_TAG

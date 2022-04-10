@@ -13,8 +13,8 @@ Available in .env.example
 ## Run Locally
 
 ```bash
-$ yarn install
-$ yarn dev
+$ npm install
+$ npm run dev
 ```
 
 ## License

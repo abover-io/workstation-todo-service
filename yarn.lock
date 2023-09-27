@@ -1551,9 +1551,9 @@
   integrity sha512-YATxVxgRqNH6nHEIsvg6k2Boc1JHI9ZbH5iWFFv/MTkchz3b1ieGDa5T0a9RznNdI0KhVbdbWSN+KWWrQZRxTw==
 
 "@types/morgan@^1.9.3":
-  version "1.9.5"
-  resolved "https://registry.yarnpkg.com/@types/morgan/-/morgan-1.9.5.tgz#dda7388af1e67863f9fa4496d6d63f6f53334306"
-  integrity sha512-5TgfIWm0lcTGnbCZExwc19dCOMOMmAiiBZQj8Ko3NRxsVDgRxf+AEGRQTqNVA5Yh2xfdWp4clbAEMbYP+jkOqg==
+  version "1.9.6"
+  resolved "https://registry.yarnpkg.com/@types/morgan/-/morgan-1.9.6.tgz#108aee8914ec2ebfc3710ba6ef67e120b6a20dfc"
+  integrity sha512-xfKogz5WcKww2DAiVT9zxMgrqQt+Shq8tDVeLT+otoj6dJnkRkyJxMF51mHtUc3JCPKGk5x1EBU0buuGpfftlQ==
   dependencies:
     "@types/node" "*"
 
@@ -4878,6 +4878,7 @@ string.prototype.trimstart@^1.0.6:
     es-abstract "^1.20.4"
 
 "strip-ansi-cjs@npm:strip-ansi@^6.0.1", strip-ansi@^6.0.0, strip-ansi@^6.0.1:
+  name strip-ansi-cjs
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/strip-ansi/-/strip-ansi-6.0.1.tgz#9e26c63d30f53443e9489495b2105d37b67a85d9"
   integrity sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==

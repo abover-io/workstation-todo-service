@@ -1835,9 +1835,9 @@
     "@types/superagent" "^8.1.0"
 
 "@types/validator@^13.7.17", "@types/validator@^13.7.2":
-  version "13.15.6"
-  resolved "https://registry.yarnpkg.com/@types/validator/-/validator-13.15.6.tgz#b02622a355fd3a60bba35cefaad3713c3c31541a"
-  integrity sha512-jc8VD+GfyVLfjVXG9qGq7MPR4UTz6e2fNHI6xmZhZ37f3iZLn0KecpxUnTsHLOPGgf1PfHUZmteBIJVsnYTDkQ==
+  version "13.15.7"
+  resolved "https://registry.yarnpkg.com/@types/validator/-/validator-13.15.7.tgz#58a4969d2fac032145f4b66e2892f35aa4e905ab"
+  integrity sha512-ELdb+iErB0wsVvwvHNn42JoyV7uUO7pAsW7UFVkszmiwc1F0zm+eal7tKhdwkK/MqzxF4/kZpmcSkO1UK1v5LA==
 
 "@types/webidl-conversions@*":
   version "7.0.3"
